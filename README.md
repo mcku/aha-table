@@ -1,17 +1,17 @@
-# &lt;my-element&gt; ![Bower Version](https://badge.fury.io/bo/element-boilerplate.svg)
+# &lt;aha-table&gt; ![Bower Version](https://badge.fury.io/bo/aha-table.svg)
 
-> TODO: Write a project description
+> A Polymer element for a searchable, sortable, paginatable, inline-editable, selectable table/grid.
 
 ## Demo
 
-[Check it live!](http://webcomponents.github.io/element-boilerplate)
+[Check it live!](http://liuwenchao.github.io/aha-table)
 
 ## Usage
 
 1. Install the component using [Bower](http://bower.io/):
 
     ```sh
-    $ bower install my-element --save
+    $ bower install aha-table --save
     ```
 
 2. Import Web Components' polyfill:
@@ -23,13 +23,13 @@
 3. Import Custom Element:
 
     ```html
-    <link rel="import" href="bower_components/my-element/dist/my-element.html">
+    <link rel="import" href="bower_components/aha-table/dist/aha-table.html">
     ```
 
 4. Start using it!
 
     ```html
-    <my-element></my-element>
+    <aha-table></aha-table>
     ```
 
 ## Options
@@ -64,7 +64,7 @@ In order to run it locally you'll need to fetch some dependencies and a basic se
 
     ```sh
     $ grunt build
-    $ bower register my-element https://github.com/you/my-element
+    $ bower register aha-table https://github.com/liuwenchao/aha-table
     ```
 
 ## Contributing
@@ -77,7 +77,7 @@ In order to run it locally you'll need to fetch some dependencies and a basic se
 
 ## History
 
-For detailed changelog, check [Releases](https://github.com/webcomponents/element-boilerplate/releases).
+For detailed changelog, check [Releases](https://github.com/liuwenchao/aha-table/releases).
 
 ## License
 

@@ -2,18 +2,89 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>&lt;my-element&gt;</title>
+    <title>&lt;aha-table&gt;</title>
 
     <!-- Importing Web Component's Polyfill -->
     <script src="bower_components/platform/platform.js"></script>
 
     <!-- Importing Custom Elements -->
-    <link rel="import" href="src/my-element.html">
+    <link rel="import" href="src/aha-table.html">
+    <link rel="import" href="src/aha-tr.html">
+    <link rel="import" href="src/aha-th.html">
+    <link rel="import" href="src/aha-td.html">
 </head>
 <body>
 
     <!-- Using Custom Elements -->
-    <my-element name="Zeno"></my-element>
+    <aha-table id="example">
+    	<aha-tr>
+    		<aha-th column="title" sortable>
+			</aha-th>
+    		<aha-th column="date"  sortable>
+			</aha-th>
+    		<aha-th column="type"  sortable>
+			</aha-th>
+    		<aha-th column="content">
+			</aha-th>
+		</aha-tr>
+		<aha-tr>
+    		<aha-th column="title"   searchable>
+    			<input type="text"/>
+			</aha-th>
+    		<aha-th column="date"    searchable>
+    			<input type="date"/>
+			</aha-th>
+    		<aha-th column="type"    searchable>
+    			<select>
+    				<option></option>
+    				<option value="private">private</option>
+    				<option value="public">public</option>
+				</select>
+			</aha-th>
+    		<aha-th column="content" searchable>
+    			<input type="text"/>
+			</aha-th>
+		</aha-tr>
+		<aha-tr selectable>
+			<aha-td 
+				column="title"
+				required
+				editable
+				input-type="text">
+			</aha-td>
+			<aha-td column="date"
+				required
+			    editable
+				input-type="date">
+			</aha-td>
+			<aha-td column="type"
+			    editable
+				input-type="select"
+			    data-default="apple"
+			    data-options='{"":"", "private":"Private Event", "public":"Public Event"}'>
+			</aha-td>
+			<aha-td column="content"
+				editable
+				input-type="textarea"
+			    data-default="1">
+			</aha-td>
+		</aha-tr>
+	</aha-table>
+
+    <script>
+	  var events = [
+		{ title: 'gym', date: '2017/04/26', type: 'private', content: '5*20 situps, 5 miles running, 5 minutes planks' },
+		{ title: 'breakfast', date: '2017/04/26', type: 'private' },
+		{ title: 'work', date: '2017/04/26', type: 'public', content: 'implement aha-table plymer element' },
+		{ title: 'lunch', date: '2017/04/26', type: 'public' },
+		{ title: 'meeting', date: '2017/04/26', type: 'public', content: 'introduce web components to the team' },
+		{ title: 'dinner', date: '2017/04/26', type: 'private' }
+	  ];
+
+	  window.addEventListener('polymer-ready', function(){
+		document.getElementById('example').data = events;
+	  });
+	</script>
 
 </body>
 </html>
