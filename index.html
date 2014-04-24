@@ -1,89 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>&lt;aha-table&gt;</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>&lt;aha-table&gt;</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Importing Web Component's Polyfill -->
-    <script src="bower_components/platform/platform.js"></script>
+	<!-- Importing Web Component's Polyfill -->
+	<script src="bower_components/platform/platform.js"></script>
 
-    <!-- Importing Custom Elements -->
-    <link rel="import" href="src/aha-table.html">
-    <link rel="import" href="src/aha-tr.html">
-    <link rel="import" href="src/aha-th.html">
-    <link rel="import" href="src/aha-td.html">
+	<!-- Importing Custom Elements -->
+	<link rel="import" href="src/aha-table.html">
+
+	<style>
+		aha-table { 
+			display: table;
+			border-collapse: separate;
+			border-spacing: 2px;
+			border-color: gray;
+		}
+		aha-tr { 
+			display: table-row;
+			vertical-align: inherit;
+			border-color: inherit;
+		}
+		aha-th, aha-td { 
+			display: table-cell;
+			vertical-align: inherit;
+	}
+	</style>
 </head>
-<body>
+<body unresolved>
 
-    <!-- Using Custom Elements -->
-    <aha-table id="example">
-    	<aha-tr>
-    		<aha-th column="title" sortable>
+	<aha-table id="example">
+		<aha-tr>
+			<aha-th type="sort" column="title">
+				Title
 			</aha-th>
-    		<aha-th column="date"  sortable>
+			<aha-th type="sort" column="date">
+				Date
 			</aha-th>
-    		<aha-th column="type"  sortable>
+			<aha-th type="sort" column="type">
+				Type
 			</aha-th>
-    		<aha-th column="content">
+			<aha-th type="sort" column="content">
+				Content
 			</aha-th>
 		</aha-tr>
 		<aha-tr>
-    		<aha-th column="title"   searchable>
-    			<input type="text"/>
+			<aha-th type="search" column="title">
+				<input type="text"/>
 			</aha-th>
-    		<aha-th column="date"    searchable>
-    			<input type="date"/>
+			<aha-th type="search" column="date">
+				<input type="date"/>
 			</aha-th>
-    		<aha-th column="type"    searchable>
-    			<select>
-    				<option></option>
-    				<option value="private">private</option>
-    				<option value="public">public</option>
+			<aha-th type="search" column="type">
+				<select>
+					<option>Please select</option>
+					<option value="private">private</option>
+					<option value="public">public</option>
 				</select>
 			</aha-th>
-    		<aha-th column="content" searchable>
-    			<input type="text"/>
+			<aha-th type="search" column="content">
+				<input type="text"/>
 			</aha-th>
 		</aha-tr>
 		<aha-tr selectable>
-			<aha-td 
-				column="title"
-				required
-				editable
-				input-type="text">
+			<aha-td column="title" type="text" required editable></aha-td>
+			<aha-td column="date" type="date" required editable></aha-td>
+			<aha-td column="type" type="select" editable default="apple"
+		    options='{"":"", "private":"Private Event", "public":"Public Event"}'>
 			</aha-td>
-			<aha-td column="date"
-				required
-			    editable
-				input-type="date">
-			</aha-td>
-			<aha-td column="type"
-			    editable
-				input-type="select"
-			    data-default="apple"
-			    data-options='{"":"", "private":"Private Event", "public":"Public Event"}'>
-			</aha-td>
-			<aha-td column="content"
-				editable
-				input-type="textarea"
-			    data-default="1">
-			</aha-td>
+			<aha-td column="content" type="textarea" editable default="1"></aha-td>
 		</aha-tr>
 	</aha-table>
 
-    <script>
-	  var events = [
-		{ title: 'gym', date: '2017/04/26', type: 'private', content: '5*20 situps, 5 miles running, 5 minutes planks' },
-		{ title: 'breakfast', date: '2017/04/26', type: 'private' },
-		{ title: 'work', date: '2017/04/26', type: 'public', content: 'implement aha-table plymer element' },
-		{ title: 'lunch', date: '2017/04/26', type: 'public' },
-		{ title: 'meeting', date: '2017/04/26', type: 'public', content: 'introduce web components to the team' },
-		{ title: 'dinner', date: '2017/04/26', type: 'private' }
-	  ];
+	<script>
+		var events = [
+			{ title: 'gym', date: '2017/04/26', type: 'private', content: '5*20 situps, 5 miles running, 5 minutes planks' },
+			{ title: 'breakfast', date: '2017/04/26', type: 'private' },
+			{ title: 'work', date: '2017/04/26', type: 'public', content: 'implement aha-table plymer element' },
+			{ title: 'lunch', date: '2017/04/26', type: 'public' },
+			{ title: 'meeting', date: '2017/04/26', type: 'public', content: 'introduce web components to the team' },
+			{ title: 'dinner', date: '2017/04/26', type: 'private' }
+		];
 
-	  window.addEventListener('polymer-ready', function(){
-		document.getElementById('example').data = events;
-	  });
+		var meta = {
+			"columns": [
+				"title": {
+					sort: true, search: true, type: text, editable: true, required: true
+				},
+				"date": {
+					sort: true, search: true, type: date, editable: true, required: true
+				},
+				"type": {
+					sort: true, search: true, type: select, editable: true, required: true, default: 'private', options: {"":"", "private":"Private Event", "public":"Public Event"}
+				},
+				"content": {
+					sort: false, search: true, type: textarea, editable: true, required: false
+				},
+			]
+		}
+
+		window.addEventListener('polymer-ready', function(){
+			document.getElementById('example').data = events;
+		});
 	</script>
 
 </body>

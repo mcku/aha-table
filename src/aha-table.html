@@ -1,18 +1,145 @@
-<!-- Import Polymer -->
+<!--
+//http://webcomponents.github.io/articles/web-components-best-practices/
+-->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<!-- Define your custom element -->
-<polymer-element name="aha-table" attributes="">
+<polymer-element name="aha-table-globals" attributes="rows">
+	<script>
+		(function() {
+			Polymer('app-globals', {
+				ready: function() {
+					this.rows = [];
+				}
+			});
+		})();
+	</script>
+</polymer-element>
 
-    <template>
-    	<link rel="stylesheet" href="aha-table.css">
-        <table>
-		</table>
-    </template>
+<polymer-element name="aha-table" extends="table" attributes="rows">
+  <template>
+	<style>
+	  /* styles for the custom element itself - lowest specificity */
+	  :host { 
+	  	display: table;
+		border-collapse: separate;
+		border-spacing: 2px;
+		border-color: gray;
+	  }
+	</style>
+	<aha-table-globals id="globals"></aha-table-globals>
+  </template>
+  <script>
+	Polymer('aha-table', {
+	  // element is fully prepared
+	  ready: function(){ 
+	  	this.$.globals.rows = this.rows;
+	  },
+	  // instance of the element is created
+	  // created: function() { },
+	  // instance was inserted into the document
+	  // enteredView: function() { },
+	  // instance was removed from the document
+	  // leftView: function() { },
+	  // attribute added, removed or updated
+	  // attributeChanged: function(attrName, oldVal, newVal) { }
+	});
+  </script>
+</polymer-element>
 
-    <script>
-		Polymer('aha-table', {
-			publish: {
+<polymer-element name="aha-tr" attributes="selectable">
+	<template>
+		<style>
+		/* styles for the custom element itself - lowest specificity */
+		:host { 
+			display: table-row;
+		vertical-align: inherit;
+		border-color: inherit;
+		}
+		/* 
+		style if an ancestor has the different class
+		:host(.different) { } 
+		*/
+		</style>
+		<template id="main" repeat="{{row in rows}}">
+			<tr><content data="{{row}}"></content></tr>
+		</template>
+		<script>
+			Polymer('aha-tr', {
+				selectable: false,
+				// element is fully prepared
+				ready: function(){ 
+					this.rows = [];
+
+				}
+			});
+		</script>
+	</template>
+
+	<script>
+		Polymer('aha-tr', {
+			attached: function() {
+			}
+		});
+	</script>
+</polymer-element>
+
+<polymer-element name="aha-th" extends="th" attributes="type column">
+
+	<template>
+	<style>
+	  /* styles for the custom element itself - lowest specificity */
+	  :host { 
+	  	display: table-cell;
+		vertical-align: inherit;
+	  }
+	  /* 
+	  style if an ancestor has the different class
+	  :host(.different) { } 
+	  */
+	</style>
+		<div id="main">
+		</div>
+	</template>
+
+	<script>
+		Polymer('aha-th', {
+			type: 'normal',//sort, search
+			column: '',
+			ready: function() {
+				this.rows = [];
+			}
+		});
+	</script>
+</polymer-element>
+
+<polymer-element name="aha-td" attributes="column row type required editable default options">
+
+	<template>
+		<style>
+		  :host { 
+		  	display: table-cell;
+		  	vertical-align: inherit; 
+		  }
+		</style>
+		<td id="main">
+			<template repeat="{{ key,value in row }}">
+				<template if="{{ key === column }}">
+					{{ value }}
+				</template>
+			</template>
+		</td>
+	</template>
+
+	<script>
+		Polymer('aha-td', {
+			column: '',
+			type: 'text',
+			required: false,
+			editable: false,
+			default: '',
+			ready: function() {
+				this.row = {};
+				this.options = {};
 			}
 		});
 	</script>
