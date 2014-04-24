@@ -11,7 +11,7 @@
 	<script src="bower_components/platform/platform.js"></script>
 
 	<!-- Importing Custom Elements -->
-	<link rel="import" href="src/aha-table.html">
+	<link rel="import" href="src/aha-table-2.html">
 
 	<style>
 		aha-table { 
@@ -28,12 +28,12 @@
 		aha-th, aha-td { 
 			display: table-cell;
 			vertical-align: inherit;
-	}
+		}
 	</style>
 </head>
 <body unresolved>
 
-	<aha-table id="example">
+	<!-- <aha-table id="example">
 		<aha-tr>
 			<aha-th type="sort" column="title">
 				Title
@@ -74,6 +74,8 @@
 			</aha-td>
 			<aha-td column="content" type="textarea" editable default="1"></aha-td>
 		</aha-tr>
+	</aha-table> -->
+	<aha-table id="example">
 	</aha-table>
 
 	<script>
@@ -88,23 +90,24 @@
 
 		var meta = {
 			"columns": [
-				"title": {
-					sort: true, search: true, type: text, editable: true, required: true
-				},
-				"date": {
-					sort: true, search: true, type: date, editable: true, required: true
-				},
-				"type": {
-					sort: true, search: true, type: select, editable: true, required: true, default: 'private', options: {"":"", "private":"Private Event", "public":"Public Event"}
-				},
-				"content": {
-					sort: false, search: true, type: textarea, editable: true, required: false
+				{
+					name: "title", label: "Title", sort: true, search: true, type: "text", editable: true, required: true
+				},{
+					name: "date", label: "Date", sort: true, search: true, type: "date", editable: true, required: true
+				},{
+					name: "type", label: "Type", sort: true, search: true, type: "select", editable: true, required: true, default: 'private', options: [
+						{"value":"", "label": "Please select"}, 
+						{"value":"private", "label":"Private Event"}, 
+						{"value":"public", "label":"Public Event"}]
+				},{
+					name: "content", label: "Content", sort: false, search: true, type: "textarea", editable: true, required: false
 				},
 			]
 		}
 
 		window.addEventListener('polymer-ready', function(){
 			document.getElementById('example').data = events;
+			document.getElementById('example').meta = meta;
 		});
 	</script>
 

@@ -1,0 +1,70 @@
+<!--
+//http://webcomponents.github.io/articles/web-components-best-practices/
+-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="aha-table" attributes="data meta">
+	<template>
+		<style>
+			/* styles for the custom element itself - lowest specificity */
+			:host { 
+				display: block;
+			}
+		</style>
+		<table>
+			<tr>
+				<template repeat="{{ column in meta.columns }}">
+					<th onclick="{{ sortHandler }}">{{ column.label ? column.label : column.name }}</th>
+				</template>
+			</tr>
+			<tr>
+				<template repeat="{{ column in meta.columns }}">
+					<th>
+						<template if="{{ column.search }}">
+							<template if="{{ 'select' === column.type }}">
+								<select name="{{ column.name }}">
+									<template repeat="{{ option in column.options }}">
+										<option value="{{ option.value }}">{{ option.label }}</option>
+									</template>
+								</select>
+							</template>
+							<template if="{{ 'select' !== column.type }}">
+								<input type="text" name="{{ column.name }}" placeholder="{{ column.default }}"/>
+							</template>
+						</template>
+					</th>
+				</template>
+			</tr>
+			<template repeat="{{ row in data }}">
+				<tr>
+					<template repeat="{{ column in meta.columns }}">
+						<td onclick="editHandler">{{ row[column.name] }}</td>
+					</template>
+				</tr>
+			</template>
+		</table>
+	</template>
+	<script>
+	Polymer('aha-table', {
+	  // element is fully prepared
+	  ready: function(){ 
+	  	this.data = [],
+	  	this.meta = {}
+	  },
+	  editHandler: function() {
+
+	  },
+	  sortHandler: function() {
+	  	array.sort(function(a, b) {
+	  }
+	  // instance of the element is created
+	  // created: function() { },
+	  // instance was inserted into the document
+	  // enteredView: function() { },
+	  // instance was removed from the document
+	  // leftView: function() { },
+	  // attribute added, removed or updated
+	  // attributeChanged: function(attrName, oldVal, newVal) { }
+	});
+	</script>
+</polymer-element>
