@@ -1,7 +1,7 @@
 {
     "name": "aha-table",
-    "version": "0.0.1",
-    "description": "Polymer Element for aha-table",
+    "version": "1.0.0",
+    "description": "Polymer Element for aha-table, a searchable, sortable, editable, selectable, paginatable table/grid.",
     "authors": [
         "Louis Liu"
     ],

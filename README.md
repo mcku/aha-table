@@ -36,7 +36,9 @@
 
 Attribute  | Options                   | Default             | Description
 ---        | ---                       | ---                 | ---
-`name`     | *string*                  | `World`             | Lorem ipsum
+`data`     | *Array*                   | `[]`                | array of rows of data
+`meta`     | *Array*                   | `[]`                | array of meta for each column
+`perpage`  | *Number*                  | `10`                | number of rows per page
 
 ## Development
 
