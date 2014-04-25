@@ -11,27 +11,39 @@
 	<script src="bower_components/platform/platform.js"></script>
 
 	<!-- Importing Custom Elements -->
-	<link rel="import" href="src/aha-table-2.html">
-
-	<style>
-		aha-table { 
-			display: table;
-			border-collapse: separate;
-			border-spacing: 2px;
-			border-color: gray;
-		}
-		aha-tr { 
-			display: table-row;
-			vertical-align: inherit;
-			border-color: inherit;
-		}
-		aha-th, aha-td { 
-			display: table-cell;
-			vertical-align: inherit;
-		}
-	</style>
+	<link rel="import" href="src/aha-table.html">
 </head>
 <body unresolved>
+	<aha-table id="example" perpage="2">
+	</aha-table>
+
+	<script>
+		var events = [
+			{ title: 'gym', date: '2014-04-14', type: 'private', content: '5*20 situps, 5 miles running, 5 minutes planks' },
+			{ title: 'breakfast', date: '2014-04-14', type: 'private' },
+			{ title: 'work', date: '2014-04-14', type: 'public', content: 'implement aha-table plymer element' },
+			{ title: 'lunch', date: '2014-04-14', type: 'public' },
+			{ title: 'meeting', date: '2014-04-14', type: 'public', content: 'introduce web components to the team' },
+			{ title: 'dinner', date: '2014-04-14', type: 'private' }
+		];
+
+		var meta = [
+			{name: "title", label: "Title", sortable: true, searchable: true, type: "text", editable: true, required: true},
+			{name: "date", label: "Date", sortable: true, searchable: true, type: "date", editable: true, required: true},
+			{name: "type", label: "Type", sortable: true, searchable: true, type: "select", editable: true, required: true, default: 'private', options: [
+					{"value":"", "label": "Please select"}, 
+					{"value":"private", "label":"Private Event"}, 
+					{"value":"public", "label":"Public Event"}]
+			},
+			{name: "content", label: "Content", sortable: false, searchable: true, type: "textarea", editable: true, required: false}
+		];
+
+		window.addEventListener('polymer-ready', function(){
+			document.getElementById('example').data = events;
+			document.getElementById('example').meta = meta;
+		});
+	</script>
+
 
 	<!-- <aha-table id="example">
 		<aha-tr>
@@ -75,41 +87,5 @@
 			<aha-td column="content" type="textarea" editable default="1"></aha-td>
 		</aha-tr>
 	</aha-table> -->
-	<aha-table id="example">
-	</aha-table>
-
-	<script>
-		var events = [
-			{ title: 'gym', date: '2017/04/26', type: 'private', content: '5*20 situps, 5 miles running, 5 minutes planks' },
-			{ title: 'breakfast', date: '2017/04/26', type: 'private' },
-			{ title: 'work', date: '2017/04/26', type: 'public', content: 'implement aha-table plymer element' },
-			{ title: 'lunch', date: '2017/04/26', type: 'public' },
-			{ title: 'meeting', date: '2017/04/26', type: 'public', content: 'introduce web components to the team' },
-			{ title: 'dinner', date: '2017/04/26', type: 'private' }
-		];
-
-		var meta = {
-			"columns": [
-				{
-					name: "title", label: "Title", sort: true, search: true, type: "text", editable: true, required: true
-				},{
-					name: "date", label: "Date", sort: true, search: true, type: "date", editable: true, required: true
-				},{
-					name: "type", label: "Type", sort: true, search: true, type: "select", editable: true, required: true, default: 'private', options: [
-						{"value":"", "label": "Please select"}, 
-						{"value":"private", "label":"Private Event"}, 
-						{"value":"public", "label":"Public Event"}]
-				},{
-					name: "content", label: "Content", sort: false, search: true, type: "textarea", editable: true, required: false
-				},
-			]
-		}
-
-		window.addEventListener('polymer-ready', function(){
-			document.getElementById('example').data = events;
-			document.getElementById('example').meta = meta;
-		});
-	</script>
-
 </body>
 </html>

@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "Polymer Element for aha-table",
     "authors": [
-        "Louis"
+        "Louis Liu"
     ],
     "license": "MIT",
     "main": "dist/aha-table.html",
