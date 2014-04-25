@@ -163,7 +163,7 @@
 								</template>
 							</td>
 							<template repeat="{{ column in meta }}">
-								<td on-click="{{ edit }}">
+								<td on-dblclick="{{ edit }}">
 									<template if="{{ column.name == row._editing_column }}">
 										<template if="{{ 'select' === column.type }}">
 											<select on-change="{{ save }}" on-blur="{{ save }}">
@@ -308,7 +308,7 @@
 		save: function(e) {
 			var model = e.target.templateInstance.model;
 			if(model.row){
-				model.row[model.column.name] = e.target.value;
+				this.modified.push(model.row);
 				model.row._editing_column = null;
 			}
 		},
