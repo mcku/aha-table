@@ -93,7 +93,7 @@
 				-moz-border-radius: 0 5px 5px 0;
 				border-radius: 0 5px 5px 0;
 			}
-			.pagination li  button {
+			.pagination li button {
 				background-color: #fff;
 				border: 1px solid #eeeeee;
 				float: left;
@@ -107,6 +107,14 @@
 				-moz-user-select: none;
 				-ms-user-select: none;
 				user-select: none;
+			}
+			.pagination li input {
+				background-color: #fff;
+				border: 1px solid #eeeeee;
+				float: left;
+				min-width: 30px;
+				line-height: 20px;
+				padding: 4px 12px;
 			}
 		</style>
 		<table>
@@ -220,6 +228,10 @@
 								<li class='{{currentpage === pageCount? "disabled" : ""}}'>
 									<button on-click="{{nextPage}}">{{next}}</button>
 								</li>
+
+								<li>
+									<input value="{{perpage}}" on-change="{{refreshPagination}}" size="4"/>
+								</li>
 							</ul>
 						</div>
 					</td>
@@ -268,7 +280,7 @@
 		 * perpage: the number of items to show per page
 		 * @type {Number}
 		 */
-		perpage: 2,
+		perpage: 10,
 		/**
 		 * currentpage: the current active page in view
 		 * @type {Number}
@@ -301,6 +313,22 @@
 		next: "Next >>",
 		dataChanged: function() {
 			this.refreshPagination();
+			if (this.meta.length === 0)  {
+				this.meta = [];
+				for (var prop in this.data[0]) {
+					if (prop.indexOf('_') !== 0) {//skip internal field
+						this.meta.push({
+							name: prop,
+							label: prop.charAt(0).toUpperCase() + prop.slice(1), 
+							type: "text", 
+							sortable: true, 
+							searchable: true, 
+							editable: true, 
+							required: false
+						});
+					}
+				}
+			}
 		},
 		edit: function(e) {
 			if(e.target.templateInstance.model.row){
