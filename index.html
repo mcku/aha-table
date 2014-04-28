@@ -30,10 +30,10 @@
 	if (supportsTemplate()) {
 		window.addEventListener("polymer-ready", function(){
 			document.getElementById("example").data = [
-				{ title: "gym", date: "2014-04-14", type: "private", content: "5*20 situps, 5 miles running, 5 minutes planks" },
-				{ title: "breakfast", date: "2014-04-14", type: "private" },
-				{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element" },
-				{ title: "lunch", date: "2014-04-14", type: "public" },
+				{ title: "gym", date: "2014-04-14", type: "private", content: "5*20 situps, 5 miles running, 5 minutes planks", enabled: true },
+				{ title: "breakfast", date: "2014-04-14", type: "private", enabled: true },
+				{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
+				{ title: "lunch", date: "2014-04-14", type: "public", content: null },
 				{ title: "meeting", date: "2014-04-14", type: "public", content: "introduce web components to the team" },
 				{ title: "dinner", date: "2014-04-14", type: "private" }
 			];
@@ -45,16 +45,17 @@
 						{"value":"private", "label":"Private Event"}, 
 						{"value":"public", "label":"Public Event"}]
 				},
+				{name: "enabled", label: "Enabled", sortable: true, searchable: true, type: "checkbox", editable: true, default: false},
 				{name: "content", label: "Content", sortable: false, searchable: true, type: "textarea", editable: true, required: false}
 			];
 
 			document.getElementById("example2").data = [
-				{ title: "gym", date: "2014-04-14", type: "private", content: "5*20 situps, 5 miles running, 5 minutes planks" },
-				{ title: "breakfast", date: "2014-04-14", type: "private" },
-				{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element" },
-				{ title: "lunch", date: "2014-04-14", type: "public" },
+				{ title: "gym", date: "2014-04-14", type: "private", content: "5*20 situps, 5 miles running, 5 minutes planks", enabled: true },
+				{ title: "breakfast", date: "2014-04-14", type: "private", enabled: true },
+				{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
+				{ title: "lunch", date: "2014-04-14", type: "public", content: null },
 				{ title: "meeting", date: "2014-04-14", type: "public", content: "introduce web components to the team" },
-				{ title: "dinner", date: "2014-04-14", type: "private" }
+				{ title: "dinner", date: "2014-04-14", type: "private", content: null }
 			];
 		});
 	} else {

@@ -112,7 +112,7 @@
 				background-color: #fff;
 				border: 1px solid #eeeeee;
 				float: left;
-				min-width: 30px;
+				width: 30px;
 				line-height: 20px;
 				padding: 4px 12px;
 			}
@@ -152,8 +152,14 @@
 										</template>
 									</select>
 								</template>
-								<template if="{{ 'select' !== column.type }}">
+								<template if="{{ 'text' === column.type || 'textarea' === column.type }}">
 									<input type="text" on-keyup="{{ search }}"/>
+								</template>
+								<template if="{{ 'date' === column.type }}">
+									<input type="date" on-change="{{ search }}"/>
+								</template>
+								<template if="{{ 'checkbox' === column.type }}">
+									<input type="checkbox" on-change="{{ search }}"/>
 								</template>
 							</template>
 						</th>
@@ -200,9 +206,12 @@
 										<template if="{{ 'textarea' === column.type }}">
 											<textarea on-blur="{{ save }}">{{ row[column.name] }}</textarea>
 										</template>
+										<template if="{{ 'checkbox' === column.type }}">
+											<input type="checkbox" on-change="{{ save }}" checked?="{{ row[column.name] }}" />
+										</template>
 									</template>
 									<template if="{{ column.name !== row._editing_column }}">
-										{{ row[column.name] }}
+										{{ row[column.name] ? row[column.name] : '' }}
 									</template>
 								</td>
 							</template>
@@ -230,7 +239,7 @@
 								</li>
 
 								<li>
-									<input value="{{perpage}}" on-change="{{refreshPagination}}" size="4"/>
+									<input value="{{perpage}}" on-change="{{refreshPagination}}"/>
 								</li>
 							</ul>
 						</div>
@@ -320,7 +329,7 @@
 						this.meta.push({
 							name: prop,
 							label: prop.charAt(0).toUpperCase() + prop.slice(1), 
-							type: "text", 
+							type: true === this.data[0][prop] || false === this.data[0][prop] ? "checkbox" : "text", 
 							sortable: true, 
 							searchable: true, 
 							editable: true, 
@@ -338,6 +347,11 @@
 		save: function(e) {
 			var model = e.target.templateInstance.model;
 			if(model.row){
+				if ("CHECKBOX" === e.target.type.toUpperCase()) {
+					model.row[model.column.name] = e.target.checked;
+				} else if ("SELECT" === e.target.tagName.toUpperCase()) {
+					model.row[model.column.name] = e.target.value;
+				}
 				this.modified.push(model.row);
 				model.row._editing_column = null;
 			}
@@ -359,6 +373,12 @@
 					if (this.data[i]._not_matched_columns === undefined) {
 						this.data[i]._not_matched_columns = [];
 					}
+
+					if ("CHECKBOX" === e.target.type.toUpperCase()) {
+						this.data[i]._filtered = e.target.checked && !this.data[i][searchedColumn];
+						continue;
+					}
+
 					if (e.target.value === ""
 						|| this.data[i][searchedColumn]
 						&& this.data[i][searchedColumn].indexOf(e.target.value) === 0) {
