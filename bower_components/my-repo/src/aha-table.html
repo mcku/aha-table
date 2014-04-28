@@ -1,0 +1,524 @@
+<!--
+//http://webcomponents.github.io/articles/web-components-best-practices/
+-->
+<!--
+/**
+ * @module aha-table
+ *
+ *
+ * Searchable Sortable Editable Paginatable Data Table
+ *
+ * aha-table is an data table/grid, it cousumes a modal data
+ * and modal meta to show a table that can search, sort, edit
+ * in place and pagiation.
+ * 
+ * Double click to edit.
+ * 
+ * Examples:
+ *
+ *     <aha-table></aha-table>
+ *
+ *     <aha-table 
+ *       data='[{"title": "bob", "age": 16}, {"title": "mary", "age": 17}]' 
+ *       meta='[{"name": "title", label: "Title", sortable: true, searchable: true, type: "text", editable: true, required: true},
+ *              {"name": "age", label: "Age", sortable: true, searchable: true, type: "text", editable: true, required: true}]'
+ *       perpage='20'>
+ *     </aha-table>
+ *
+ * @class aha-table
+ * @author Louis Liu<louis.wenchao.liu@gmail.com>
+ *
+ */
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="aha-table" attributes="data meta perpage selectable">
+	<template>
+		<style>
+			/* styles for the custom element itself - lowest specificity */
+			aha-table { 
+				display: block;
+			}
+			.selected {
+				background-color: #ccc;
+			}
+			.sortable {
+				text-align: center;
+				cursor: pointer;
+			}
+			.sortable:hover {
+				text-decoration: underline;
+			}
+			.arrow-up {
+				width: 0; 
+				height: 0; 
+				border-left: 5px solid transparent;
+				border-right: 5px solid transparent;
+				border-bottom: 5px solid black;
+			}
+			.arrow-down {
+				width: 0; 
+				height: 0; 
+				border-left: 5px solid transparent;
+				border-right: 5px solid transparent;
+				border-top: 5px solid black;
+			}
+			.pagination {
+				margin: 30px 0 10px 0;
+				text-align: center;
+			}
+			.pagination ul {
+				display: inline-block;
+				margin: 0;
+				padding: 0;
+			}
+			.pagination li {
+				display: inline;
+				line-height: 20px;
+			}
+			.pagination li.active button {
+				background-color: #ccc;
+			}
+			.pagination li.disabled button {
+				color: #ccc;
+			}
+			.pagination li:first-child button {
+				-webkit-border-radius: 5px 0 0 5px;
+				-moz-border-radius: 5px 0 0 5px;
+				border-radius: 5px 0 0 5px;
+			}
+			.pagination li:last-child button {
+				-webkit-border-radius: 0 5px 5px 0;
+				-moz-border-radius: 0 5px 5px 0;
+				border-radius: 0 5px 5px 0;
+			}
+			.pagination li button {
+				background-color: #fff;
+				border: 1px solid #eeeeee;
+				float: left;
+				min-width: 40px;
+				line-height: 20px;
+				padding: 4px 12px;
+				text-decoration: none;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+			.pagination li input {
+				background-color: #fff;
+				border: 1px solid #eeeeee;
+				float: left;
+				min-width: 30px;
+				line-height: 20px;
+				padding: 4px 12px;
+			}
+		</style>
+		<table>
+			<thead>
+				<tr>
+					<th>
+						<input type="checkbox" on-change="{{ selectall }}"/>
+					</th>
+					<template repeat="{{ column in meta }}">
+						<template if="{{ column.sortable }}">
+							<th class="sortable" on-click="{{ sort }}">
+								<template if="{{ sortedColumn == column.name && descending }}">
+									<span class="arrow-down"></span>
+								</template>
+								<template if="{{ sortedColumn == column.name && !descending }}">
+									<span class="arrow-up"></span>
+								</template>
+								{{ column.label ? column.label : column.name }}
+							</th>
+						</template>
+						<template if="{{ !column.sortable }}">
+							<th>{{ column.label ? column.label : column.name }}</th>
+						</template>
+					</template>
+				</tr>
+				<tr>
+					<th></th>
+					<template repeat="{{ column in meta }}">
+						<th>
+							<template if="{{ column.searchable }}">
+								<template if="{{ 'select' === column.type }}">
+									<select on-change="{{ search }}">
+										<template repeat="{{ option in column.options }}">
+											<option value="{{ option.value }}">{{ option.label }}</option>
+										</template>
+									</select>
+								</template>
+								<template if="{{ 'select' !== column.type }}">
+									<input type="text" on-keyup="{{ search }}"/>
+								</template>
+							</template>
+						</th>
+					</template>
+				</tr>
+			</thead>
+			<tbody>
+				<template repeat="{{ row in data | _sort(sortedColumn, descending) }}">
+					<template if="{{ !row._hidden && !row._filtered }}">
+						<tr class="{{ row._selected ? 'selected' : '' }}">
+							<td>
+								<template if="{{ row._selected }}">
+									<input type="checkbox" on-change="{{ select }}" checked/>
+								</template>
+								<template if="{{ !row._selected }}">
+									<input type="checkbox" on-change="{{ select }}"/>
+								</template>
+							</td>
+							<template repeat="{{ column in meta }}">
+								<td on-dblclick="{{ edit }}">
+									<template if="{{ column.name == row._editing_column }}">
+										<template if="{{ 'select' === column.type }}">
+											<select on-change="{{ save }}" on-blur="{{ save }}">
+												<template repeat="{{ option in column.options }}">
+													<template if="{{ row[column.name] == option.value }}">
+														<option value="{{ option.value }}" selected>
+															{{ option.label }}
+														</option>
+													</template>
+													<template if="{{ row[column.name] !== option.value }}">
+														<option value="{{ option.value }}">
+															{{ option.label }}
+														</option>
+													</template>
+												</template>
+											</select>
+										</template>
+										<template if="{{ 'text' === column.type }}">
+											<input type="text" on-blur="{{ save }}" value="{{ row[column.name] }}"/>
+										</template>
+										<template if="{{ 'date' === column.type }}">
+											<input type="date" on-blur="{{ save }}" value="{{ row[column.name] }}"/>
+										</template>
+										<template if="{{ 'textarea' === column.type }}">
+											<textarea on-blur="{{ save }}">{{ row[column.name] }}</textarea>
+										</template>
+									</template>
+									<template if="{{ column.name !== row._editing_column }}">
+										{{ row[column.name] }}
+									</template>
+								</td>
+							</template>
+						</tr>
+					</template>
+				</template>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan={{meta.length}}>
+						<div class="pagination">
+							<ul>
+								<li class='{{currentpage === 0 ? "disabled" : ""}}'>
+									<button on-click="{{prevPage}}">{{previous}}</button>
+								</li>
+
+								<template repeat="{{n in currentRange}}">
+									<li class="{{n == currentpage ? 'active' : ''}}" data-item="{{n}}" on-click="{{setPage}}">
+										<button>{{n+1}}</button>
+									</li>
+								</template>
+
+								<li class='{{currentpage === pageCount? "disabled" : ""}}'>
+									<button on-click="{{nextPage}}">{{next}}</button>
+								</li>
+
+								<li>
+									<input value="{{perpage}}" on-change="{{refreshPagination}}" size="4"/>
+								</li>
+							</ul>
+						</div>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</template>
+	<script>
+	Polymer('aha-table', {
+		/**
+		 * data: instance of the model data
+		 * @type {Array}
+		 */
+		data: [],
+		/**
+		 * meta: instance of the model meta
+		 * @type {Object}
+		 */
+		meta: [],
+		/**
+		 * modified: all modified row will be copied here.
+		 * @type {Array}
+		 */
+		modified: [],
+		/**
+		 * selected: all selected row will be copied here.
+		 * @type {Array}
+		 */
+		selected: [],
+		/**
+		 * selectable: if table row is selectable
+		 * @type {Boolean}
+		 */
+		selectable: true,
+		/**
+		 * sortedColumn: sorted column name
+		 * @type {String}
+		 */
+		sortedColumn: null,
+		/**
+		 * descending: current sorting order
+		 * @type {Boolean}
+		 */
+		descending: false,
+		/**
+		 * perpage: the number of items to show per page
+		 * @type {Number}
+		 */
+		perpage: 10,
+		/**
+		 * currentpage: the current active page in view
+		 * @type {Number}
+		 */
+		currentpage: 0,
+		/**
+		 * currentRange: the range of pages (e.g 1, 2, 3, 4, 5) to display
+		 * @type {Array}
+		 */
+		currentRange: [],
+		/**
+		 * pageCount: the number of paginated pages
+		 * @type {Number}
+		 */
+		pageCount: 0,
+		/**
+		 * rangeSize: the total size of the paginated range of items
+		 * @type {Number}
+		 */
+		rangeSize: 5,
+		/**
+		 * previous: label for the Previous button
+		 * @type {String}
+		 */
+		previous: "<< Prev",
+		/**
+		 * next: label for the Next button
+		 * @type {String}
+		 */
+		next: "Next >>",
+		dataChanged: function() {
+			this.refreshPagination();
+			if (this.meta.length === 0)  {
+				this.meta = [];
+				for (var prop in this.data[0]) {
+					if (prop.indexOf('_') !== 0) {//skip internal field
+						this.meta.push({
+							name: prop,
+							label: prop.charAt(0).toUpperCase() + prop.slice(1), 
+							type: "text", 
+							sortable: true, 
+							searchable: true, 
+							editable: true, 
+							required: false
+						});
+					}
+				}
+			}
+		},
+		edit: function(e) {
+			if(e.target.templateInstance.model.row){
+				e.target.templateInstance.model.row._editing_column = e.target.templateInstance.model.column.name;
+			}
+		},
+		save: function(e) {
+			var model = e.target.templateInstance.model;
+			if(model.row){
+				this.modified.push(model.row);
+				model.row._editing_column = null;
+			}
+		},
+		sort: function(e, p) {
+			if(e.target.templateInstance.model.column){
+				var sortingColumn = e.target.templateInstance.model.column.name;
+				if (sortingColumn == this.sortedColumn){
+					this.descending = !this.descending;
+				} else {
+					this.sortedColumn = sortingColumn;
+				}
+			}
+		},
+		search: function(e, p) {
+			if(e.target.templateInstance.model.column){
+				var searchedColumn = e.target.templateInstance.model.column.name;
+				for (var i = this.data.length - 1; i >= 0; i--) {
+					if (this.data[i]._not_matched_columns === undefined) {
+						this.data[i]._not_matched_columns = [];
+					}
+					if (e.target.value === ""
+						|| this.data[i][searchedColumn]
+						&& this.data[i][searchedColumn].indexOf(e.target.value) === 0) {
+						var _not_matched_index = this.data[i]._not_matched_columns.indexOf(searchedColumn);
+						if (_not_matched_index > -1) {
+							this.data[i]._not_matched_columns.splice(_not_matched_index, 1);
+						}
+						if (this.data[i]._not_matched_columns.length === 0) {
+							this.data[i]._filtered = false;
+						} else {
+							this.data[i]._filtered = true;
+						}
+					} else {
+						this.data[i]._filtered = true;
+						if (this.data[i]._not_matched_columns.indexOf(searchedColumn) === -1) {
+							this.data[i]._not_matched_columns.push(searchedColumn);
+						}
+					}
+				};
+
+				this.currentpage = 0;
+				this.refreshPagination();
+			}
+		},
+		_sort: function(array, key, desc) {
+			if (!array) return;
+
+			return array.sort(function(a, b) {
+				var x = a[key], y = b[key];
+
+				if (typeof x === 'undefined' || typeof y === 'undefined') {
+					//sort undefined after
+					if (typeof x === 'undefined'){
+						return !desc;
+					}else{
+						return desc;
+					}
+				} else {
+					if (typeof x === "string" && typeof y === "string"){
+						x = x.toLowerCase();
+						y = y.toLowerCase();
+					}
+					if (desc){
+						return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+					} else {
+						return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+					}
+				}
+			});
+		},
+		prevPage: function() {
+			if ( this.currentpage > 0 ) {
+				this.currentpage--;
+			}
+		},
+
+		prevPageDisabled: function() {
+			return this.currentpage === 0 ? "disabled" : "";
+		},
+
+		nextPage: function() {
+			if ( this.currentpage < this.getPageCount() ) {
+				this.currentpage++;
+			}
+		},
+
+		nextPageDisabled: function() {
+			return this.currentpage === this.getPageCount() ? "disabled" : "";
+		},
+
+		getPageCount: function() {
+			var count = 0;
+			for (var i = this.data.length - 1; i >= 0; i--) {
+				if (!this.data[i]._filtered) {
+					count++;
+				}
+			};
+			return Math.ceil( count / this.perpage ) - 1;
+		},
+
+		setPage: function(e,d,t) {
+			this.currentpage = parseInt( t.dataset.item, 10 );
+		},
+		currentpageChanged: function(){
+			this.filterPage();
+			this.currentRange = this.range();
+		},
+		range: function() {
+			var paginations = [];
+			var start = this.currentpage;
+
+			if ( start > this.getPageCount() - this.rangeSize ) {
+				start = this.getPageCount() - this.rangeSize + 1;
+			}
+
+			for ( var i = start; i < start + this.rangeSize; i++ ) {
+				if (i >= 0) {
+					paginations.push(i);
+				}
+			}
+			return paginations;
+		},
+		filterPage: function() {
+			var from = this.currentpage * this.perpage;
+			var to   = from + this.perpage;
+			var count = 0;
+			for (var i = 0; i < this.data.length; i++) {
+				if (!this.data[i]._filtered) {
+					count++;
+				}
+				if (count <= from || count > to) {
+					this.data[i]._hidden = true;
+				} else {
+					this.data[i]._hidden = false;
+				}
+			};
+		},
+		refreshPagination: function() {
+			// Update current range to account for items per page, range.
+			this.currentRange = this.range();
+
+			// Cache the total page count
+			this.pageCount = this.getPageCount();
+
+			// Update model bound to UI with filtered range
+			this.filterPage();
+		},
+		select: function(e,p){
+			var row = e.target.templateInstance.model.row;
+			var index = this.selected.indexOf(row);
+			if (index > -1) {
+				if(!e.target.checked){
+					this.selected.splice(index, 1);
+					row._selected = false;
+				}
+			} else {
+				if(e.target.checked){
+					this.selected.push(row);
+					row._selected = true;
+				}
+			}
+			e.preventDefault();
+		},
+		selectall: function(e,p){
+			if(e.target.checked){
+				for(var i=0;i<this.data.length;i++){
+					if (!this.data[i]._filtered && !this.data[i]._hidden) {
+						if(this.selected.indexOf(this.data[i])==-1) {
+							this.selected.push(this.data[i]);
+						}
+						this.data[i]._selected = true;
+					}
+				}
+			}else{
+				this.selected = [];
+				for(var i=0;i<this.data.length;i++){
+					this.data[i]._selected = false;
+				}
+			}
+		}
+	});
+	</script>
+</polymer-element>
