@@ -38,15 +38,15 @@
 				{ title: "dinner", date: "2014-04-14", type: "private" }
 			];
 			document.getElementById("example").meta = [
-				{name: "title", label: "Title", sortable: true, searchable: true, type: "text", editable: true, required: true},
-				{name: "date", label: "Date", sortable: true, searchable: true, type: "date", editable: true, required: true},
-				{name: "type", label: "Type", sortable: true, searchable: true, type: "select", editable: true, required: true, default: "private", options: [
+				{name: "title", sortable: true, searchable: true, type: "text", editable: true, required: true},
+				{name: "date", sortable: true, searchable: true, type: "date", editable: true, required: true},
+				{name: "type", sortable: true, searchable: true, type: "select", editable: true, required: true, default: "private", options: [
 						{"value":"", "label": "Please select"}, 
 						{"value":"private", "label":"Private Event"}, 
 						{"value":"public", "label":"Public Event"}]
 				},
-				{name: "enabled", label: "Enabled", sortable: true, searchable: true, type: "checkbox", editable: true, default: false},
-				{name: "content", label: "Content", sortable: false, searchable: true, type: "textarea", editable: true, required: false}
+				{name: "enabled", sortable: true, searchable: true, type: "checkbox", editable: true, default: false},
+				{name: "content", label: "Description", sortable: false, searchable: true, type: "textarea", editable: true, required: false}
 			];
 
 			document.getElementById("example2").data = [

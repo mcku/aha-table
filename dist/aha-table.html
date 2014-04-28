@@ -121,22 +121,22 @@
 			<thead>
 				<tr>
 					<th>
-						<input type="checkbox" on-change="{{ selectall }}"/>
+						<input type="checkbox" on-change="{{ selectall }}" title="Select All"/>
 					</th>
 					<template repeat="{{ column in meta }}">
 						<template if="{{ column.sortable }}">
-							<th class="sortable" on-click="{{ sort }}">
+							<th class="sortable" on-click="{{ sort }}" title="Click to sort">
 								<template if="{{ sortedColumn == column.name && descending }}">
 									<span class="arrow-down"></span>
 								</template>
 								<template if="{{ sortedColumn == column.name && !descending }}">
 									<span class="arrow-up"></span>
 								</template>
-								{{ column.label ? column.label : column.name }}
+								{{ column.label ? column.label : column.name | capitalize }}
 							</th>
 						</template>
 						<template if="{{ !column.sortable }}">
-							<th>{{ column.label ? column.label : column.name }}</th>
+							<th>{{ column.label ? column.label : column.name | capitalize }}</th>
 						</template>
 					</template>
 				</tr>
@@ -153,7 +153,13 @@
 									</select>
 								</template>
 								<template if="{{ 'text' === column.type || 'textarea' === column.type }}">
-									<input type="text" on-keyup="{{ search }}"/>
+									<input type="text" on-keyup="{{ search }}" placeholder="filter"/>
+								</template>
+								<template if="{{ 'date' === column.type }}">
+									<input type="date" on-change="{{ search }}"/>
+								</template>
+								<template if="{{ 'checkbox' === column.type }}">
+									<input type="checkbox" on-change="{{ search }}"/>
 								</template>
 								<template if="{{ 'date' === column.type }}">
 									<input type="date" on-change="{{ search }}"/>
@@ -170,7 +176,7 @@
 				<template repeat="{{ row in data | _sort(sortedColumn, descending) }}">
 					<template if="{{ !row._hidden && !row._filtered }}">
 						<tr class="{{ row._selected ? 'selected' : '' }}">
-							<td>
+							<td title="Click to select">
 								<template if="{{ row._selected }}">
 									<input type="checkbox" on-change="{{ select }}" checked/>
 								</template>
@@ -179,7 +185,7 @@
 								</template>
 							</td>
 							<template repeat="{{ column in meta }}">
-								<td on-dblclick="{{ edit }}">
+								<td on-dblclick="{{ edit }}" title="Double click to edit">
 									<template if="{{ column.name == row._editing_column }}">
 										<template if="{{ 'select' === column.type }}">
 											<select on-change="{{ save }}" on-blur="{{ save }}">
@@ -239,7 +245,7 @@
 								</li>
 
 								<li>
-									<input value="{{perpage}}" on-change="{{refreshPagination}}"/>
+									<input value="{{perpage}}" on-change="{{refreshPagination}}" title="Change page size here"/>
 								</li>
 							</ul>
 						</div>
@@ -339,6 +345,11 @@
 				}
 			}
 		},
+		capitalize: function(value) {
+			if (!value instanceof String || value.length === 0) 
+				return value;
+			return value.charAt(0).toUpperCase() + value.slice(1);
+		},
 		edit: function(e) {
 			if(e.target.templateInstance.model.row){
 				e.target.templateInstance.model.row._editing_column = e.target.templateInstance.model.column.name;
@@ -381,7 +392,7 @@
 
 					if (e.target.value === ""
 						|| this.data[i][searchedColumn]
-						&& this.data[i][searchedColumn].indexOf(e.target.value) === 0) {
+						&& this.data[i][searchedColumn].slice(0, e.target.value.length).toLowerCase() == e.target.value.toLowerCase()) {
 						var _not_matched_index = this.data[i]._not_matched_columns.indexOf(searchedColumn);
 						if (_not_matched_index > -1) {
 							this.data[i]._not_matched_columns.splice(_not_matched_index, 1);
