@@ -143,7 +143,7 @@
 				<tr>
 					<th></th>
 					<template repeat="{{ column in meta }}">
-						<th>
+						<th class="searchable">
 							<template if="{{ column.searchable }}">
 								<template if="{{ 'select' === column.type }}">
 									<select on-change="{{ search }}">
@@ -227,7 +227,7 @@
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan={{meta.length}}>
+					<td colspan={{meta.length+1}}>
 						<div class="pagination">
 							<ul>
 								<li class='{{currentpage === 0 ? "disabled" : ""}}'>
@@ -267,12 +267,21 @@
 		 */
 		meta: [],
 		/**
-		 * modified: all modified row will be copied here.
+		 * modified: all created or modified row will be referenced here.
+		 * it's hard to determine if it's created or modified after multiple
+		 * operations, because the element doesn't assume there's an id column,
+		 * so you need to determine if by yourself, like check
+		 * if the id exists if your model has an id column.
 		 * @type {Array}
 		 */
 		modified: [],
 		/**
-		 * selected: all selected row will be copied here.
+		 * deleted: all deleted row will be moved here.
+		 * @type {Array}
+		 */
+		deleted: [],
+		/**
+		 * selected: all selected row will be referenced here.
 		 * @type {Array}
 		 */
 		selected: [],
@@ -363,7 +372,9 @@
 				} else if ("SELECT" === e.target.tagName.toUpperCase()) {
 					model.row[model.column.name] = e.target.value;
 				}
-				this.modified.push(model.row);
+				if (this.modified.indexOf(model.row) === -1) {
+					this.modified.push(model.row);
+				}
 				model.row._editing_column = null;
 			}
 		},
@@ -392,7 +403,7 @@
 
 					if (e.target.value === ""
 						|| this.data[i][searchedColumn]
-						&& this.data[i][searchedColumn].slice(0, e.target.value.length).toLowerCase() == e.target.value.toLowerCase()) {
+						&& this.data[i][searchedColumn].toString().slice(0, e.target.value.length).toLowerCase() == e.target.value.toString().toLowerCase()) {
 						var _not_matched_index = this.data[i]._not_matched_columns.indexOf(searchedColumn);
 						if (_not_matched_index > -1) {
 							this.data[i]._not_matched_columns.splice(_not_matched_index, 1);
@@ -549,6 +560,62 @@
 					this.data[i]._selected = false;
 				}
 			}
+		},
+		create: function(obj) {
+			var _default = {_editing_column: this.meta[0].name};
+			for (var i = this.meta.length - 1; i >= 0; i--) {
+				if (this.meta[i].default) {
+					_default[this.meta[i].name] = this.meta[i].default;
+				}
+			};
+			var _new = obj ? obj : _default;
+			this.data.splice(0,0,_new);
+			this.modified.push(_new);
+		},
+		copy: function(obj) {
+			if (obj) {
+				var _new = JSON.parse(JSON.stringify(obj));
+				if (_new.id) {
+					delete _new.id
+				}
+				if (_new._selected) {
+					_new._selected = false;
+				}
+				_new._editing_column = this.meta[0].name;
+				this.data.splice(0,0,_new);
+				this.modified.push(_new);
+			}
+		},
+		copySelected: function() {
+			for (var i = this.selected.length - 1; i >= 0; i--) {
+				this.copy(this.selected[i]);
+			};
+			this.clearSelected();
+		},
+		remove: function(obj) {
+			var found_index = this.data.indexOf(obj);
+			if (found_index !== -1) {
+				this.data.splice(found_index,1);
+				this.deleted.push(obj);
+			}
+		},
+		removeSelected: function() {
+			for (var i = this.selected.length - 1; i >= 0; i--) {
+				this.remove(this.selected[i]);
+			}
+			this.clearSelected();
+		},
+		clearSelected: function() {
+			for (var i = this.selected.length - 1; i >= 0; i--) {
+				this.selected[i]._selected = false;
+			}
+			this.selected.length = 0;
+		},
+		clearModified: function() {
+			this.modified.length = 0;
+		},
+		clearDeleted: function() {
+			this.deleted.length = 0;
 		}
 	});
 	</script>
