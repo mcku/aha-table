@@ -33,7 +33,7 @@
 
 <link rel="import" href="../../polymer/polymer.html">
 
-<polymer-element name="aha-table" attributes="data meta perpage selectable">
+<polymer-element name="aha-table" attributes="data meta perpage selectable searchable">
 	<template>
 		<style>
 			/* styles for the custom element itself - lowest specificity */
@@ -43,7 +43,7 @@
 			.rows:hover, .selected {
 				background-color: #f3f3f3;
 			}
-			.sortable .label, .hint {
+			.sortable .column-head, .hint {
 				cursor: pointer;
 			}
 			.sortable:hover {
@@ -62,6 +62,9 @@
 				border-left: 5px solid transparent;
 				border-right: 5px solid transparent;
 				border-top: 5px solid black;
+			}
+			.searchable input, .searchable select {
+				width: 80px;
 			}
 			.pagination {
 				margin: 10px;
@@ -96,9 +99,12 @@
 				line-height: 20px;
 				padding: 4px 12px;
 			}
-			.hide {
-				display: none;
+			aha-table table .hide {
+				display: none !important;
 			}
+			aha-table .column-head {
+				white-space: nowrap;
+			}		
 		</style>
 		<table>
 			<thead>
@@ -116,31 +122,36 @@
 							{{ descending ? 'arrow-down' : 'arrow-up'}}">
 						</span>
 						<span 
-							class="label" 
+							class="column-head" 
 							on-click="{{ sort }}">
 							{{ column.label ? column.label : column.name | capitalize }}
+							<sup 
+								class="{{ column.hint ? 'hint' : 'hide' }}" 
+								title="{{ column.hint }}">i</sup>
 						</span>
-						<sup 
-							class="{{ column.hint ? 'hint' : 'hide' }}" 
-							title="{{ column.hint }}">i</sup>
-						<div class="{{ column.searchable ? 'searchable' : 'hide'">
-							<select 
-								on-change="{{ search }}" 
-								class="{{ 'select' === column.type ? '' : 'hide' }}">
-									<option template 
-										repeat="{{ option in column.options }}"
-										value="{{ option.value }}">
-										{{ option.label }}
-									</option>
-							</select>
-							<input type="checkbox" 
-								on-change="{{ search }}" 
-								class="{{ 'checkbox' === column.type ? '' : 'hide' }}"/>
-							<input type="text" 
-								on-keyup="{{ search }}" 
-								placeholder="filter" 
-								class="{{ 'checkbox' !== column.type && 'select' !== column.type ? '' : 'hide' }}"/>
-						</div>
+					</th>
+				</tr>
+				<tr class="search-head {{ searchable ? '' : 'hide'}}">
+					<th></th>
+					<th template
+						repeat="{{ column in meta }}"
+						class="{{ column.searchable ? 'searchable' : 'hide'">
+						<select 
+							on-change="{{ search }}" 
+							class="{{ 'select' === column.type ? '' : 'hide' }}">
+								<option template 
+									repeat="{{ option in column.options }}"
+									value="{{ option.value }}">
+									{{ option.label }}
+								</option>
+						</select>
+						<input type="checkbox" 
+							on-change="{{ search }}" 
+							class="{{ 'checkbox' === column.type ? '' : 'hide' }}"/>
+						<input type="text" 
+							on-keyup="{{ search }}" 
+							placeholder="filter" 
+							class="{{ 'checkbox' !== column.type && 'select' !== column.type ? '' : 'hide' }}"/>
 					</th>
 				</tr>
 			</thead>
@@ -180,7 +191,7 @@
 								value="{{ row[column.name] }}"/>
 							<input type="date" 
 								class="{{ 'date' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}" 
+								on-change="{{ save }}" 
 								value="{{ row[column.name] }}"/>
 							<textarea 
 								class="{{ 'textarea' === column.type ? '' : 'hide'}}"
@@ -267,6 +278,11 @@
 		 * @type {Boolean}
 		 */
 		selectable: true,
+		/**
+		 * searchable: if table row is searchable
+		 * @type {Boolean}
+		 */
+		searchable: true,
 		/**
 		 * sortedColumn: sorted column name
 		 * @type {String}
@@ -359,6 +375,7 @@
 				}
 			}
 		},
+		modifiedChanged: function() {},
 		capitalize: function(value) {
 			if (!value instanceof String || value.length === 0) 
 				return value;
@@ -570,7 +587,9 @@
 					row._selected = true;
 				}
 			}
-			e.preventDefault();
+			if (!row._editing_column) {
+				e.preventDefault();
+			}
 		},
 		selectall: function(e,p){
 			if(e.target.checked){
@@ -625,6 +644,10 @@
 			if (found_index !== -1) {
 				this.data.splice(found_index,1);
 				this.deleted.push(obj);
+			}
+			var found_index_in_modified = this.modified.indexOf(obj)
+			if (found_index_in_modified !== -1) {
+				this.modified.splice(found_index_in_modified,1);
 			}
 		},
 		removeSelected: function() {
