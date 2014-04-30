@@ -211,9 +211,8 @@
 								</td>
 								<td template
 									repeat="{{ n in currentRange }}" 
-									class="{{n == currentpage ? 'active' : ''}}" 
-									on-click="{{setPage}}">
-									<button>{{n+1}}</button>
+									class="{{n == currentpage ? 'active' : ''}}" >
+									<button data-item="{{n}}" on-click="{{setPage}}">{{n+1}}</button>
 								</td>
 								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
 									<button on-click="{{nextPage}}">{{next}}</button>
@@ -502,6 +501,7 @@
 			}
 		},
 		perpageChanged: function(){
+			this.perpage = parseInt(this.perpage);
 			this.currentpage = 0;
 			this.refreshPagination();
 		},
