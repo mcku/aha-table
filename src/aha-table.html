@@ -40,8 +40,8 @@
 			aha-table { 
 				display: block;
 			}
-			.selected {
-				background-color: #ccc;
+			aha-table tbody tr:hover, .selected {
+				background-color: #f3f3f3;
 			}
 			.sortable {
 				text-align: center;
@@ -116,6 +116,9 @@
 				line-height: 20px;
 				padding: 4px 12px;
 			}
+			.pagination .summary input {
+				width: 40px;
+			}
 		</style>
 		<table>
 			<thead>
@@ -125,7 +128,7 @@
 					</th>
 					<template repeat="{{ column in meta }}">
 						<template if="{{ column.sortable }}">
-							<th class="sortable" on-click="{{ sort }}" title="Click to sort">
+							<th class="sortable aha-{{column.name}}-sortable-th" on-click="{{ sort }}" title="{{ column.hint }}">
 								<template if="{{ sortedColumn == column.name && descending }}">
 									<span class="arrow-down"></span>
 								</template>
@@ -136,14 +139,14 @@
 							</th>
 						</template>
 						<template if="{{ !column.sortable }}">
-							<th>{{ column.label ? column.label : column.name | capitalize }}</th>
+							<th title?={{ column.hint }}>{{ column.label ? column.label : column.name | capitalize }}</th>
 						</template>
 					</template>
 				</tr>
 				<tr>
 					<th></th>
 					<template repeat="{{ column in meta }}">
-						<th class="searchable">
+						<th class="searchable aha-{{column.name}}-searchable-th">
 							<template if="{{ column.searchable }}">
 								<template if="{{ 'select' === column.type }}">
 									<select on-change="{{ search }}">
@@ -152,14 +155,11 @@
 										</template>
 									</select>
 								</template>
-								<template if="{{ 'text' === column.type || 'textarea' === column.type }}">
-									<input type="text" on-keyup="{{ search }}" placeholder="filter"/>
-								</template>
-								<template if="{{ 'date' === column.type }}">
-									<input type="date" on-change="{{ search }}"/>
-								</template>
 								<template if="{{ 'checkbox' === column.type }}">
 									<input type="checkbox" on-change="{{ search }}"/>
+								</template>
+								<template if="{{ 'checkbox' !== column.type && 'select' !== column.type }}">
+									<input type="text" on-keyup="{{ search }}" placeholder="filter"/>
 								</template>
 							</template>
 						</th>
@@ -179,7 +179,7 @@
 								</template>
 							</td>
 							<template repeat="{{ column in meta }}">
-								<td on-dblclick="{{ edit }}" title="Double click to edit">
+								<td on-dblclick="{{ edit }}" on-click="{{select}}" title="Double click to edit" class="aha-{{column.name}}-td">
 									<template if="{{ column.name == row._editing_column }}">
 										<template if="{{ 'select' === column.type }}">
 											<select on-change="{{ save }}" on-blur="{{ save }}">
@@ -225,6 +225,9 @@
 						<div class="pagination">
 							<ul>
 								<li class='{{currentpage === 0 ? "disabled" : ""}}'>
+									<button on-click="{{firstPage}}">{{first}}</button>
+								</li>
+								<li class='{{currentpage === 0 ? "disabled" : ""}}'>
 									<button on-click="{{prevPage}}">{{previous}}</button>
 								</li>
 
@@ -234,14 +237,17 @@
 									</li>
 								</template>
 
-								<li class='{{currentpage === pageCount? "disabled" : ""}}'>
+								<li class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
 									<button on-click="{{nextPage}}">{{next}}</button>
 								</li>
-
-								<li>
-									<input value="{{perpage}}" on-change="{{refreshPagination}}" title="Change page size here"/>
+								<li class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
+									<button on-click="{{lastPage}}">{{last}}</button>
 								</li>
 							</ul>
+							<div class="summary">
+								Page Size: <input value="{{perpage}}"/>
+								Viewing {{ firstItemIndex }} - {{ lastItemIndex }} of {{ itemCount }}
+							</div>
 						</div>
 					</td>
 				</tr>
@@ -315,6 +321,21 @@
 		 */
 		pageCount: 0,
 		/**
+		 * itemCount: the number of visible items
+		 * @type {Number}
+		 */
+		itemCount: 0,
+		/**
+		 * firstItemIndex: the index number of first item in the page, start from 1
+		 * @type {Number}
+		 */
+		firstItemIndex: 0,
+		/**
+		 * lastItemIndex: the index number of last item in the page, start from 1
+		 * @type {Number}
+		 */
+		lastItemIndex:  0,
+		/**
 		 * rangeSize: the total size of the paginated range of items
 		 * @type {Number}
 		 */
@@ -323,12 +344,25 @@
 		 * previous: label for the Previous button
 		 * @type {String}
 		 */
-		previous: "<< Prev",
+		previous: "Previous <",
 		/**
 		 * next: label for the Next button
 		 * @type {String}
 		 */
-		next: "Next >>",
+		next: "> Next",
+		/**
+		 * next: label for the First page button
+		 * @type {String}
+		 */
+		first: "First <<",
+		/**
+		 * next: label for the Last page button
+		 * @type {String}
+		 */
+		last: ">> Last",
+
+		//=============
+		//internal methods
 		dataChanged: function() {
 			this.refreshPagination();
 			if (this.meta.length === 0)  {
@@ -445,42 +479,53 @@
 				}
 			});
 		},
+
+		//==================
+		//pagination
+		firstPage: function() {
+			this.currentpage = 0;
+		},
 		prevPage: function() {
 			if ( this.currentpage > 0 ) {
 				this.currentpage--;
 			}
 		},
-
-		prevPageDisabled: function() {
-			return this.currentpage === 0 ? "disabled" : "";
-		},
-
 		nextPage: function() {
 			if ( this.currentpage < this.getPageCount() ) {
 				this.currentpage++;
 			}
 		},
-
-		nextPageDisabled: function() {
-			return this.currentpage === this.getPageCount() ? "disabled" : "";
+		lastPage: function() {
+			this.currentpage = this.getPageCount();
 		},
-
-		getPageCount: function() {
+		getItemCount: function() {
 			var count = 0;
 			for (var i = this.data.length - 1; i >= 0; i--) {
 				if (!this.data[i]._filtered) {
 					count++;
 				}
 			};
-			return Math.ceil( count / this.perpage ) - 1;
+			return count;
 		},
-
+		getPageCount: function() {
+			return Math.ceil( this.getItemCount() / this.perpage ) - 1;
+		},
 		setPage: function(e,d,t) {
 			this.currentpage = parseInt( t.dataset.item, 10 );
 		},
 		currentpageChanged: function(){
 			this.filterPage();
 			this.currentRange = this.range();
+			this.firstItemIndex = this.currentpage * this.perpage + 1;
+			if (this.currentpage === this.pageCount) {
+				this.lastItemIndex = this.itemCount;
+			} else {
+				this.lastItemIndex = (this.currentpage + 1)* this.perpage;
+			}
+		},
+		perpageChanged: function(){
+			this.currentpage = 0;
+			this.refreshPagination();
 		},
 		range: function() {
 			var paginations = [];
@@ -516,22 +561,33 @@
 			// Update current range to account for items per page, range.
 			this.currentRange = this.range();
 
-			// Cache the total page count
+			// Cache the total page count and item count
+			this.itemCount = this.getItemCount();
 			this.pageCount = this.getPageCount();
+			this.firstItemIndex = this.currentpage * this.perpage + 1;
+			if (this.currentpage === this.pageCount) {
+				this.lastItemIndex = this.itemCount;
+			} else {
+				this.lastItemIndex = (this.currentpage + 1)* this.perpage;
+			}
 
 			// Update model bound to UI with filtered range
 			this.filterPage();
 		},
+
+
+		//=======================//
+		//data manipulation//
 		select: function(e,p){
 			var row = e.target.templateInstance.model.row;
 			var index = this.selected.indexOf(row);
 			if (index > -1) {
-				if(!e.target.checked){
+				if(row._selected){
 					this.selected.splice(index, 1);
 					row._selected = false;
 				}
 			} else {
-				if(e.target.checked){
+				if(!row._selected){
 					this.selected.push(row);
 					row._selected = true;
 				}
@@ -556,13 +612,13 @@
 			}
 		},
 		create: function(obj) {
+			var _new = obj instanceof Object ? obj : {};
 			var _default = {_editing_column: this.meta[0].name};
 			for (var i = this.meta.length - 1; i >= 0; i--) {
-				if (this.meta[i].default) {
-					_default[this.meta[i].name] = this.meta[i].default;
+				if (this.meta[i].default && obj[this.meta[i].name] === undefined) {
+					_new[this.meta[i].name] = this.meta[i].default;
 				}
 			};
-			var _new = obj ? obj : _default;
 			this.data.splice(0,0,_new);
 			this.modified.push(_new);
 		},
