@@ -40,25 +40,23 @@
 			aha-table { 
 				display: block;
 			}
-			aha-table tbody tr:hover, .selected {
+			.rows:hover, .selected {
 				background-color: #f3f3f3;
-				color: #1B8CCD;
 			}
-			.sortable {
-				text-align: center;
+			.sortable .label, .hint {
 				cursor: pointer;
 			}
 			.sortable:hover {
 				text-decoration: underline;
 			}
-			.arrow-up {
+			.sorting.arrow-up {
 				width: 0; 
 				height: 0; 
 				border-left: 5px solid transparent;
 				border-right: 5px solid transparent;
 				border-bottom: 5px solid black;
 			}
-			.arrow-down {
+			.sorting.arrow-down {
 				width: 0; 
 				height: 0; 
 				border-left: 5px solid transparent;
@@ -66,42 +64,24 @@
 				border-top: 5px solid black;
 			}
 			.pagination {
-				margin: 30px 0 10px 0;
+				margin: 10px;
 				text-align: center;
-			}
-			.pagination ul {
-				display: inline-block;
-				margin: 0;
-				padding: 0;
-			}
-			.pagination li {
-				display: inline;
 				line-height: 20px;
 			}
-			.pagination li.active button {
+			.pagination .active button {
 				background-color: #ccc;
 			}
-			.pagination li.disabled button {
+			.pagination .disabled button {
 				color: #ccc;
 			}
-			.pagination li:first-child button {
-				-webkit-border-radius: 5px 0 0 5px;
-				-moz-border-radius: 5px 0 0 5px;
-				border-radius: 5px 0 0 5px;
-			}
-			.pagination li:last-child button {
-				-webkit-border-radius: 0 5px 5px 0;
-				-moz-border-radius: 0 5px 5px 0;
-				border-radius: 0 5px 5px 0;
-			}
-			.pagination li button {
+			.pagination button {
 				background-color: #fff;
 				border: 1px solid #eeeeee;
-				float: left;
 				min-width: 40px;
 				line-height: 20px;
 				padding: 4px 12px;
 				text-decoration: none;
+				cursor: pointer;
 				-webkit-touch-callout: none;
 				-webkit-user-select: none;
 				-khtml-user-select: none;
@@ -109,147 +89,144 @@
 				-ms-user-select: none;
 				user-select: none;
 			}
-			.pagination li input {
+			.pagination input {
 				background-color: #fff;
 				border: 1px solid #eeeeee;
-				float: left;
-				width: 30px;
+				width: 40px;
 				line-height: 20px;
 				padding: 4px 12px;
 			}
-			.pagination .summary input {
-				width: 40px;
+			.hide {
+				display: none;
 			}
 		</style>
 		<table>
 			<thead>
 				<tr>
 					<th>
-						<input type="checkbox" on-change="{{ selectall }}" title="Select All"/>
+						<input type="checkbox" 
+							on-change="{{ selectall }}" 
+							title="Select All"/>
 					</th>
-					<template repeat="{{ column in meta }}">
-						<template if="{{ column.sortable }}">
-							<th class="sortable aha-{{column.name}}-sortable-th" on-click="{{ sort }}" title="{{ column.hint }}">
-								<template if="{{ sortedColumn == column.name && descending }}">
-									<span class="arrow-down"></span>
-								</template>
-								<template if="{{ sortedColumn == column.name && !descending }}">
-									<span class="arrow-up"></span>
-								</template>
-								{{ column.label ? column.label : column.name | capitalize }}
-							</th>
-						</template>
-						<template if="{{ !column.sortable }}">
-							<th title?={{ column.hint }}>{{ column.label ? column.label : column.name | capitalize }}</th>
-						</template>
-					</template>
-				</tr>
-				<tr>
-					<th></th>
-					<template repeat="{{ column in meta }}">
-						<th class="searchable aha-{{column.name}}-searchable-th">
-							<template if="{{ column.searchable }}">
-								<template if="{{ 'select' === column.type }}">
-									<select on-change="{{ search }}">
-										<template repeat="{{ option in column.options }}">
-											<option value="{{ option.value }}">{{ option.label }}</option>
-										</template>
-									</select>
-								</template>
-								<template if="{{ 'checkbox' === column.type }}">
-									<input type="checkbox" on-change="{{ search }}"/>
-								</template>
-								<template if="{{ 'checkbox' !== column.type && 'select' !== column.type }}">
-									<input type="text" on-keyup="{{ search }}" placeholder="filter"/>
-								</template>
-							</template>
-						</th>
-					</template>
+					<th template 
+						repeat="{{ column in meta }}"
+						class="{{ column.sortable ? 'sortable' : ''}} aha-{{column.name}}-th">
+						<span class="
+							{{ sortedColumn == column.name ? 'sorting ' : ''}}
+							{{ descending ? 'arrow-down' : 'arrow-up'}}">
+						</span>
+						<span 
+							class="label" 
+							on-click="{{ sort }}">
+							{{ column.label ? column.label : column.name | capitalize }}
+						</span>
+						<sup 
+							class="{{ column.hint ? 'hint' : 'hide' }}" 
+							title="{{ column.hint }}">i</sup>
+						<div class="{{ column.searchable ? 'searchable' : 'hide'">
+							<select 
+								on-change="{{ search }}" 
+								class="{{ 'select' === column.type ? '' : 'hide' }}">
+									<option template 
+										repeat="{{ option in column.options }}"
+										value="{{ option.value }}">
+										{{ option.label }}
+									</option>
+							</select>
+							<input type="checkbox" 
+								on-change="{{ search }}" 
+								class="{{ 'checkbox' === column.type ? '' : 'hide' }}"/>
+							<input type="text" 
+								on-keyup="{{ search }}" 
+								placeholder="filter" 
+								class="{{ 'checkbox' !== column.type && 'select' !== column.type ? '' : 'hide' }}"/>
+						</div>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
-				<template repeat="{{ row in data | _sort(sortedColumn, descending) }}">
-					<template if="{{ !row._hidden && !row._filtered }}">
-						<tr class="{{ row._selected ? 'selected' : '' }}">
-							<td title="Click to select">
-								<template if="{{ row._selected }}">
-									<input type="checkbox" on-change="{{ select }}" checked/>
-								</template>
-								<template if="{{ !row._selected }}">
-									<input type="checkbox" on-change="{{ select }}"/>
-								</template>
-							</td>
-							<template repeat="{{ column in meta }}">
-								<td on-dblclick="{{ edit }}" on-click="{{select}}" title="Double click to edit" class="aha-{{column.name}}-td">
-									<template if="{{ column.name == row._editing_column }}">
-										<template if="{{ 'select' === column.type }}">
-											<select on-change="{{ save }}" on-blur="{{ save }}">
-												<template repeat="{{ option in column.options }}">
-													<template if="{{ row[column.name] == option.value }}">
-														<option value="{{ option.value }}" selected>
-															{{ option.label }}
-														</option>
-													</template>
-													<template if="{{ row[column.name] !== option.value }}">
-														<option value="{{ option.value }}">
-															{{ option.label }}
-														</option>
-													</template>
-												</template>
-											</select>
-										</template>
-										<template if="{{ 'text' === column.type }}">
-											<input type="text" on-blur="{{ save }}" value="{{ row[column.name] }}"/>
-										</template>
-										<template if="{{ 'date' === column.type }}">
-											<input type="date" on-blur="{{ save }}" value="{{ row[column.name] }}"/>
-										</template>
-										<template if="{{ 'textarea' === column.type }}">
-											<textarea on-blur="{{ save }}">{{ row[column.name] }}</textarea>
-										</template>
-										<template if="{{ 'checkbox' === column.type }}">
-											<input type="checkbox" on-change="{{ save }}" checked?="{{ row[column.name] }}" />
-										</template>
-									</template>
-									<template if="{{ column.name !== row._editing_column }}">
-										{{ row[column.name] ? row[column.name] : '' }}
-									</template>
-								</td>
-							</template>
-						</tr>
-					</template>
-				</template>
+				<tr template
+					repeat="{{ row in data | _sort(sortedColumn, descending) }}" 
+					class="rows
+						{{ row._hidden || row._filtered ? 'hide' : ''}}
+						{{ row._selected ? 'selected' : '' }}
+					">
+					<td title="Click to select">
+						<input type="checkbox" 
+							on-change="{{ select }}" 
+							checked?="{{ row._selected }}"/>
+					</td>
+					<td template 
+						repeat="{{ column in meta }}" 
+						on-dblclick="{{ edit }}" 
+						on-click="{{select}}" 
+						title="Double click to edit" 
+						class="aha-{{column.name}}-td">
+						<div class="{{ column.name === row._editing_column ? '' : 'hide'}}">
+							<select 
+								class="{{ 'select' === column.type ? '' : 'hide'}}"
+								on-change="{{ save }}" 
+								on-blur="{{ save }}">
+								<option template
+									repeat="{{ option in column.options }}"
+									value="{{ option.value }}" 
+									selected?="{{ row[column.name] == option.value }}">
+									{{ option.label }}
+								</option>
+							</select>
+							<input type="text" 
+								class="{{ 'text' === column.type ? '' : 'hide'}}"
+								on-blur="{{ save }}" 
+								value="{{ row[column.name] }}"/>
+							<input type="date" 
+								class="{{ 'date' === column.type ? '' : 'hide'}}"
+								on-blur="{{ save }}" 
+								value="{{ row[column.name] }}"/>
+							<textarea 
+								class="{{ 'textarea' === column.type ? '' : 'hide'}}"
+								on-blur="{{ save }}">
+								{{ row[column.name] }}
+							</textarea>
+							<input type="checkbox" 
+								class="{{ 'checkbox' === column.type ? '' : 'hide'}}"
+								on-change="{{ save }}" 
+								checked?="{{ row[column.name] }}" />
+						</div>
+						<div class="{{ column.name === row._editing_column ? 'hide' : ''}}">
+							{{ row[column.name] ? row[column.name] : '' }}
+						</div>
+					</td>
+				</tr>
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan={{meta.length+1}}>
-						<div class="pagination">
-							<ul>
-								<li class='{{currentpage === 0 ? "disabled" : ""}}'>
+					<td colspan="{{meta.length+1}}" class="pagination">
+						<table>
+							<tr>
+								<td class='{{currentpage === 0 ? "disabled" : ""}} '>
 									<button on-click="{{firstPage}}">{{first}}</button>
-								</li>
-								<li class='{{currentpage === 0 ? "disabled" : ""}}'>
+								</td>
+								<td class='{{currentpage === 0 ? "disabled" : ""}}'>
 									<button on-click="{{prevPage}}">{{previous}}</button>
-								</li>
-
-								<template repeat="{{n in currentRange}}">
-									<li class="{{n == currentpage ? 'active' : ''}}" data-item="{{n}}" on-click="{{setPage}}">
-										<button>{{n+1}}</button>
-									</li>
-								</template>
-
-								<li class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
+								</td>
+								<td template
+									repeat="{{ n in currentRange }}" 
+									class="{{n == currentpage ? 'active' : ''}}" 
+									on-click="{{setPage}}">
+									<button>{{n+1}}</button>
+								</td>
+								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
 									<button on-click="{{nextPage}}">{{next}}</button>
-								</li>
-								<li class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
+								</td>
+								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
 									<button on-click="{{lastPage}}">{{last}}</button>
-								</li>
-							</ul>
-							<div class="summary">
-								Page Size: <input value="{{perpage}}"/>
-								Viewing {{ firstItemIndex }} - {{ lastItemIndex }} of {{ itemCount }}
-							</div>
-						</div>
+								</td>
+								<td>
+									Page Size: <input value="{{perpage}}"/>
+									{{ firstItemIndex }} - {{ lastItemIndex }} / {{ itemCount }}
+								</td>
+							</tr>
+						</table>
 					</td>
 				</tr>
 			</tfoot>
@@ -345,22 +322,22 @@
 		 * previous: label for the Previous button
 		 * @type {String}
 		 */
-		previous: "Previous <",
+		previous: "<",
 		/**
 		 * next: label for the Next button
 		 * @type {String}
 		 */
-		next: "> Next",
+		next: ">",
 		/**
 		 * next: label for the First page button
 		 * @type {String}
 		 */
-		first: "First <<",
+		first: "<<",
 		/**
 		 * next: label for the Last page button
 		 * @type {String}
 		 */
-		last: ">> Last",
+		last: ">>",
 
 		//=============
 		//internal methods

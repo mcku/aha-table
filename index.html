@@ -12,6 +12,36 @@
 
 	<!-- Importing Custom Elements -->
 	<link rel="import" href="src/aha-table.html">
+	<style>
+	#themed table{
+		color: #333;
+		border-spacing: 0;
+		border-collapse: collapse;
+		font-size: 14px;
+		border: 1px solid #a0cfef;
+	}
+	#themed .pagination table, #themed .pagination tr, #themed .pagination td{
+		border: 0;
+	}
+	#themed th.sortable, #themed td {
+		white-space: nowrap;
+		padding: 8px 5px;
+		border: 1px solid #a0cfef;
+	}
+	#themed tbody tr:hover, .selected {
+		background-color: #f3f3f3;
+		color: #1B8CCD;
+	}
+	#themed th.searchable input, #themed th.searchable select {
+		width: 90%;
+	}
+	#themed th {
+		border: 1px solid #a0cfef;
+		background: #c3e2f6;
+		color: #2e6e9e;
+		font-weight: bold;
+	}
+	</style>
 </head>
 <body unresolved>
 	<h2>Data and column meta are both provided</h2>
@@ -22,42 +52,41 @@
 	<aha-table id="example2">
 	</aha-table>
 
+	<h2>Themed table</h2>
+	<aha-table id="themed">
+	</aha-table>
+
 	<script>
 	function supportsTemplate() {
 	  return 'content' in document.createElement('template');
 	}
 
 	if (supportsTemplate()) {
+		var events = [
+			{ title: "gym", date: "2014-04-14", type: "private", content: "5*20 situps, 5 miles running, 5 minutes planks", enabled: true },
+			{ title: "breakfast", date: "2014-04-14", type: "private", enabled: true },
+			{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
+			{ title: "lunch", date: "2014-04-14", type: "public", content: null },
+			{ title: "meeting", date: "2014-04-14", type: "public", content: "introduce web components to the team" },
+			{ title: "dinner", date: "2014-04-14", type: "private" }
+		];
+		var meta = [
+			{name: "title", sortable: true, searchable: true, type: "text", editable: true, required: true, hint:"You should give a meaningful title."},
+			{name: "date", sortable: true, searchable: true, type: "date", editable: true, required: true},
+			{name: "type", sortable: false, searchable: true, type: "select", editable: true, required: true, default: "private", options: [
+				{"value":"", "label": "Please select"}, 
+				{"value":"private", "label":"Private Event"}, 
+				{"value":"public", "label":"Public Event"}], 
+				hint:"private events are visible to you only."
+			},
+			{name: "enabled", sortable: true, searchable: true, type: "checkbox", editable: true, default: false},
+			{name: "content", label: "Description", sortable: false, searchable: true, type: "textarea", editable: true, required: false}
+		]
 		window.addEventListener("polymer-ready", function(){
-			document.getElementById("example").data = [
-				{ title: "gym", date: "2014-04-14", type: "private", content: "5*20 situps, 5 miles running, 5 minutes planks", enabled: true },
-				{ title: "breakfast", date: "2014-04-14", type: "private", enabled: true },
-				{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
-				{ title: "lunch", date: "2014-04-14", type: "public", content: null },
-				{ title: "meeting", date: "2014-04-14", type: "public", content: "introduce web components to the team" },
-				{ title: "dinner", date: "2014-04-14", type: "private" }
-			];
-			document.getElementById("example").meta = [
-				{name: "title", sortable: true, searchable: true, type: "text", editable: true, required: true, hint:"You should give a meaningful title."},
-				{name: "date", sortable: true, searchable: true, type: "date", editable: true, required: true},
-				{name: "type", sortable: true, searchable: true, type: "select", editable: true, required: true, default: "private", options: [
-					{"value":"", "label": "Please select"}, 
-					{"value":"private", "label":"Private Event"}, 
-					{"value":"public", "label":"Public Event"}], 
-					hint:"private events are visible to you only."
-				},
-				{name: "enabled", sortable: true, searchable: true, type: "checkbox", editable: true, default: false},
-				{name: "content", label: "Description", sortable: false, searchable: true, type: "textarea", editable: true, required: false}
-			];
-
-			document.getElementById("example2").data = [
-				{ title: "gym", date: "2014-04-14", type: "private", content: "5*20 situps, 5 miles running, 5 minutes planks", enabled: true },
-				{ title: "breakfast", date: "2014-04-14", type: "private", enabled: true },
-				{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
-				{ title: "lunch", date: "2014-04-14", type: "public", content: null },
-				{ title: "meeting", date: "2014-04-14", type: "public", content: "introduce web components to the team" },
-				{ title: "dinner", date: "2014-04-14", type: "private", content: null }
-			];
+			document.getElementById("example").data = events;
+			document.getElementById("example").meta = meta;
+			document.getElementById("example2").data = JSON.parse(JSON.stringify(events));//deep copy
+			document.getElementById("themed").data   = JSON.parse(JSON.stringify(events));//deep copy
 		});
 	} else {
 		document.body.innerHTML="Template is not supported in your browser";
