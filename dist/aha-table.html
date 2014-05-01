@@ -40,47 +40,68 @@
 			aha-table { 
 				display: block;
 			}
-			.rows:hover, .selected {
+			aha-table .rows:hover, 
+			aha-table .selected {
 				background-color: #f3f3f3;
 			}
-			.sortable .column-head, .hint {
+			aha-table .modified {
+				background-color: yellow;
+			}
+			aha-table .sortable .column-head, 
+			aha-table .hint,
+			aha-table .toggle.arrow-up,
+			aha-table .toggle.arrow-down {
 				cursor: pointer;
 			}
-			.sortable:hover {
+			aha-table .sortable:hover {
 				text-decoration: underline;
 			}
-			.sorting.arrow-up {
+			aha-table .arrow-up,
+			aha-table .arrow-down {
 				width: 0; 
 				height: 0; 
 				border-left: 5px solid transparent;
 				border-right: 5px solid transparent;
+			}
+			aha-table .arrow-up {
 				border-bottom: 5px solid black;
 			}
-			.sorting.arrow-down {
-				width: 0; 
-				height: 0; 
-				border-left: 5px solid transparent;
-				border-right: 5px solid transparent;
+			aha-table .arrow-down {
 				border-top: 5px solid black;
 			}
-			.searchable input, .searchable select {
+			aha-table .copy-er, aha-table .remove-er {
+				cursor: pointer;
+			}
+			aha-table .searchable input, 
+			aha-table .searchable select {
 				width: 80px;
 			}
-			.pagination {
+			aha-table .pagination {
 				margin: 10px;
 				text-align: center;
 				line-height: 20px;
 			}
-			.pagination .active button {
+			aha-table .pagination table {
+				border-spacing: 0;
+				border: 0;
+			}
+			aha-table .pagination td {
+				padding: 0;
+			}
+			aha-table .pagination .active button {
 				background-color: #ccc;
 			}
-			.pagination .disabled button {
+			aha-table .pagination .available button:hover {
+				background-color: #eee;
+			}
+			aha-table .pagination .disabled button {
 				color: #ccc;
 			}
-			.pagination button {
+			aha-table .pagination button {
 				background-color: #fff;
 				border: 1px solid #eeeeee;
 				min-width: 40px;
+				margin: 0;
 				line-height: 20px;
 				padding: 4px 12px;
 				text-decoration: none;
@@ -92,7 +113,7 @@
 				-ms-user-select: none;
 				user-select: none;
 			}
-			.pagination input {
+			aha-table .pagination input {
 				background-color: #fff;
 				border: 1px solid #eeeeee;
 				width: 40px;
@@ -113,12 +134,15 @@
 						<input type="checkbox" 
 							on-change="{{ selectall }}" 
 							title="Select All"/>
+						<div title="toggle filters row."
+							class="toggle {{ searchable ? 'arrow-up' : 'arrow-down'}}" 
+							on-click="{{ toggleFilters }}"></div>
 					</th>
 					<th template 
 						repeat="{{ column in meta }}"
 						class="{{ column.sortable ? 'sortable' : ''}} aha-{{column.name}}-th">
 						<span class="
-							{{ sortedColumn == column.name ? 'sorting ' : ''}}
+							{{ sortedColumn == column.name ? 'sorting ' : 'hide'}}
 							{{ descending ? 'arrow-down' : 'arrow-up'}}">
 						</span>
 						<span 
@@ -132,7 +156,7 @@
 					</th>
 				</tr>
 				<tr class="search-head {{ searchable ? '' : 'hide'}}">
-					<th></th>
+					<th>Filters: </th>
 					<th template
 						repeat="{{ column in meta }}"
 						class="{{ column.searchable ? 'searchable' : 'hide'">
@@ -161,9 +185,13 @@
 					class="rows
 						{{ row._hidden || row._filtered ? 'hide' : ''}}
 						{{ row._selected ? 'selected' : '' }}
+						{{ row._modified ? 'modified' : '' }}
 					">
-					<td title="Click to select">
+					<td>
+						<a class="copy-er" on-click="{{copy}}" title="Copy">C</a>
+						<a class="remove-er" on-click="{{remove}}" title="Remove">D</a>
 						<input type="checkbox" 
+						 	title="Click to select"
 							on-change="{{ select }}" 
 							checked?="{{ row._selected }}"/>
 					</td>
@@ -172,7 +200,7 @@
 						on-dblclick="{{ edit }}" 
 						on-click="{{select}}" 
 						title="Double click to edit" 
-						class="aha-{{column.name}}-td">
+						class="aha-td aha-{{column.name}}-td">
 						<div class="{{ column.name === row._editing_column ? '' : 'hide'}}">
 							<select 
 								class="{{ 'select' === column.type ? '' : 'hide'}}"
@@ -204,7 +232,7 @@
 								checked?="{{ row[column.name] }}" />
 						</div>
 						<div class="{{ column.name === row._editing_column ? 'hide' : ''}}">
-							{{ row[column.name] ? row[column.name] : '' }}
+							{{ row[column.name] | translate(column.options) }}
 						</div>
 					</td>
 				</tr>
@@ -214,21 +242,21 @@
 					<td colspan="{{meta.length+1}}" class="pagination">
 						<table>
 							<tr>
-								<td class='{{currentpage === 0 ? "disabled" : ""}} '>
+								<td class='{{currentpage === 0 ? "disabled" : "available"}} '>
 									<button on-click="{{firstPage}}">{{first}}</button>
 								</td>
-								<td class='{{currentpage === 0 ? "disabled" : ""}}'>
+								<td class='{{currentpage === 0 ? "disabled" : "available"}}'>
 									<button on-click="{{prevPage}}">{{previous}}</button>
 								</td>
 								<td template
 									repeat="{{ n in currentRange }}" 
-									class="{{n == currentpage ? 'active' : ''}}" >
+									class="{{n == currentpage ? 'active' : 'available'}}" >
 									<button data-item="{{n}}" on-click="{{setPage}}">{{n+1}}</button>
 								</td>
-								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
+								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : "available"}}'>
 									<button on-click="{{nextPage}}">{{next}}</button>
 								</td>
-								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : ""}}'>
+								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : "available"}}'>
 									<button on-click="{{lastPage}}">{{last}}</button>
 								</td>
 								<td>
@@ -375,6 +403,17 @@
 				}
 			}
 		},
+		//translate value to labels for select
+		translate: function(value, options){
+			if (value != "" && options) {
+				for (var i = options.length - 1; i >= 0; i--) {
+					if (options[i].value == value) {
+						return options[i].label;
+					}
+				};
+			}
+			return value === undefined || value === null ? '' : value;
+		},
 		modifiedChanged: function() {},
 		capitalize: function(value) {
 			if (!value instanceof String || value.length === 0) 
@@ -395,6 +434,7 @@
 					model.row[model.column.name] = e.target.value;
 				}
 				if (this.modified.indexOf(model.row) === -1) {
+					model.row._modified = true;
 					this.modified.push(model.row);
 				}
 				model.row._editing_column = null;
@@ -609,6 +649,7 @@
 			}
 		},
 		create: function(obj) {
+			this.fire('before-create', obj);
 			var _new = obj instanceof Object ? obj : {};
 			var _default = {_editing_column: this.meta[0].name};
 			for (var i = this.meta.length - 1; i >= 0; i--) {
@@ -618,28 +659,26 @@
 			};
 			this.data.splice(0,0,_new);
 			this.modified.push(_new);
+			this.fire('after-create', _new);
 		},
-		copy: function(obj) {
-			if (obj) {
-				var _new = JSON.parse(JSON.stringify(obj));
-				if (_new.id) {
-					delete _new.id
-				}
-				if (_new._selected) {
-					_new._selected = false;
-				}
-				_new._editing_column = this.meta[0].name;
-				this.data.splice(0,0,_new);
-				this.modified.push(_new);
+		copy: function(e, detail, sender) {
+			var obj = e.target.templateInstance.model.row;
+			this.fire('before-copy', obj);
+			var _new = JSON.parse(JSON.stringify(obj));
+			if (_new.id) {
+				delete _new.id
 			}
+			if (_new._selected) {
+				_new._selected = false;
+			}
+			_new._editing_column = this.meta[0].name;
+			this.data.splice(0,0,_new);
+			this.modified.push(_new);
+			this.fire('after-copy', _new);
 		},
-		copySelected: function() {
-			for (var i = this.selected.length - 1; i >= 0; i--) {
-				this.copy(this.selected[i]);
-			};
-			this.clearSelected();
-		},
-		remove: function(obj) {
+		remove: function(e, detail, sender) {
+			var obj = e.target.templateInstance.model.row;
+			this.fire('before-remove', obj);
 			var found_index = this.data.indexOf(obj);
 			if (found_index !== -1) {
 				this.data.splice(found_index,1);
@@ -647,26 +686,13 @@
 			}
 			var found_index_in_modified = this.modified.indexOf(obj)
 			if (found_index_in_modified !== -1) {
+				obj._modified = false;
 				this.modified.splice(found_index_in_modified,1);
 			}
+			this.fire('after-remove', obj);
 		},
-		removeSelected: function() {
-			for (var i = this.selected.length - 1; i >= 0; i--) {
-				this.remove(this.selected[i]);
-			}
-			this.clearSelected();
-		},
-		clearSelected: function() {
-			for (var i = this.selected.length - 1; i >= 0; i--) {
-				this.selected[i]._selected = false;
-			}
-			this.selected.length = 0;
-		},
-		clearModified: function() {
-			this.modified.length = 0;
-		},
-		clearDeleted: function() {
-			this.deleted.length = 0;
+		toggleFilters: function() {
+			this.searchable = !this.searchable;
 		}
 	});
 	</script>
