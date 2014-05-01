@@ -651,7 +651,7 @@
 		create: function(obj) {
 			this.fire('before-create', obj);
 			var _new = obj instanceof Object ? obj : {};
-			var _default = {_editing_column: this.meta[0].name};
+			var _default = {_editing_column: this.meta[0].name, _modified: true};
 			for (var i = this.meta.length - 1; i >= 0; i--) {
 				if (this.meta[i].default && obj[this.meta[i].name] === undefined) {
 					_new[this.meta[i].name] = this.meta[i].default;
@@ -671,6 +671,7 @@
 			if (_new._selected) {
 				_new._selected = false;
 			}
+			_new._modified = true;
 			_new._editing_column = this.meta[0].name;
 			this.data.splice(0,0,_new);
 			this.modified.push(_new);
