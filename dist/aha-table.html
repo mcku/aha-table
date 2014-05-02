@@ -133,6 +133,7 @@
 					<th>
 						<input type="checkbox" 
 							on-change="{{ selectall }}" 
+							class="{{ selectable ? '' : 'hide'}}" 
 							title="Select All"/>
 						<div title="toggle filters row."
 							class="toggle {{ searchable ? 'arrow-up' : 'arrow-down'}}" 
@@ -181,7 +182,8 @@
 			</thead>
 			<tbody>
 				<tr template
-					repeat="{{ row in data | _sort(sortedColumn, descending) }}" 
+					repeat="{{ row in data | _sort(sortedColumn, descending) }}"
+					if="{{!row._hidden && !row._filtered}}"
 					class="rows
 						{{ row._hidden || row._filtered ? 'hide' : ''}}
 						{{ row._selected ? 'selected' : '' }}
@@ -192,13 +194,14 @@
 						<a class="remove-er" on-click="{{remove}}" title="Remove">D</a>
 						<input type="checkbox" 
 						 	title="Click to select"
+						 	class="{{ selectable ? '' : 'hide'}}" 
 							on-change="{{ select }}" 
 							checked?="{{ row._selected }}"/>
 					</td>
 					<td template 
 						repeat="{{ column in meta }}" 
-						on-dblclick="{{ edit }}" 
-						on-click="{{select}}" 
+						on-dblclick="{{ dbclick }}" 
+						on-click="{{ click }}" 
 						title="Double click to edit" 
 						class="aha-td aha-{{column.name}}-td">
 						<div class="{{ column.name === row._editing_column ? '' : 'hide'}}">
@@ -613,22 +616,42 @@
 
 		//=======================//
 		//data manipulation//
-		select: function(e,p){
+		click: function(e,p) {
+			var column = e.target.templateInstance.model.column;
 			var row = e.target.templateInstance.model.row;
-			var index = this.selected.indexOf(row);
-			if (index > -1) {
-				if(row._selected){
-					this.selected.splice(index, 1);
-					row._selected = false;
-				}
-			} else {
-				if(!row._selected){
-					this.selected.push(row);
-					row._selected = true;
-				}
+			var detail = {"row" : row, "column" : column};
+			if (column.selectable) {
+				this.select(e,p);
 			}
-			if (!row._editing_column) {
-				e.preventDefault();
+			this.fire('after-td-click', detail);
+		},
+		dbclick: function(e,p) {
+			var column = e.target.templateInstance.model.column;
+			var row = e.target.templateInstance.model.row;
+			var detail = {"row" : row, "column" : column};
+			if (column.editable) {
+				this.edit(e,p);
+			}
+			this.fire('after-td-dbclick', detail);
+		},
+		select: function(e,p){
+			if (this.selectable) {
+				var row = e.target.templateInstance.model.row;
+				var index = this.selected.indexOf(row);
+				if (index > -1) {
+					if(row._selected){
+						this.selected.splice(index, 1);
+						row._selected = false;
+					}
+				} else {
+					if(!row._selected){
+						this.selected.push(row);
+						row._selected = true;
+					}
+				}
+				if (!row._editing_column) {
+					e.preventDefault();
+				}
 			}
 		},
 		selectall: function(e,p){
