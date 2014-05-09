@@ -263,8 +263,12 @@
 									<button on-click="{{lastPage}}">{{last}}</button>
 								</td>
 								<td>
-									Page Size: <input value="{{perpage}}"/>
-									{{ firstItemIndex }} - {{ lastItemIndex }} / {{ itemCount }}
+									<select>
+										<option template repeat="{{n in [10, 20, 50, 100, 200]}}" selected?="{{ n == perpage }}">{{n}}</option>
+									</select>
+								</td>
+								<td>
+									View {{ firstItemIndex }} - {{ lastItemIndex }} of {{ itemCount }}
 								</td>
 							</tr>
 						</table>
