@@ -12,18 +12,30 @@
  * and modal meta to show a table that can search, sort, edit
  * in place and pagiation.
  * 
- * Double click to edit.
+ * click to edit.
  * 
  * Examples:
  *
  *     <aha-table></aha-table>
  *
- *     <aha-table 
- *       data='[{"title": "bob", "age": 16}, {"title": "mary", "age": 17}]' 
- *       meta='[{"name": "title", label: "Title", sortable: true, searchable: true, type: "text", editable: true, required: true},
- *              {"name": "age", label: "Age", sortable: true, searchable: true, type: "text", editable: true, required: true}]'
- *       perpage='20'>
- *     </aha-table>
+ *     <aha-table id="raw" 
+ *         selectable="true" 
+ *         copyable="true"
+ *         seachable="true"
+ *         pagesize="20" 
+ *         pagesizetitle="Page Size:" 
+ *         summarytitle="Viewing">
+ *         <aha-column name="title" 
+ *             type="string" 
+ *             sortable="true"
+ *             searchable="true"
+ *             required="true"
+ *             editable="false"
+ *             placeholder="" 
+ *             default="" 
+ *             hint="Meaning title will help you remember">
+ *         </aha-column>
+ *     </aha-table/>
  *
  * @class aha-table
  * @author Louis Liu<louis.wenchao.liu@gmail.com>
@@ -33,7 +45,7 @@
 
 <link rel="import" href="../../polymer/polymer.html">
 
-<polymer-element name="aha-table" attributes="data meta perpage selectable searchable">
+<polymer-element name="aha-table" attributes="selectable searchable copyable pagesize pagesizetitle summarytitle data-sizelist">
 	<template>
 		<style>
 			/* styles for the custom element itself - lowest specificity */
@@ -123,6 +135,10 @@
 			aha-table table .hide {
 				display: none !important;
 			}
+			aha-table table .empty {
+				font-style: italic;
+				color: #999;
+			}
 			aha-table .column-head {
 				white-space: nowrap;
 			}		
@@ -163,7 +179,7 @@
 						class="{{ column.searchable ? 'searchable' : 'hide'">
 						<select 
 							on-change="{{ search }}" 
-							class="{{ 'select' === column.type ? '' : 'hide' }}">
+							class="{{ 'choice' === column.type ? '' : 'hide' }}">
 								<option template 
 									repeat="{{ option in column.options }}"
 									value="{{ option.value }}">
@@ -172,11 +188,11 @@
 						</select>
 						<input type="checkbox" 
 							on-change="{{ search }}" 
-							class="{{ 'checkbox' === column.type ? '' : 'hide' }}"/>
+							class="{{ 'boolean' === column.type ? '' : 'hide' }}"/>
 						<input type="text" 
 							on-keyup="{{ search }}" 
 							placeholder="filter" 
-							class="{{ 'checkbox' !== column.type && 'select' !== column.type ? '' : 'hide' }}"/>
+							class="{{ 'choice' !== column.type && 'boolean' !== column.type ? '' : 'hide' }}"/>
 					</th>
 				</tr>
 			</thead>
@@ -190,7 +206,7 @@
 						{{ row._modified ? 'modified' : '' }}
 					">
 					<td>
-						<a class="copy-er" on-click="{{copy}}" title="Copy">C</a>
+						<a class="copy-er" on-click="{{copy}}" title="Copy" class?="{{ copyable ? '' : 'hide' }}">C</a>
 						<a class="remove-er" on-click="{{remove}}" title="Remove">D</a>
 						<input type="checkbox" 
 						 	title="Click to select"
@@ -202,11 +218,12 @@
 						repeat="{{ column in meta }}" 
 						on-dblclick="{{ dbclick }}" 
 						on-click="{{ click }}" 
-						title="Double click to edit" 
+						title="click to edit" 
 						class="aha-td aha-{{column.name}}-td">
-						<div class="{{ column.name === row._editing_column ? '' : 'hide'}}">
+						<div class="{{ row._editing ? '' : 'hide'}}">
 							<select 
-								class="{{ 'select' === column.type ? '' : 'hide'}}"
+								required?="{{ column.required }}"
+								class="{{ 'choice' === column.type ? '' : 'hide'}}"
 								on-change="{{ save }}" 
 								on-blur="{{ save }}">
 								<option template
@@ -217,25 +234,37 @@
 								</option>
 							</select>
 							<input type="text" 
-								class="{{ 'text' === column.type ? '' : 'hide'}}"
+								required?="{{ column.required }}"
+								class="{{ 'string' === column.type ? '' : 'hide'}}"
 								on-blur="{{ save }}" 
 								value="{{ row[column.name] }}"/>
 							<input type="date" 
+								required?="{{ column.required }}"
 								class="{{ 'date' === column.type ? '' : 'hide'}}"
 								on-change="{{ save }}" 
 								value="{{ row[column.name] }}"/>
-							<textarea 
-								class="{{ 'textarea' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}">
-								{{ row[column.name] }}
-							</textarea>
-							<input type="checkbox" 
-								class="{{ 'checkbox' === column.type ? '' : 'hide'}}"
+							<input type="time" 
+								required?="{{ column.required }}"
+								class="{{ 'time' === column.type ? '' : 'hide'}}"
+								on-change="{{ save }}" 
+								value="{{ row[column.name] }}"/>
+							<input type="datetime" 
+								required?="{{ column.required }}"
+								class="{{ 'datetime' === column.type ? '' : 'hide'}}"
+								on-change="{{ save }}" 
+								value="{{ row[column.name] }}"/>
+							<textarea
+								required?="{{ column.required }}"
+								class="{{ 'text' === column.type ? '' : 'hide'}}"
+								on-mouseover="{{ focus }}"
+								on-blur="{{ save }}">{{ row[column.name] }}</textarea>
+							<input type="checkbox"
+								class="{{ 'boolean' === column.type ? '' : 'hide'}}"
 								on-change="{{ save }}" 
 								checked?="{{ row[column.name] }}" />
 						</div>
-						<div class="{{ column.name === row._editing_column ? 'hide' : ''}}">
-							{{ row[column.name] | translate(column.options) }}
+						<div class="{{ row._editing ? 'hide' : ''}} {{ row[column.name] ? '' : 'empty'}}">
+							{{ row[column.name] | translate(column.options, column.placeholder) }}
 						</div>
 					</td>
 				</tr>
@@ -263,12 +292,13 @@
 									<button on-click="{{lastPage}}">{{last}}</button>
 								</td>
 								<td>
-									<select>
-										<option template repeat="{{n in [10, 20, 50, 100, 200]}}" selected?="{{ n == perpage }}">{{n}}</option>
+									{{ pagesizetitle }}
+									<select value="{{pagesize}}">
+										<option template repeat="{{n in sizelist}}" selected?="{{ n == pagesize }}">{{n}}</option>
 									</select>
 								</td>
 								<td>
-									View {{ firstItemIndex }} - {{ lastItemIndex }} of {{ itemCount }}
+									{{ summarytitle }} {{ firstItemIndex }} - {{ lastItemIndex }} of {{ itemCount }}
 								</td>
 							</tr>
 						</table>
@@ -314,6 +344,11 @@
 		 */
 		selectable: true,
 		/**
+		 * copyable: if table row is copyable
+		 * @type {Boolean}
+		 */
+		copyable: true,
+		/**
 		 * searchable: if table row is searchable
 		 * @type {Boolean}
 		 */
@@ -324,15 +359,20 @@
 		 */
 		sortedColumn: null,
 		/**
+		 * editingRow: current editing row
+		 * @type {Object}
+		 */
+		editingRow : null,
+		/**
 		 * descending: current sorting order
 		 * @type {Boolean}
 		 */
 		descending: false,
 		/**
-		 * perpage: the number of items to show per page
+		 * pagesize: the number of items to show per page
 		 * @type {Number}
 		 */
-		perpage: 10,
+		pagesize: 10,
 		/**
 		 * currentpage: the current active page in view
 		 * @type {Number}
@@ -369,6 +409,11 @@
 		 */
 		rangeSize: 5,
 		/**
+		 * sizelist: range list to adjust page size.
+		 * @type {Array of number}
+		 */
+		sizelist: [5, 10, 20, 50, 100],
+		/**
 		 * previous: label for the Previous button
 		 * @type {String}
 		 */
@@ -388,6 +433,38 @@
 		 * @type {String}
 		 */
 		last: ">>",
+		/**
+		 * pagesizetitle: label for page size box
+		 * @type {String}
+		 */
+		pagesizetitle: "",
+		/**
+		 * summarytitle: label for table summary area
+		 * @type {String}
+		 */
+		summarytitle: "",
+
+		ready: function() {
+			this.meta = this.getColumns();
+			if (this.dataset.sizelist) {
+				this.sizelist = JSON.parse(this.dataset.sizelist);
+			}
+		},
+		getColumns: function() {
+			var children = this.children || this.impl.children;
+			var columns = [];
+			for (var i = 0; i < children.length; i++) {
+				if (children[i].dataset.choices) {
+					children[i].options = [];
+					var choices = JSON.parse(children[i].dataset.choices);
+					for (var option in choices) {
+						children[i].options.push({'value': option, 'label': choices[option]});
+					}
+				}
+				columns.push(children[i]);
+			};
+			return columns;
+		},
 
 		//=============
 		//internal methods
@@ -411,7 +488,7 @@
 			}
 		},
 		//translate value to labels for select
-		translate: function(value, options){
+		translate: function(value, options, blank){
 			if (value != "" && options) {
 				for (var i = options.length - 1; i >= 0; i--) {
 					if (options[i].value == value) {
@@ -419,7 +496,8 @@
 					}
 				};
 			}
-			return value === undefined || value === null ? '' : value;
+			value = value === undefined || value === null ? '' : value;
+			return value === "" ? blank : value;
 		},
 		modifiedChanged: function() {},
 		capitalize: function(value) {
@@ -428,23 +506,32 @@
 			return value.charAt(0).toUpperCase() + value.slice(1);
 		},
 		edit: function(e) {
-			if(e.target.templateInstance.model.row){
-				e.target.templateInstance.model.row._editing_column = e.target.templateInstance.model.column.name;
+			var row = e.target.templateInstance.model.row;
+			row._editing = true;
+			if (this.editingRow && this.editingRow != row) {
+				this.editingRow._editing = false;
 			}
+			this.editingRow = row;
+			e.target.focus();
 		},
 		save: function(e) {
-			var model = e.target.templateInstance.model;
-			if(model.row){
+			var row    = e.target.templateInstance.model.row;
+			var column = e.target.templateInstance.model.column;
+			if(row){
+				if (column.required && !e.target.validity.valid) {
+					this.fire('after-td-click', {"row" : row, "column" : column});
+				}
+
 				if ("CHECKBOX" === e.target.type.toUpperCase()) {
-					model.row[model.column.name] = e.target.checked;
-				} else if ("SELECT" === e.target.tagName.toUpperCase()) {
-					model.row[model.column.name] = e.target.value;
+					row[column.name] = e.target.checked;
+				} else {
+					row[column.name] = e.target.value;
 				}
-				if (this.modified.indexOf(model.row) === -1) {
-					model.row._modified = true;
-					this.modified.push(model.row);
+				if (this.modified.indexOf(row) === -1) {
+					row._modified = true;
+					this.modified.push(row);
 				}
-				model.row._editing_column = null;
+				row._editing = false;
 			}
 		},
 		sort: function(e, p) {
@@ -549,7 +636,7 @@
 			return count;
 		},
 		getPageCount: function() {
-			return Math.ceil( this.getItemCount() / this.perpage ) - 1;
+			return Math.ceil( this.getItemCount() / this.pagesize ) - 1;
 		},
 		setPage: function(e,d,t) {
 			this.currentpage = parseInt( t.dataset.item, 10 );
@@ -557,15 +644,15 @@
 		currentpageChanged: function(){
 			this.filterPage();
 			this.currentRange = this.range();
-			this.firstItemIndex = this.currentpage * this.perpage + 1;
+			this.firstItemIndex = this.currentpage * this.pagesize + 1;
 			if (this.currentpage === this.pageCount) {
 				this.lastItemIndex = this.itemCount;
 			} else {
-				this.lastItemIndex = (this.currentpage + 1)* this.perpage;
+				this.lastItemIndex = (this.currentpage + 1)* this.pagesize;
 			}
 		},
-		perpageChanged: function(){
-			this.perpage = parseInt(this.perpage);
+		pagesizeChanged: function(){
+			this.pagesize = parseInt(this.pagesize);
 			this.currentpage = 0;
 			this.refreshPagination();
 		},
@@ -585,8 +672,8 @@
 			return paginations;
 		},
 		filterPage: function() {
-			var from = this.currentpage * this.perpage;
-			var to   = from + this.perpage;
+			var from = this.currentpage * this.pagesize;
+			var to   = from + this.pagesize;
 			var count = 0;
 			for (var i = 0; i < this.data.length; i++) {
 				if (!this.data[i]._filtered) {
@@ -606,11 +693,11 @@
 			// Cache the total page count and item count
 			this.itemCount = this.getItemCount();
 			this.pageCount = this.getPageCount();
-			this.firstItemIndex = this.currentpage * this.perpage + 1;
+			this.firstItemIndex = this.currentpage * this.pagesize + 1;
 			if (this.currentpage === this.pageCount) {
 				this.lastItemIndex = this.itemCount;
 			} else {
-				this.lastItemIndex = (this.currentpage + 1)* this.perpage;
+				this.lastItemIndex = (this.currentpage + 1)* this.pagesize;
 			}
 
 			// Update model bound to UI with filtered range
@@ -624,8 +711,8 @@
 			var column = e.target.templateInstance.model.column;
 			var row = e.target.templateInstance.model.row;
 			var detail = {"row" : row, "column" : column};
-			if (column.selectable) {
-				this.select(e,p);
+			if (column.editable) {
+				this.edit(e,p);
 			}
 			this.fire('after-td-click', detail);
 		},
@@ -633,9 +720,6 @@
 			var column = e.target.templateInstance.model.column;
 			var row = e.target.templateInstance.model.row;
 			var detail = {"row" : row, "column" : column};
-			if (column.editable) {
-				this.edit(e,p);
-			}
 			this.fire('after-td-dbclick', detail);
 		},
 		select: function(e,p){
@@ -653,7 +737,7 @@
 						row._selected = true;
 					}
 				}
-				if (!row._editing_column) {
+				if (!row._editing) {
 					e.preventDefault();
 				}
 			}
@@ -678,7 +762,7 @@
 		create: function(obj) {
 			this.fire('before-create', obj);
 			var _new = obj instanceof Object ? obj : {};
-			var _default = {_editing_column: this.meta[0].name, _modified: true};
+			var _default = {_editing: true, _modified: true};
 			for (var i = this.meta.length - 1; i >= 0; i--) {
 				if (this.meta[i].default && obj[this.meta[i].name] === undefined) {
 					_new[this.meta[i].name] = this.meta[i].default;
@@ -699,7 +783,7 @@
 				_new._selected = false;
 			}
 			_new._modified = true;
-			_new._editing_column = this.meta[0].name;
+			_new._editing = false;
 			this.data.splice(0,0,_new);
 			this.modified.push(_new);
 			this.fire('after-copy', _new);
@@ -723,5 +807,42 @@
 			this.searchable = !this.searchable;
 		}
 	});
+
+	// Private methods
+	</script>
+</polymer-element>
+<!--
+/**
+ * @module aha-column
+ *
+ *
+ * child element for aha-table, used for meta building
+ *
+ *     <aha-column name="content"
+ *         type="text"
+ *         sortable="true"
+ *         searchable="true"
+ *         required="true"
+ *         editable="true"
+ *         placeholder="" 
+ *         default=""></aha-column>
+ *
+ * @class aha-column
+ * @author Louis Liu<louis.wenchao.liu@gmail.com>
+ *
+ */
+-->
+
+<polymer-element name="aha-column" attributes="name type sortable searchable required editable placeholder default data-choices hint">
+	<template>
+	</template>
+	<script>
+		Polymer('aha-column', {
+			type: "string",
+			sortable: true,
+			searchable: true,
+			required: false,
+			editable: true
+		});
 	</script>
 </polymer-element>

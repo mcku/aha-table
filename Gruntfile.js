@@ -4,6 +4,7 @@ module.exports = function(grunt) {
         'connect': {
             demo: {
                 options: {
+                    hostname: '*',
                     open: true,
                     keepalive: true
                 }

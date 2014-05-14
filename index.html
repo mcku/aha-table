@@ -44,8 +44,62 @@
 	</style>
 </head>
 <body unresolved>
-	<aha-table id="raw"></aha-table>
-	<aha-table id="themed"></aha-table>
+	<aha-table id="raw" 
+		selectable="true" 
+		copyable="false"
+		seachable="true"
+		pagesize="2" 
+		data-sizelist="[2,5,10]"
+		pagesizetitle="Page Size:" 
+		summarytitle="Viewing">
+		<aha-column name="title" 
+			type="string" 
+			sortable="true"
+			searchable="true"
+			required="true"
+			editable="false"
+			placeholder="" 
+			default="" 
+			hint="Meaning title will help you remember"></aha-column>
+		<aha-column name="date"
+			type="date"
+			sortable="true"
+			searchable="true"
+			required="true"
+			editable="true"
+			placeholder="Choose your date" 
+			default="" 
+			default="2011-12-21"></aha-column>
+		<aha-column name="type"
+			type="choice"
+			sortable="true"
+			searchable="true"
+			required="true"
+			editable="true"
+			placeholder="" 
+			default="private"
+			data-choices='{"":"", "private":"Private Event", "public":"Public Event"}'></aha-column>
+		<aha-column name="enabled" 
+			type="boolean"
+			sortable="true"
+			searchable="true"
+			required="true"
+			editable="true"
+			data-choices='{"1":"Yes", "0":"No"}'
+			placeholder="" 
+			default=""></aha-column>
+		<aha-column name="content"
+			type="text"
+			sortable="true"
+			searchable="true"
+			required="true"
+			editable="true"
+			placeholder="Enter your content" 
+			default=""></aha-column>
+	</aha-table>
+	<h2>Themed table</h2>
+	<aha-table id="themed">
+	</aha-table>
 	<div id="console"></div>
 
 	<script>
@@ -54,31 +108,20 @@
 			{ title: "breakfast", date: "2014-04-14", type: "private", enabled: true },
 			{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
 			{ title: "lunch", date: "2014-04-14", type: "public", content: null },
+			{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
+			{ title: "lunch", date: "2014-04-14", type: "public", content: null },
+			{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
+			{ title: "lunch", date: "2014-04-14", type: "public", content: null },
+			{ title: "work", date: "2014-04-14", type: "public", content: "implement aha-table plymer element", enabled: true },
+			{ title: "lunch", date: "2014-04-14", type: "public", content: null },
 			{ title: "meeting", date: "2014-04-14", type: "public", content: "introduce web components to the team" },
 			{ title: "dinner", date: "2014-04-14", type: "private" }
 		];
-		var meta = [
-			{name: "title", sortable: true, searchable: true, type: "text", editable: true, required: true, hint:"You should give a meaningful title."},
-			{name: "date", sortable: true, searchable: true, type: "date", editable: true, required: true},
-			{name: "type", sortable: false, searchable: true, type: "select", editable: true, required: true, default: "private", options: [
-				{"value":"", "label": "Please select"},
-				{"value":"private", "label":"Private Event"},
-				{"value":"public", "label":"Public Event"}],
-				hint:"private events are visible to you only."
-			},
-			{name: "enabled", sortable: true, searchable: true, type: "checkbox", editable: true, default: false, options: [
-				{"value":true, "label":"Yes"},
-				{"value":false, "label":"No"},
-			]},
-			{name: "content", label: "Description", sortable: false, searchable: true, type: "textarea", editable: true, required: false}
-		]
+		var raw  = document.getElementById("raw");
+		var themed  = document.getElementById("themed");
 		window.addEventListener("polymer-ready", function(){
-			var demo = document.getElementById("themed");
-			var raw = document.getElementById("raw");
-			demo.data = events;
-			demo.meta = meta;
-			raw.data = JSON.parse(JSON.stringify(events));
-			raw.meta = JSON.parse(JSON.stringify(meta));
+			raw.data = events;
+			themed.data = JSON.parse(JSON.stringify(events));
 		});
 		var table_log = function(msg) {
 			document.getElementById("console").innerHTML = msg;
@@ -93,48 +136,5 @@
 			table_log('copied one record!');
 		});
 	</script>
-
-	<!-- <aha-table id="example">
-		<aha-tr>
-			<aha-th type="sort" column="title">
-				Title
-			</aha-th>
-			<aha-th type="sort" column="date">
-				Date
-			</aha-th>
-			<aha-th type="sort" column="type">
-				Type
-			</aha-th>
-			<aha-th type="sort" column="content">
-				Content
-			</aha-th>
-		</aha-tr>
-		<aha-tr>
-			<aha-th type="search" column="title">
-				<input type="text"/>
-			</aha-th>
-			<aha-th type="search" column="date">
-				<input type="date"/>
-			</aha-th>
-			<aha-th type="search" column="type">
-				<select>
-					<option>Please select</option>
-					<option value="private">private</option>
-					<option value="public">public</option>
-				</select>
-			</aha-th>
-			<aha-th type="search" column="content">
-				<input type="text"/>
-			</aha-th>
-		</aha-tr>
-		<aha-tr selectable>
-			<aha-td column="title" type="text" required editable></aha-td>
-			<aha-td column="date" type="date" required editable></aha-td>
-			<aha-td column="type" type="select" editable default="apple"
-		    options='{"":"", "private":"Private Event", "public":"Public Event"}'>
-			</aha-td>
-			<aha-td column="content" type="textarea" editable default="1"></aha-td>
-		</aha-tr>
-	</aha-table> -->
 </body>
 </html>
