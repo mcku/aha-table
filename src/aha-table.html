@@ -10,9 +10,7 @@
  *
  * aha-table is an data table/grid, it cousumes a modal data
  * and modal meta to show a table that can search, sort, edit
- * in place and pagiation.
- * 
- * click to edit.
+ * in place and pagiation, click to edit.
  * 
  * Examples:
  *
@@ -37,6 +35,13 @@
  *         </aha-column>
  *     </aha-table/>
  *
+ * Available Event Hander:
+ *     after-td-click(Object detail)
+ *     after-td-dbclick(Object detail)
+ *     after-create(Object new_record)
+ *     after-copy(Object new_record)
+ *     after-remove(Object removed_record)
+ *
  * @class aha-table
  * @author Louis Liu<louis.wenchao.liu@gmail.com>
  *
@@ -45,7 +50,7 @@
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="aha-table" attributes="selectable searchable copyable pagesize pagesizetitle summarytitle data-sizelist">
+<polymer-element name="aha-table" attributes="selectable searchable copyable removable pagesize searchtitle pagesizetitle summarytitle data-sizelist copyclass removeclass">
 	<template>
 		<style>
 			/* styles for the custom element itself - lowest specificity */
@@ -58,6 +63,9 @@
 			}
 			aha-table .modified {
 				background-color: yellow;
+			}
+			aha-table .column-head {
+				white-space: nowrap;
 			}
 			aha-table .sortable .column-head, 
 			aha-table .hint,
@@ -81,7 +89,8 @@
 			aha-table .arrow-down {
 				border-top: 5px solid black;
 			}
-			aha-table .copy-er, aha-table .remove-er {
+			aha-table .copy-er, 
+			aha-table .remove-er {
 				cursor: pointer;
 			}
 			aha-table .searchable input, 
@@ -111,23 +120,18 @@
 			}
 			aha-table .pagination button {
 				background-color: #fff;
-				border: 1px solid #eeeeee;
+				border: 1px solid #eee;
 				min-width: 40px;
 				margin: 0;
 				line-height: 20px;
 				padding: 4px 12px;
 				text-decoration: none;
 				cursor: pointer;
-				-webkit-touch-callout: none;
-				-webkit-user-select: none;
-				-khtml-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
 				user-select: none;
 			}
 			aha-table .pagination input {
 				background-color: #fff;
-				border: 1px solid #eeeeee;
+				border: 1px solid #eee;
 				width: 40px;
 				line-height: 20px;
 				padding: 4px 12px;
@@ -139,11 +143,8 @@
 				font-style: italic;
 				color: #999;
 			}
-			aha-table .column-head {
-				white-space: nowrap;
-			}		
 		</style>
-		<table>
+		<table id="main" unresolved="">
 			<thead>
 				<tr>
 					<th>
@@ -173,7 +174,7 @@
 					</th>
 				</tr>
 				<tr class="search-head {{ searchable ? '' : 'hide'}}">
-					<th>Filters: </th>
+					<th>{{searchtitle}} </th>
 					<th template
 						repeat="{{ column in meta }}"
 						class="{{ column.searchable ? 'searchable' : 'hide'">
@@ -191,7 +192,7 @@
 							class="{{ 'boolean' === column.type ? '' : 'hide' }}"/>
 						<input type="text" 
 							on-keyup="{{ search }}" 
-							placeholder="filter" 
+							placeholder?="{{ column.searchplaceholder }}" 
 							class="{{ 'choice' !== column.type && 'boolean' !== column.type ? '' : 'hide' }}"/>
 					</th>
 				</tr>
@@ -206,8 +207,12 @@
 						{{ row._modified ? 'modified' : '' }}
 					">
 					<td>
-						<a class="copy-er" on-click="{{copy}}" title="Copy" class?="{{ copyable ? '' : 'hide' }}">C</a>
-						<a class="remove-er" on-click="{{remove}}" title="Remove">D</a>
+						<a class="copy-er {{ copyable ? '' : 'hide' }}" on-click="{{copy}}" title="Copy">
+							<i class="{{ copyclass }}">C</i>
+						</a>
+						<a class="remove-er {{ removable ? '' : 'hide' }}" on-click="{{remove}}" title="Remove">
+							<i class="{{ removeclass }}">R</i>
+						</a>
 						<input type="checkbox" 
 						 	title="Click to select"
 						 	class="{{ selectable ? '' : 'hide'}}" 
@@ -309,15 +314,9 @@
 	</template>
 	<script>
 	Polymer('aha-table', {
-		/**
-		 * data: instance of the model data
-		 * @type {Array}
-		 */
+		//data: instance of the model data
 		data: [],
-		/**
-		 * meta: instance of the model meta
-		 * @type {Object}
-		 */
+		//meta: instance of the model meta
 		meta: [],
 		/**
 		 * modified: all created or modified row will be referenced here.
@@ -325,123 +324,58 @@
 		 * operations, because the element doesn't assume there's an id column,
 		 * so you need to determine if by yourself, like check
 		 * if the id exists if your model has an id column.
-		 * @type {Array}
 		 */
 		modified: [],
-		/**
-		 * deleted: all deleted row will be moved here.
-		 * @type {Array}
-		 */
+		//deleted: all deleted row will be moved here.
 		deleted: [],
-		/**
-		 * selected: all selected row will be referenced here.
-		 * @type {Array}
-		 */
+		//selected: all selected row will be referenced here.
 		selected: [],
-		/**
-		 * selectable: if table row is selectable
-		 * @type {Boolean}
-		 */
+		//selectable: if table row is selectable
 		selectable: true,
-		/**
-		 * copyable: if table row is copyable
-		 * @type {Boolean}
-		 */
+		//copyable: if table row is copyable
 		copyable: true,
-		/**
-		 * searchable: if table row is searchable
-		 * @type {Boolean}
-		 */
+		//removable: if table row is removable
+		removable: true,
+		//searchable: if table row is searchable
 		searchable: true,
-		/**
-		 * sortedColumn: sorted column name
-		 * @type {String}
-		 */
-		sortedColumn: null,
-		/**
-		 * editingRow: current editing row
-		 * @type {Object}
-		 */
+		//searchtitle: text displayed in first column of search row.
+		searchtitle: "",
+		//sortedColumn: sorted column name
+		sortedColumn: "",
+		//editingRow: current editing row
+		//@type {Object}
 		editingRow : null,
-		/**
-		 * descending: current sorting order
-		 * @type {Boolean}
-		 */
+		//descending: current sorting order
 		descending: false,
-		/**
-		 * pagesize: the number of items to show per page
-		 * @type {Number}
-		 */
+		//pagesize: the number of items to show per page
 		pagesize: 10,
-		/**
-		 * currentpage: the current active page in view
-		 * @type {Number}
-		 */
+		//currentpage: the current active page in view
 		currentpage: 0,
-		/**
-		 * currentRange: the range of pages (e.g 1, 2, 3, 4, 5) to display
-		 * @type {Array}
-		 */
+		//currentRange: the range of pages (e.g 1, 2, 3, 4, 5) to display
 		currentRange: [],
-		/**
-		 * pageCount: the number of paginated pages
-		 * @type {Number}
-		 */
+		//pageCount: the number of paginated pages
 		pageCount: 0,
-		/**
-		 * itemCount: the number of visible items
-		 * @type {Number}
-		 */
+		//itemCount: the number of visible items
 		itemCount: 0,
-		/**
-		 * firstItemIndex: the index number of first item in the page, start from 1
-		 * @type {Number}
-		 */
+		//firstItemIndex: the index number of first item in the page, start from 1
 		firstItemIndex: 0,
-		/**
-		 * lastItemIndex: the index number of last item in the page, start from 1
-		 * @type {Number}
-		 */
+		//lastItemIndex: the index number of last item in the page, start from 1
 		lastItemIndex:  0,
-		/**
-		 * rangeSize: the total size of the paginated range of items
-		 * @type {Number}
-		 */
+		//rangeSize: the total size of the paginated range of items
 		rangeSize: 5,
-		/**
-		 * sizelist: range list to adjust page size.
-		 * @type {Array of number}
-		 */
+		//sizelist: range list to adjust page size.
 		sizelist: [5, 10, 20, 50, 100],
-		/**
-		 * previous: label for the Previous button
-		 * @type {String}
-		 */
+		//previous: label for the Previous button
 		previous: "<",
-		/**
-		 * next: label for the Next button
-		 * @type {String}
-		 */
+		//next: label for the Next button
 		next: ">",
-		/**
-		 * next: label for the First page button
-		 * @type {String}
-		 */
+		//first: label for the First page button
 		first: "<<",
-		/**
-		 * next: label for the Last page button
-		 * @type {String}
-		 */
+		//last: label for the Last page button
 		last: ">>",
-		/**
-		 * pagesizetitle: label for page size box
-		 * @type {String}
-		 */
+		//pagesizetitle: label for page size box
 		pagesizetitle: "",
-		/**
-		 * summarytitle: label for table summary area
-		 * @type {String}
-		 */
+		//summarytitle: label for table summary area
 		summarytitle: "",
 
 		ready: function() {
@@ -449,7 +383,11 @@
 			if (this.dataset.sizelist) {
 				this.sizelist = JSON.parse(this.dataset.sizelist);
 			}
+
+			this.$.main.setAttribute('resolved', '');
+			this.$.main.removeAttribute('unresolved');
 		},
+		// generate meta from child aha-column elements.
 		getColumns: function() {
 			var children = this.children || this.impl.children;
 			var columns = [];
@@ -471,6 +409,7 @@
 		dataChanged: function() {
 			this.refreshPagination();
 			if (this.meta.length === 0)  {
+				// generate meta from data if meta is not provided from aha-column.
 				this.meta = [];
 				for (var prop in this.data[0]) {
 					if (prop.indexOf('_') !== 0) {//skip internal field
@@ -811,6 +750,8 @@
 	// Private methods
 	</script>
 </polymer-element>
+
+
 <!--
 /**
  * @module aha-column
@@ -818,31 +759,44 @@
  *
  * child element for aha-table, used for meta building
  *
- *     <aha-column name="content"
+ *    <aha-column 
+ *         name="content"
  *         type="text"
  *         sortable="true"
  *         searchable="true"
  *         required="true"
  *         editable="true"
  *         placeholder="" 
- *         default=""></aha-column>
+ *         default="">
+ *    </aha-column>
  *
  * @class aha-column
  * @author Louis Liu<louis.wenchao.liu@gmail.com>
  *
  */
 -->
-
-<polymer-element name="aha-column" attributes="name type sortable searchable required editable placeholder default data-choices hint">
+<polymer-element name="aha-column" attributes="name type sortable searchable editable required placeholder default data-choices hint searchplaceholder">
 	<template>
 	</template>
 	<script>
 		Polymer('aha-column', {
+			//column name
+			name: "",
+			//column type: string, text, date, time, datetime, choice
 			type: "string",
 			sortable: true,
 			searchable: true,
-			required: false,
-			editable: true
+			editable: true,
+			requried: false,
+			//used for placeholder for empty cell.
+			placeholder: undefined,
+			default: undefined,
+			//choices read from data-choices attribute
+			options: undefined,
+			//hint text in column header
+			hint: undefined,
+			//placehoder for filter input
+			searchplaceholder: undefined
 		});
 	</script>
 </polymer-element>

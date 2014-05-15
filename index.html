@@ -12,6 +12,7 @@
 
 	<!-- Importing Custom Elements -->
 	<link rel="import" href="src/aha-table.html">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
 	<style>
 	#themed table{
 		color: #333;
@@ -41,26 +42,50 @@
 		color: #2e6e9e;
 		font-weight: bold;
 	}
+	#themed sup {
+		color:yellow;
+	}
+	#themed .remove-er .fa {
+		width: 11px;
+		overflow: hidden;
+	}
+	#themed .copy-er .fa {
+		width: 14px;
+		overflow: hidden;
+	}
+	#themed .search-head input {
+		width: 40px;
+		min-width: 90%;
+	}
 	</style>
 </head>
-<body unresolved>
-	<aha-table id="raw" 
+<body>
+	<h2>Simplest usage: raw style, auto-detected columns, default attributes</h2>
+	<aha-table id="raw"></aha-table>
+
+	<hr/>
+	<h2>Advanced usage: themed, customized columns, customized attributes, customized event handlers.</h2>
+	<aha-table id="themed"
 		selectable="true" 
-		copyable="false"
-		seachable="true"
-		pagesize="2" 
+		copyable="true"
+		searchable="false"
+		pagesize="5" 
 		data-sizelist="[2,5,10]"
-		pagesizetitle="Page Size:" 
-		summarytitle="Viewing">
+		searchtitle="Filters"
+		pagesizetitle="Page Size: " 
+		summarytitle="Viewing: "
+		copyclass="fa fa-copy"
+		removeclass="fa fa-trash-o">
 		<aha-column name="title" 
 			type="string" 
 			sortable="true"
 			searchable="true"
 			required="true"
 			editable="false"
+			searchplaceholder="Type to filter title"
 			placeholder="" 
 			default="" 
-			hint="Meaning title will help you remember"></aha-column>
+			hint="Meaningful title will help you remember"></aha-column>
 		<aha-column name="date"
 			type="date"
 			sortable="true"
@@ -68,7 +93,7 @@
 			required="true"
 			editable="true"
 			placeholder="Choose your date" 
-			default="" 
+			hint="Dates are required"
 			default="2011-12-21"></aha-column>
 		<aha-column name="type"
 			type="choice"
@@ -78,6 +103,7 @@
 			editable="true"
 			placeholder="" 
 			default="private"
+			hint="Public events will be available to everyone"
 			data-choices='{"":"", "private":"Private Event", "public":"Public Event"}'></aha-column>
 		<aha-column name="enabled" 
 			type="boolean"
@@ -87,6 +113,7 @@
 			editable="true"
 			data-choices='{"1":"Yes", "0":"No"}'
 			placeholder="" 
+			hint="Only enabled events will get alert"
 			default=""></aha-column>
 		<aha-column name="content"
 			type="text"
@@ -94,11 +121,9 @@
 			searchable="true"
 			required="true"
 			editable="true"
-			placeholder="Enter your content" 
+			hint="Keep it short"
+			placeholder="Enter your content here" 
 			default=""></aha-column>
-	</aha-table>
-	<h2>Themed table</h2>
-	<aha-table id="themed">
 	</aha-table>
 	<div id="console"></div>
 
@@ -117,22 +142,22 @@
 			{ title: "meeting", date: "2014-04-14", type: "public", content: "introduce web components to the team" },
 			{ title: "dinner", date: "2014-04-14", type: "private" }
 		];
-		var raw  = document.getElementById("raw");
+		var raw     = document.getElementById("raw");
 		var themed  = document.getElementById("themed");
 		window.addEventListener("polymer-ready", function(){
 			raw.data = events;
-			themed.data = JSON.parse(JSON.stringify(events));
+			themed.data = JSON.parse(JSON.stringify(events));//deep copy so that they have independent data source.
 		});
 		var table_log = function(msg) {
 			document.getElementById("console").innerHTML = msg;
 		};
-		document.querySelector('#themed').addEventListener('after-create', function(e) {
+		themed.addEventListener('after-create', function(e) {
 			table_log('created one record');
 		});
-		document.querySelector('#themed').addEventListener('after-remove', function(e) {
+		themed.addEventListener('after-remove', function(e) {
 			table_log('removed one record!');
 		});
-		document.querySelector('#themed').addEventListener('after-copy', function(e) {
+		themed.addEventListener('after-copy', function(e) {
 			table_log('copied one record!');
 		});
 	</script>
