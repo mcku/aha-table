@@ -83,7 +83,7 @@
 			required="true"
 			editable="false"
 			searchplaceholder="Type to filter title"
-			placeholder="" 
+			placeholder="Evenet Title" 
 			default="" 
 			hint="Meaningful title will help you remember"></aha-column>
 		<aha-column name="date"
@@ -92,7 +92,7 @@
 			searchable="false"
 			required="true"
 			editable="true"
-			placeholder="Choose your date" 
+			placeholder="Event Date" 
 			hint="Dates are required"
 			default="2011-12-21"></aha-column>
 		<aha-column name="type"
@@ -101,7 +101,7 @@
 			searchable="true"
 			required="true"
 			editable="true"
-			placeholder="" 
+			placeholder="Event Type" 
 			default="private"
 			hint="Public events will be available to everyone"
 			data-choices='{"":"", "private":"Private Event", "public":"Public Event"}'></aha-column>
@@ -112,7 +112,7 @@
 			required="true"
 			editable="true"
 			data-choices='{"1":"Yes", "0":"No"}'
-			placeholder="" 
+			placeholder="Enabled?" 
 			hint="Only enabled events will get alert"
 			default=""></aha-column>
 		<aha-column name="content"
@@ -122,9 +122,10 @@
 			required="true"
 			editable="true"
 			hint="Keep it short"
-			placeholder="Enter your content here" 
+			placeholder="Content" 
 			default=""></aha-column>
 	</aha-table>
+	<BUTTON id="create" onclick="themed.create();">Create</BUTTON>
 	<div id="console"></div>
 
 	<script>
@@ -136,9 +137,9 @@
 			{ title: "work", date: new Date().toISOString().slice(0, 10), type: "public", content: "implement aha-table plymer element", enabled: true },
 			{ title: "lunch", date: new Date().toISOString().slice(0, 10), type: "public", content: null },
 			{ title: "work", date: new Date().toISOString().slice(0, 10), type: "public", content: "implement aha-table plymer element", enabled: true },
-			{ title: "lunch", date: new Date().toISOString().slice(0, 10), type: "public", content: null },
+			{ title: "", date: new Date().toISOString().slice(0, 10), type: "public", content: null },
 			{ title: "work", date: new Date().toISOString().slice(0, 10), type: "public", content: "implement aha-table plymer element", enabled: true },
-			{ title: "lunch", date: new Date().toISOString().slice(0, 10), type: "public", content: null },
+			{ title: "", date: new Date().toISOString().slice(0, 10), type: "public", content: null },
 			{ title: "meeting", date: new Date().toISOString().slice(0, 10), type: "public", content: "introduce web components to the team" },
 			{ title: "dinner", date: new Date().toISOString().slice(0, 10), type: "private" }
 		];

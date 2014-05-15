@@ -32,22 +32,44 @@
     <aha-table></aha-table>
     ```
 
+    ```html
+    <aha-table
+          selectable="true" 
+          copyable="true"
+          seachable="true"
+          pagesize="20" 
+          pagesizetitle="Page Size:" 
+          summarytitle="Viewing">
+
+          <aha-column name="title" 
+              type="string" 
+              sortable="true"
+              searchable="true"
+              required="true"
+              editable="false"
+              placeholder="Empty Field Placeholder Text" 
+              default="" 
+              hint="a hint in column header">
+          </aha-column>
+     </aha-table/>
+    ```
+
 ## Options
 
 Attribute       | Options       | Default   | Description
 ---             | ---           | ---       | ---
-`data`          | *Array*       | []        | data for this table
+`data`          | *Array*       | []        | data for this table, need to set in JS.
 `selectable`    | *Boolean*     | True      | if selection box is displayed
 `searchable`    | *Boolean*     | True      | if search row is displayed
 `copyable       | *Boolean*     | True      | if copy handler is displayed
 `removable`     | *Boolean*     | True      | if remove handler is displayed
-`copyclass`     | *Boolean*     | undefined | customized class for copy handler
-`removeclass`   | *Boolean*     | undefined | customized class for remove handler
-`pagesize`      | *Boolean*     | 10        | record set size for each page
-`searchtitle`   | *Boolean*     | undefined | text for search row
-`pagesizetitle` | *Boolean*     | undefined | text before page size dropdown
-`summarytitle`  | *Boolean*     | undefined | text before pagination summary
-`data-sizelist` | *Boolean*     | [5, 10, 20, 50, 100]      | list for page size dropdown
+`copyclass`     | *String*      | undefined | customized class for copy handler
+`removeclass`   | *String*      | undefined | customized class for remove handler
+`pagesize`      | *Number*      | 10        | record set size for each page
+`searchtitle`   | *String*      | undefined | text for search row
+`pagesizetitle` | *String*      | undefined | text before page size dropdown
+`summarytitle`  | *String*      | undefined | text before pagination summary
+`data-sizelist` | *Array*       | [5, 10, 20, 50, 100]      | list for page size dropdown
 
 
 ## Options for aha-column
