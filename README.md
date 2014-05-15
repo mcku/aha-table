@@ -52,16 +52,25 @@ Attribute       | Options       | Default   | Description
 
 ## Options for aha-column
 
-Attribute  | Options                   | Default             | Description
----        | ---                       | ---                 | ---
-`data`     | *Array*                   | `[]`                | array of rows of data
-`meta`     | *Array*                   | `[]`                | array of meta for each column
-`perpage`  | *Number*                  | `10`                | number of rows per page
+Attribute           | Options                   | Default               | Description
+---                 | ---                       | ---                   | ---
+`name`              | *String*                  | undefined             | name of the column
+`type`              | *String*                  | undefined             | one of: string, text, choice, boolean, date, time, datetime
+`sortable`          | *Boolean*                 | True                  | if this column is sortable
+`searchable`        | *Boolean*                 | True                  | if this column is searchable
+`editable`          | *Boolean*                 | True                  | if this column is editable
+`required`          | *Boolean*                 | True                  | if this column is required, Event 'after-invalid' will be invoked
+`placeholder`       | *String*                  | undefined             | this text will be displayed when this cell is empty
+`default`           | *String*                  | undefined             | default value, applied at creation
+`data-choices`      | *Array*                   | []                    | options for select dropdown, in editing and searching.
+`hint`              | *String*                  | undefined             | this text will be displayed at the column header for instruction.
+`searchplaceholder` | *String*                  | undefined             | this text will be displayed in search filter input box.
 
 ## Envents
 
 Name                    | Arguments                 | Description
 ---                     | ---                       | ---
+`after-invalid`         | `Object` *detail*         | call after saving a cell by it's invalid
 `after-td-click`        | `Object` *detail*         | call after user click a cell, usually after this cell is editable
 `after-td-dbclick`      | `Object  *detail*         | call after user dbclick a cell
 `after-create`          | `Object` *new record*     | call after a record is created internally
