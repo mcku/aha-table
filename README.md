@@ -51,7 +51,7 @@
               default="" 
               hint="a hint in column header">
           </aha-column>
-     </aha-table/>
+     </aha-table>
     ```
 
 ## Options
