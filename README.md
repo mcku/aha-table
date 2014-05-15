@@ -34,11 +34,45 @@
 
 ## Options
 
+Attribute       | Options       | Default   | Description
+---             | ---           | ---       | ---
+`data`          | *Array*       | []        | data for this table
+`selectable`    | *Boolean*     | True      | if selection box is displayed
+`searchable`    | *Boolean*     | True      | if search row is displayed
+`copyable       | *Boolean*     | True      | if copy handler is displayed
+`removable`     | *Boolean*     | True      | if remove handler is displayed
+`copyclass`     | *Boolean*     | undefined | customized class for copy handler
+`removeclass`   | *Boolean*     | undefined | customized class for remove handler
+`pagesize`      | *Boolean*     | 10        | record set size for each page
+`searchtitle`   | *Boolean*     | undefined | text for search row
+`pagesizetitle` | *Boolean*     | undefined | text before page size dropdown
+`summarytitle`  | *Boolean*     | undefined | text before pagination summary
+`data-sizelist` | *Boolean*     | [5, 10, 20, 50, 100]      | list for page size dropdown
+
+
+## Options for aha-column
+
 Attribute  | Options                   | Default             | Description
 ---        | ---                       | ---                 | ---
 `data`     | *Array*                   | `[]`                | array of rows of data
 `meta`     | *Array*                   | `[]`                | array of meta for each column
 `perpage`  | *Number*                  | `10`                | number of rows per page
+
+## Envents
+
+Name                    | Arguments                 | Description
+---                     | ---                       | ---
+`after-td-click`        | `Object` *detail*         | call after user click a cell, usually after this cell is editable
+`after-td-dbclick`      | `Object  *detail*         | call after user dbclick a cell
+`after-create`          | `Object` *new record*     | call after a record is created internally
+`after-copy`            | `Object` *new record*     | call after a record is copyed from another internally
+`after-remove`          | `Object` *removed record* | call after a record is removed internally
+
+## Compatability
+
+By following http://www.polymer-project.org/docs/polymer/databinding-compat.html ,
+this should be working on all latest version of browsers 
+
 
 ## Development
 
