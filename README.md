@@ -66,21 +66,22 @@ Attribute           | Options                   | Default               | Descri
 `hint`              | *String*                  | undefined             | this text will be displayed at the column header for instruction.
 `searchplaceholder` | *String*                  | undefined             | this text will be displayed in search filter input box.
 
-## Envents
+## Events
 
 Name                    | Arguments                 | Description
 ---                     | ---                       | ---
 `after-invalid`         | `Object` *detail*         | call after saving a cell by it's invalid
 `after-td-click`        | `Object` *detail*         | call after user click a cell, usually after this cell is editable
 `after-td-dbclick`      | `Object` *detail*         | call after user dbclick a cell
-`after-create`          | `Object` *new record*     | call after a record is created internally
-`after-copy`            | `Object` *new record*     | call after a record is copyed from another internally
-`after-remove`          | `Object` *removed record* | call after a record is removed internally
+`after-create`          | `Object` *new_record*     | call after a record is created internally
+`after-copy`            | `Object` *new_record*     | call after a record is copyed from another internally
+`after-remove`          | `Object` *removed_record* | call after a record is removed internally
 
 ## Browser Compatability
 
 By following http://www.polymer-project.org/docs/polymer/databinding-compat.html ,
 this should be working on all latest version of browsers.
+
 ![IE](https://raw.github.com/paulirish/browser-logos/master/internet-explorer/internet-explorer_48x48.png) | ![Chrome](https://raw.github.com/paulirish/browser-logos/master/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/paulirish/browser-logos/master/firefox/firefox_48x48.png) | ![Opera](https://raw.github.com/paulirish/browser-logos/master/opera/opera_48x48.png) | ![Safari](https://raw.github.com/paulirish/browser-logos/master/safari/safari_48x48.png)
 --- | --- | --- | --- | --- |
 IE 10+ ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ |
