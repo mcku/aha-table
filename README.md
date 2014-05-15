@@ -61,7 +61,7 @@ Attribute       | Options       | Default   | Description
 `data`          | *Array*       | []        | data for this table, need to set in JS.
 `selectable`    | *Boolean*     | True      | if selection box is displayed
 `searchable`    | *Boolean*     | True      | if search row is displayed
-`copyable       | *Boolean*     | True      | if copy handler is displayed
+`copyable`      | *Boolean*     | True      | if copy handler is displayed
 `removable`     | *Boolean*     | True      | if remove handler is displayed
 `copyclass`     | *String*      | undefined | customized class for copy handler
 `removeclass`   | *String*      | undefined | customized class for remove handler
