@@ -36,6 +36,7 @@
  *     </aha-table/>
  *
  * Available Event Hander:
+ *     after-invalid(Object detail)
  *     after-td-click(Object detail)
  *     after-td-dbclick(Object detail)
  *     after-create(Object new_record)
@@ -225,7 +226,7 @@
 						on-click="{{ click }}" 
 						title="click to edit" 
 						class="aha-td aha-{{column.name}}-td">
-						<div class="{{ row._editing ? '' : 'hide'}}">
+						<div class="{{ column.editable && row._editing ? '' : 'hide'}}">
 							<select 
 								required?="{{ column.required }}"
 								class="{{ 'choice' === column.type ? '' : 'hide'}}"
@@ -268,7 +269,7 @@
 								on-change="{{ save }}" 
 								checked?="{{ row[column.name] }}" />
 						</div>
-						<div class="{{ row._editing ? 'hide' : ''}} {{ row[column.name] ? '' : 'empty'}}">
+						<div class="{{ column.editable && row._editing ? 'hide' : ''}} {{ row[column.name] ? '' : 'empty'}}">
 							{{ row[column.name] | translate(column.options, column.placeholder) }}
 						</div>
 					</td>
@@ -330,6 +331,8 @@
 		deleted: [],
 		//selected: all selected row will be referenced here.
 		selected: [],
+		//all visiable rows are reference here.
+		viewingRow: [], 
 		//selectable: if table row is selectable
 		selectable: true,
 		//copyable: if table row is copyable
@@ -379,7 +382,7 @@
 		summarytitle: "",
 
 		ready: function() {
-			this.meta = this.getColumns();
+			this.meta = this.getMeta();
 			if (this.dataset.sizelist) {
 				this.sizelist = JSON.parse(this.dataset.sizelist);
 			}
@@ -388,20 +391,33 @@
 			this.$.main.removeAttribute('unresolved');
 		},
 		// generate meta from child aha-column elements.
-		getColumns: function() {
+		getMeta: function() {
 			var children = this.children || this.impl.children;
-			var columns = [];
+			var metas = [];
 			for (var i = 0; i < children.length; i++) {
+				var meta = {};
 				if (children[i].dataset.choices) {
-					children[i].options = [];
+					meta.options = [];
 					var choices = JSON.parse(children[i].dataset.choices);
 					for (var option in choices) {
-						children[i].options.push({'value': option, 'label': choices[option]});
+						meta.options.push({'value': option, 'label': choices[option]});
 					}
 				}
-				columns.push(children[i]);
+
+				meta.name=children[i].getAttribute('name');
+				meta.type=children[i].getAttribute('type');
+				meta.sortable=JSON.parse(children[i].getAttribute('sortable').toLowerCase());
+				meta.searchable=JSON.parse(children[i].getAttribute('searchable').toLowerCase());
+				meta.editable=JSON.parse(children[i].getAttribute('editable').toLowerCase());
+				meta.required=JSON.parse(children[i].getAttribute('required').toLowerCase());
+				meta.placeholder=children[i].getAttribute('placeholder');
+				meta.default=children[i].getAttribute('default');
+				meta.hint=children[i].getAttribute('hint');
+				meta.searchplaceholder=children[i].getAttribute('searchplaceholder');
+
+				metas.push(meta);
 			};
-			return columns;
+			return metas;
 		},
 
 		//=============
@@ -416,7 +432,7 @@
 						this.meta.push({
 							name: prop,
 							label: prop.charAt(0).toUpperCase() + prop.slice(1), 
-							type: true === this.data[0][prop] || false === this.data[0][prop] ? "checkbox" : "text", 
+							type: [true, false].indexOf(this.data[0][prop]) > -1 ? "boolean" : "string", 
 							sortable: true, 
 							searchable: true, 
 							editable: true, 
@@ -458,7 +474,7 @@
 			var column = e.target.templateInstance.model.column;
 			if(row){
 				if (column.required && !e.target.validity.valid) {
-					this.fire('after-td-click', {"row" : row, "column" : column});
+					this.fire('after-invalid', {"row" : row, "column" : column});
 				}
 
 				if ("CHECKBOX" === e.target.type.toUpperCase()) {
@@ -487,33 +503,36 @@
 			if(e.target.templateInstance.model.column){
 				var searchedColumn = e.target.templateInstance.model.column.name;
 				for (var i = this.data.length - 1; i >= 0; i--) {
-					if (this.data[i]._not_matched_columns === undefined) {
-						this.data[i]._not_matched_columns = [];
+					var row = this.data[i];
+					if (row._not_matched_columns === undefined) {
+						row._not_matched_columns = [];
 					}
 
 					if ("CHECKBOX" === e.target.type.toUpperCase()) {
-						this.data[i]._filtered = e.target.checked && !this.data[i][searchedColumn];
+						row._filtered = e.target.checked && !row[searchedColumn];
 						continue;
 					}
 
 					if (e.target.value === ""
-						|| this.data[i][searchedColumn]
-						&& this.data[i][searchedColumn].toString().slice(0, e.target.value.length).toLowerCase() == e.target.value.toString().toLowerCase()) {
-						var _not_matched_index = this.data[i]._not_matched_columns.indexOf(searchedColumn);
+						|| row[searchedColumn]
+						&& row[searchedColumn].toString().slice(0, e.target.value.length).toLowerCase() == e.target.value.toString().toLowerCase()) {
+						var _not_matched_index = row._not_matched_columns.indexOf(searchedColumn);
 						if (_not_matched_index > -1) {
-							this.data[i]._not_matched_columns.splice(_not_matched_index, 1);
+							row._not_matched_columns.splice(_not_matched_index, 1);
 						}
-						if (this.data[i]._not_matched_columns.length === 0) {
-							this.data[i]._filtered = false;
+						if (row._not_matched_columns.length === 0) {
+							row._filtered = false;
 						} else {
-							this.data[i]._filtered = true;
+							row._filtered = true;
 						}
 					} else {
-						this.data[i]._filtered = true;
-						if (this.data[i]._not_matched_columns.indexOf(searchedColumn) === -1) {
-							this.data[i]._not_matched_columns.push(searchedColumn);
+						row._filtered = true;
+						if (row._not_matched_columns.indexOf(searchedColumn) === -1) {
+							row._not_matched_columns.push(searchedColumn);
 						}
 					}
+
+
 				};
 
 				this.currentpage = 0;
@@ -615,13 +634,14 @@
 			var to   = from + this.pagesize;
 			var count = 0;
 			for (var i = 0; i < this.data.length; i++) {
-				if (!this.data[i]._filtered) {
+				var row = this.data[i];
+				if (!row._filtered) {
 					count++;
 				}
 				if (count <= from || count > to) {
-					this.data[i]._hidden = true;
+					row._hidden = true;
 				} else {
-					this.data[i]._hidden = false;
+					row._hidden = false;
 				}
 			};
 		},
@@ -684,11 +704,12 @@
 		selectall: function(e,p){
 			if(e.target.checked){
 				for(var i=0;i<this.data.length;i++){
-					if (!this.data[i]._filtered && !this.data[i]._hidden) {
-						if(this.selected.indexOf(this.data[i])==-1) {
-							this.selected.push(this.data[i]);
+					var row = this.data[i];
+					if (!row._filtered && !row._hidden) {
+						if(this.selected.indexOf(row)==-1) {
+							this.selected.push(row);
 						}
-						this.data[i]._selected = true;
+						row._selected = true;
 					}
 				}
 			}else{
