@@ -330,6 +330,8 @@
 		deleted: [],
 		//selected: all selected row will be referenced here.
 		selected: [],
+		//all visiable rows are reference here.
+		viewingRow: [], 
 		//selectable: if table row is selectable
 		selectable: true,
 		//copyable: if table row is copyable
@@ -487,33 +489,36 @@
 			if(e.target.templateInstance.model.column){
 				var searchedColumn = e.target.templateInstance.model.column.name;
 				for (var i = this.data.length - 1; i >= 0; i--) {
-					if (this.data[i]._not_matched_columns === undefined) {
-						this.data[i]._not_matched_columns = [];
+					var row = this.data[i];
+					if (row._not_matched_columns === undefined) {
+						row._not_matched_columns = [];
 					}
 
 					if ("CHECKBOX" === e.target.type.toUpperCase()) {
-						this.data[i]._filtered = e.target.checked && !this.data[i][searchedColumn];
+						row._filtered = e.target.checked && !row[searchedColumn];
 						continue;
 					}
 
 					if (e.target.value === ""
-						|| this.data[i][searchedColumn]
-						&& this.data[i][searchedColumn].toString().slice(0, e.target.value.length).toLowerCase() == e.target.value.toString().toLowerCase()) {
-						var _not_matched_index = this.data[i]._not_matched_columns.indexOf(searchedColumn);
+						|| row[searchedColumn]
+						&& row[searchedColumn].toString().slice(0, e.target.value.length).toLowerCase() == e.target.value.toString().toLowerCase()) {
+						var _not_matched_index = row._not_matched_columns.indexOf(searchedColumn);
 						if (_not_matched_index > -1) {
-							this.data[i]._not_matched_columns.splice(_not_matched_index, 1);
+							row._not_matched_columns.splice(_not_matched_index, 1);
 						}
-						if (this.data[i]._not_matched_columns.length === 0) {
-							this.data[i]._filtered = false;
+						if (row._not_matched_columns.length === 0) {
+							row._filtered = false;
 						} else {
-							this.data[i]._filtered = true;
+							row._filtered = true;
 						}
 					} else {
-						this.data[i]._filtered = true;
-						if (this.data[i]._not_matched_columns.indexOf(searchedColumn) === -1) {
-							this.data[i]._not_matched_columns.push(searchedColumn);
+						row._filtered = true;
+						if (row._not_matched_columns.indexOf(searchedColumn) === -1) {
+							row._not_matched_columns.push(searchedColumn);
 						}
 					}
+
+
 				};
 
 				this.currentpage = 0;
@@ -615,13 +620,14 @@
 			var to   = from + this.pagesize;
 			var count = 0;
 			for (var i = 0; i < this.data.length; i++) {
-				if (!this.data[i]._filtered) {
+				var row = this.data[i];
+				if (!row._filtered) {
 					count++;
 				}
 				if (count <= from || count > to) {
-					this.data[i]._hidden = true;
+					row._hidden = true;
 				} else {
-					this.data[i]._hidden = false;
+					row._hidden = false;
 				}
 			};
 		},
@@ -684,11 +690,12 @@
 		selectall: function(e,p){
 			if(e.target.checked){
 				for(var i=0;i<this.data.length;i++){
-					if (!this.data[i]._filtered && !this.data[i]._hidden) {
-						if(this.selected.indexOf(this.data[i])==-1) {
-							this.selected.push(this.data[i]);
+					var row = this.data[i];
+					if (!row._filtered && !row._hidden) {
+						if(this.selected.indexOf(row)==-1) {
+							this.selected.push(row);
 						}
-						this.data[i]._selected = true;
+						row._selected = true;
 					}
 				}
 			}else{
