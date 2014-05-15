@@ -177,24 +177,25 @@
 				<tr class="search-head {{ searchable ? '' : 'hide'}}">
 					<th>{{searchtitle}} </th>
 					<th template
-						repeat="{{ column in meta }}"
-						class="{{ column.searchable ? 'searchable' : 'hide'">
-						<select 
-							on-change="{{ search }}" 
-							class="{{ 'choice' === column.type ? '' : 'hide' }}">
-								<option template 
-									repeat="{{ option in column.options }}"
-									value="{{ option.value }}">
-									{{ option.label }}
-								</option>
-						</select>
-						<input type="checkbox" 
-							on-change="{{ search }}" 
-							class="{{ 'boolean' === column.type ? '' : 'hide' }}"/>
-						<input type="text" 
-							on-keyup="{{ search }}" 
-							placeholder?="{{ column.searchplaceholder }}" 
-							class="{{ 'choice' !== column.type && 'boolean' !== column.type ? '' : 'hide' }}"/>
+						repeat="{{ column in meta }}">
+						<div class="{{ column.searchable ? 'searchable' : 'hide'}}">
+							<select 
+								on-change="{{ search }}" 
+								class="{{ 'choice' === column.type ? '' : 'hide' }}">
+									<option template 
+										repeat="{{ option in column.options }}"
+										value="{{ option.value }}">
+										{{ option.label }}
+									</option>
+							</select>
+							<input type="checkbox" 
+								on-change="{{ search }}" 
+								class="{{ 'boolean' === column.type ? '' : 'hide' }}"/>
+							<input type="text" 
+								on-keyup="{{ search }}" 
+								placeholder?="{{ column.searchplaceholder }}" 
+								class="{{ 'choice' !== column.type && 'boolean' !== column.type ? '' : 'hide' }}"/>
+						</div>
 					</th>
 				</tr>
 			</thead>
@@ -490,8 +491,9 @@
 			}
 		},
 		sort: function(e, p) {
-			if(e.target.templateInstance.model.column){
-				var sortingColumn = e.target.templateInstance.model.column.name;
+			var column = e.target.templateInstance.model.column;
+			if(column && column.sortable){
+				var sortingColumn = column.name;
 				if (sortingColumn == this.sortedColumn){
 					this.descending = !this.descending;
 				} else {
