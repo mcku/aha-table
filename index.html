@@ -56,6 +56,21 @@
 	#console {
 		color: red;
 	}
+	#themed .paging {
+		display: block;
+		float: left;
+	}
+	#themed .pagesize {
+		display: block;
+		float: left;
+	}
+	#themed .summary {
+		display: block;
+		float: right;
+	}
+	#themed tfoot td {
+		background-color: #eee;
+	}
 	</style>
 </head>
 <body>
@@ -71,9 +86,12 @@
 		searchable="false"
 		pagesize="5" 
 		data-sizelist="[2,5,10]"
+		pagesizetext="Page Size: " 
+		summarytext="Viewing: "
+		pagetext="Page:"
+		pageoftext="of"
+		itemoftext="of"
 		searchtitle="Show/Hide Filters"
-		pagesizetitle="Page Size: " 
-		summarytitle="Viewing: "
 		sorttitle="click to sort"
 		selecttitle="click to select"
 		selectalltitle="click to select/deselect all"
@@ -81,6 +99,10 @@
 		copytitle="click to copy"
 		removetitle="click to remove"
 		searchtitle="click to show/hide search filters bar"
+		firsttitle="First"
+		previoustitle="Previous"
+		nexttitle="Next"
+		lasttitle="Last"
 		copyclass="fa fa-copy"
 		hintclass="fa fa-info-circle"
 		removeclass="fa fa-trash-o"

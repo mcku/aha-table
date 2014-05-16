@@ -54,7 +54,8 @@
 <polymer-element name="aha-table" attributes="
 selectable searchable copyable removable
 pagesize data-sizelist
-selecttitle selectalltitle sorttitle columntitle copytitle removetitle edittitle searchtitle pagesizetitle summarytitle
+selecttitle selectalltitle sorttitle columntitle copytitle removetitle edittitle searchtitle firsttitle nexttitle previoustitle lasttitle
+pagetext pageoftext pagesizetext summarytext itemoftext
 hintclass copyclass removeclass filtershownclass filterhiddenclass">
 	<template>
 		<style>
@@ -100,44 +101,28 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			aha-table .searchable select {
 				width: 80px;
 			}
-			aha-table .pagination {
-				margin: 10px;
-				text-align: center;
-				line-height: 20px;
-			}
-			aha-table .pagination table {
-				border-spacing: 0;
-				border: 0;
-			}
-			aha-table .pagination td {
-				padding: 0;
-			}
-			aha-table .pagination .active button {
+			aha-table .pagination .active {
 				background-color: #ccc;
 			}
-			aha-table .pagination .available button:hover {
+			aha-table .pagination .available:hover {
 				background-color: #eee;
 			}
-			aha-table .pagination .disabled button {
+			aha-table .pagination .disabled {
 				color: #ccc;
+			}
+			aha-table .pagination button+button {
+				margin-left: -10px;
 			}
 			aha-table .pagination button {
 				background-color: #fff;
 				border: 1px solid #eee;
-				min-width: 40px;
-				margin: 0;
-				line-height: 20px;
-				padding: 4px 12px;
-				text-decoration: none;
 				cursor: pointer;
 				user-select: none;
 			}
 			aha-table .pagination input {
 				background-color: #fff;
 				border: 1px solid #eee;
-				width: 40px;
-				line-height: 20px;
-				padding: 4px 12px;
+				width: 20px;
 			}
 			aha-table table .hide {
 				display: none !important;
@@ -286,37 +271,42 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="{{meta.length+1}}" class="pagination">
-						<table>
-							<tr>
-								<td class='{{currentpage === 0 ? "disabled" : "available"}} '>
-									<button on-click="{{firstPage}}">{{first}}</button>
-								</td>
-								<td class='{{currentpage === 0 ? "disabled" : "available"}}'>
-									<button on-click="{{prevPage}}">{{previous}}</button>
-								</td>
-								<td template
-									repeat="{{ n in currentRange }}" 
-									class="{{n == currentpage ? 'active' : 'available'}}" >
-									<button data-item="{{n}}" on-click="{{setPage}}">{{n+1}}</button>
-								</td>
-								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : "available"}}'>
-									<button on-click="{{nextPage}}">{{next}}</button>
-								</td>
-								<td class='{{pageCount <= 0 || currentpage === pageCount? "disabled" : "available"}}'>
-									<button on-click="{{lastPage}}">{{last}}</button>
-								</td>
-								<td>
-									{{ pagesizetitle }}
-									<select value="{{pagesize}}">
-										<option template repeat="{{n in sizelist}}" selected?="{{ n == pagesize }}">{{n}}</option>
-									</select>
-								</td>
-								<td>
-									{{ summarytitle }} {{ firstItemIndex }} - {{ lastItemIndex }} of {{ itemCount }}
-								</td>
-							</tr>
-						</table>
+					<td colspan="{{meta.length+1}}">
+						<div class="pagination">
+						<span class="paging">
+							<button
+								title="{{firsttitle}}"
+								class='first {{currentpage === 1 ? "disabled" : "available"}} '
+								on-click="{{firstPage}}">{{first}}</button>
+							<button
+								title="{{previoustitle}}"
+								class='previous {{currentpage === 1 ? "disabled" : "available"}}'
+								on-click="{{prevPage}}">{{previous}}</button>
+							<span class="pager">
+								{{pagetext || ''}}
+								<input type="text" value="{{currentpage}}"/>
+								{{pageoftext || '/'}}
+								{{pageCount}}
+							</span>
+							<button
+								title="{{nexttitle}}"
+								class='next {{pageCount <= 0 || currentpage === pageCount? "disabled" : "available"}}'
+								on-click="{{nextPage}}">{{next}}</button>
+							<button
+								title="{{lasttitle}}"
+								class='last {{pageCount <= 0 || currentpage === pageCount? "disabled" : "available"}}'
+								on-click="{{lastPage}}">{{last}}</button>
+						</span>
+						<span class="pagesize">
+							{{ pagesizetext || '' }}
+							<select value="{{pagesize}}">
+								<option template repeat="{{n in sizelist}}" selected?="{{ n == pagesize }}">{{n}}</option>
+							</select>
+						</span>
+						<span class="summary">
+							{{ summarytext || ''}} {{ firstItemIndex }} - {{ lastItemIndex }} {{ itemoftext || '/'}} {{ itemCount }}
+						</span>
+						</div>
 					</td>
 				</tr>
 			</tfoot>
@@ -376,19 +366,15 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 		//pagesize: the number of items to show per page
 		pagesize: 10,
 		//currentpage: the current active page in view
-		currentpage: 0,
-		//currentRange: the range of pages (e.g 1, 2, 3, 4, 5) to display
-		currentRange: [],
+		currentpage: 1,
 		//pageCount: the number of paginated pages
 		pageCount: 0,
 		//itemCount: the number of visible items
 		itemCount: 0,
 		//firstItemIndex: the index number of first item in the page, start from 1
-		firstItemIndex: 0,
+		firstItemIndex: 1,
 		//lastItemIndex: the index number of last item in the page, start from 1
-		lastItemIndex:  0,
-		//rangeSize: the total size of the paginated range of items
-		rangeSize: 5,
+		lastItemIndex:  1,
 		//sizelist: range list to adjust page size.
 		sizelist: [5, 10, 20, 50, 100],
 		//previous: label for the Previous button
@@ -467,7 +453,6 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 				this.editingRow._editing = false;
 			}
 			this.editingRow = row;
-			e.target.focus();
 		},
 		save: function(e) {
 			var row    = e.target.templateInstance.model.row;
@@ -536,7 +521,7 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 
 				};
 
-				this.currentpage = 0;
+				this.currentpage = 1;
 				this.refreshPagination();
 			}
 		},
@@ -570,68 +555,41 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 		//==================
 		//pagination
 		firstPage: function() {
-			this.currentpage = 0;
+			this.currentpage = 1;
 		},
 		prevPage: function() {
-			if ( this.currentpage > 0 ) {
+			if ( this.currentpage > 1 ) {
 				this.currentpage--;
 			}
 		},
 		nextPage: function() {
-			if ( this.currentpage < this.getPageCount() ) {
+			if ( this.currentpage < this.pageCount ) {
 				this.currentpage++;
 			}
 		},
 		lastPage: function() {
-			this.currentpage = this.getPageCount();
-		},
-		getItemCount: function() {
-			var count = 0;
-			for (var i = this.data.length - 1; i >= 0; i--) {
-				if (!this.data[i]._filtered) {
-					count++;
-				}
-			};
-			return count;
-		},
-		getPageCount: function() {
-			return Math.ceil( this.getItemCount() / this.pagesize ) - 1;
-		},
-		setPage: function(e,d,t) {
-			this.currentpage = parseInt( t.dataset.item, 10 );
+			this.currentpage = this.pageCount;
 		},
 		currentpageChanged: function(){
+			this.currentpage = this.currentpage ? parseInt(this.currentpage) : 0;
+			this.currentpage = this.currentpage < 1 ? 1 : this.currentpage;
+			this.currentpage = this.pageCount > 0 && this.currentpage > this.pageCount ? this.pageCount : this.currentpage;
 			this.filterPage();
-			this.currentRange = this.range();
-			this.firstItemIndex = this.currentpage * this.pagesize + 1;
+			this.firstItemIndex = (this.currentpage-1) * this.pagesize+1;
 			if (this.currentpage === this.pageCount) {
 				this.lastItemIndex = this.itemCount;
 			} else {
-				this.lastItemIndex = (this.currentpage + 1)* this.pagesize;
+				this.lastItemIndex = (this.currentpage)* this.pagesize;
 			}
 		},
 		pagesizeChanged: function(){
 			this.pagesize = parseInt(this.pagesize);
-			this.currentpage = 0;
+			this.currentpage = 1;
 			this.refreshPagination();
 		},
-		range: function() {
-			var paginations = [];
-			var start = this.currentpage;
-
-			if ( start > this.getPageCount() - this.rangeSize ) {
-				start = this.getPageCount() - this.rangeSize + 1;
-			}
-
-			for ( var i = start; i < start + this.rangeSize; i++ ) {
-				if (i >= 0) {
-					paginations.push(i);
-				}
-			}
-			return paginations;
-		},
+		// call this when total count is no changed.
 		filterPage: function() {
-			var from = this.currentpage * this.pagesize;
+			var from = (this.currentpage-1) * this.pagesize;
 			var to   = from + this.pagesize;
 			var count = 0;
 			for (var i = 0; i < this.data.length; i++) {
@@ -646,19 +604,17 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 				}
 			};
 		},
+		// call this when total count is change.
 		refreshPagination: function() {
-			// Update current range to account for items per page, range.
-			this.currentRange = this.range();
-
 			// Cache the total page count and item count
-			this.itemCount = this.getItemCount();
-			this.pageCount = this.getPageCount();
-			this.firstItemIndex = this.currentpage * this.pagesize + 1;
-			if (this.currentpage === this.pageCount) {
-				this.lastItemIndex = this.itemCount;
-			} else {
-				this.lastItemIndex = (this.currentpage + 1)* this.pagesize;
-			}
+			var count = 0;
+			for (var i = this.data.length - 1; i >= 0; i--) {
+				if (!this.data[i]._filtered) {
+					count++;
+				}
+			};
+			this.itemCount = count;
+			this.pageCount = Math.ceil( count / this.pagesize );
 
 			// Update model bound to UI with filtered range
 			this.filterPage();
@@ -821,10 +777,10 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			searchplaceholder: undefined,
 			ready: function() {
 				if (this.dataset.choices) {
-					options = [];
+					this.options = [];
 					var choices = JSON.parse(this.dataset.choices);
 					for (var option in choices) {
-						options.push({'value': option, 'label': choices[option]});
+						this.options.push({'value': option, 'label': choices[option]});
 					}
 				}
 			}
