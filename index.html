@@ -33,6 +33,10 @@
 		background-color: #f3f3f3;
 		color: #1B8CCD;
 	}
+	#themed tbody tr.rows.editing {
+		background-color: #fbec88;
+		border: 1px solid #fad42e;
+	}
 	#themed th.searchable input, #themed th.searchable select {
 		width: 90%;
 	}
@@ -45,17 +49,12 @@
 	#themed sup {
 		color:yellow;
 	}
-	#themed .remove-er .fa {
-		width: 11px;
-		overflow: hidden;
-	}
-	#themed .copy-er .fa {
-		width: 14px;
-		overflow: hidden;
-	}
 	#themed .search-head input {
 		width: 40px;
 		min-width: 90%;
+	}
+	#console {
+		color: red;
 	}
 	</style>
 </head>
@@ -65,21 +64,31 @@
 
 	<hr/>
 	<h2>Advanced usage: themed, customized columns, customized attributes, customized event handlers.</h2>
+	<div id="console"></div>
 	<aha-table id="themed"
 		selectable="true" 
 		copyable="true"
 		searchable="false"
 		pagesize="5" 
 		data-sizelist="[2,5,10]"
-		searchtitle="Filters"
+		searchtitle="Show/Hide Filters"
 		pagesizetitle="Page Size: " 
 		summarytitle="Viewing: "
+		sorttitle="click to sort"
+		selecttitle="click to select"
+		selectalltitle="click to select/deselect all"
+		edittitle="click to edit"
+		copytitle="click to copy"
+		removetitle="click to remove"
+		searchtitle="click to show/hide search filters bar"
 		copyclass="fa fa-copy"
-		removeclass="fa fa-trash-o">
+		hintclass="fa fa-info-circle"
+		removeclass="fa fa-trash-o"
+		filtershownclass="fa fa-search-minus"
+		filterhiddenclass="fa fa-search-plus">
 		<aha-column name="title" 
 			type="string" 
 			sortable="false"
-			searchable="true"
 			required="true"
 			editable="false"
 			searchplaceholder="Type to filter title"
@@ -88,45 +97,33 @@
 			hint="Meaningful title will help you remember"></aha-column>
 		<aha-column name="date"
 			type="date"
-			sortable="true"
 			searchable="false"
 			required="true"
-			editable="true"
 			placeholder="Event Date" 
 			hint="Dates are required"
 			default="2011-12-21"></aha-column>
 		<aha-column name="type"
 			type="choice"
-			sortable="true"
-			searchable="true"
 			required="true"
-			editable="true"
 			placeholder="Event Type" 
 			default="private"
 			hint="Public events will be available to everyone"
 			data-choices='{"":"", "private":"Private Event", "public":"Public Event"}'></aha-column>
 		<aha-column name="enabled" 
 			type="boolean"
-			sortable="true"
-			searchable="true"
 			required="true"
-			editable="true"
 			data-choices='{"1":"Yes", "0":"No"}'
 			placeholder="Enabled?" 
 			hint="Only enabled events will get alert"
 			default=""></aha-column>
 		<aha-column name="content"
 			type="text"
-			sortable="true"
-			searchable="true"
 			required="true"
-			editable="true"
 			hint="Keep it short"
 			placeholder="Content" 
 			default=""></aha-column>
 	</aha-table>
 	<BUTTON id="create" onclick="themed.create();">Create</BUTTON>
-	<div id="console"></div>
 
 	<script>
 		var events = [
@@ -152,6 +149,11 @@
 		var table_log = function(msg) {
 			document.getElementById("console").innerHTML = msg;
 		};
+		themed.addEventListener('after-invalid', function(e) {
+			table_log('This field is required');
+			e.detail.row._editing=true;
+			e.detail.event.target.focus();
+		});
 		themed.addEventListener('after-create', function(e) {
 			table_log('created one record');
 		});
