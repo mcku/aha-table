@@ -67,9 +67,6 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			aha-table .selected {
 				background-color: #f3f3f3;
 			}
-			aha-table .modified {
-				background-color: yellow;
-			}
 			aha-table .column-head {
 				white-space: nowrap;
 			}
@@ -467,7 +464,12 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 					row._modified = true;
 					this.modified.push(row);
 				}
-				row._editing = false;
+
+				if (!e.relatedTarget 
+					|| !e.relatedTarget.templateInstance
+					|| e.relatedTarget.templateInstance.model.row !== e.target.templateInstance.model.row) {
+					row._editing = false;
+				}
 
 				if (column.required && !e.target.validity.valid) {
 					this.fire('after-invalid', {"event": e, "row" : row, "column" : column});
