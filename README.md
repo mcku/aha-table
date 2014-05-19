@@ -1,11 +1,10 @@
 # &lt;aha-table&gt; ![Bower Version](https://badge.fury.io/bo/aha-table.svg)
 
-> A Polymer element for a searchable, sortable, paginatable, inline-editable, selectable, copiable, removable table/grid.
+> A Polymer element for a searchable, sortable, paginatable, inline-editable, selectable table/grid.
 
 ## Demo
 
 [Check it live!](http://liuwenchao.github.io/aha-table)
-[Performance Test!](http://liuwenchao.github.io/aha-table/performance.html)
 
 ## Usage
 
@@ -18,7 +17,7 @@
 2. Import Web Components' polyfill:
 
     ```html
-    <script src="//cdnjs.cloudflare.com/ajax/libs/polymer/0.2.4/platform.js"></script>
+    <script src="bower_components/platform/platform.js"></script>
     ```
 
 3. Import Custom Element:
