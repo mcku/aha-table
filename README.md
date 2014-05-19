@@ -63,13 +63,29 @@ Attribute       | Options       | Default   | Description
 `searchable`    | *Boolean*     | True      | if search row is displayed
 `copyable`      | *Boolean*     | True      | if copy handler is displayed
 `removable`     | *Boolean*     | True      | if remove handler is displayed
+`pagesize`      | *Number*      | 10        | record set size for each page
+`data-sizelist` | *Array*       | [5, 10, 20, 50, 100]      | list for page size dropdown
+`selecttitle`   | *String*      | undefined | title for select checkbox
+`selectalltitle`| *String*      | undefined | title for selectall checkbox
+`copytitle`     | *String*      | undefined | title for copy indicator
+`deletetitle`   | *String*      | undefined | title for remove indicator
+`sorttitle`     | *String*      | undefined | title for sortable column
+`edittitle`     | *String*      | undefined | title for editable data cell
+`searchtitle`   | *String*      | undefined | title for search filter row toggler
+`firsttitle`    | *String*      | undefined | title for first page clicker
+`previoustitle` | *String*      | undefined | title for previous page clicker
+`nexttitle`     | *String*      | undefined | title for next page clicker
+`lasttitle`     | *String*      | undefined | title for last page clicker
 `copyclass`     | *String*      | undefined | customized class for copy handler
 `removeclass`   | *String*      | undefined | customized class for remove handler
-`pagesize`      | *Number*      | 10        | record set size for each page
-`searchtitle`   | *String*      | undefined | text for search row
-`pagesizetitle` | *String*      | undefined | text before page size dropdown
+`hintclass`     | *String*      | undefined | customized class for hint element in header
+`pagetext`      | *String*      | undefined | text before current page number
+`pageoftext`    | *String*      | undefined | text between page range and total page number
+`pagesizetext`  | *String*      | undefined | text before page size dropdown
 `summarytitle`  | *String*      | undefined | text before pagination summary
-`data-sizelist` | *Array*       | [5, 10, 20, 50, 100]      | list for page size dropdown
+`itemoftext`    | *String*      | undefined | text between item count range and total item number
+`filtershownclass`    | *String*      | undefined | customized class of filterrow when filter row is shown
+`filterhiddenclass`   | *String*      | undefined | customized class of filterrow when filter row is hidden
 
 
 ## Options for aha-column
@@ -77,6 +93,7 @@ Attribute       | Options       | Default   | Description
 Attribute           | Options                   | Default               | Description
 ---                 | ---                       | ---                   | ---
 `name`              | *String*                  | undefined             | name of the column
+`label`             | *String*                  | undefined             | this text woll be displayed as the column name in table header.
 `type`              | *String*                  | undefined             | one of: string, text, choice, boolean, date, time, datetime
 `sortable`          | *Boolean*                 | True                  | if this column is sortable
 `searchable`        | *Boolean*                 | True                  | if this column is searchable
@@ -90,14 +107,17 @@ Attribute           | Options                   | Default               | Descri
 
 ## Events
 
-Name                    | Arguments                 | Description
----                     | ---                       | ---
-`after-invalid`         | `Object` *detail*         | call after saving a cell by it's invalid
-`after-td-click`        | `Object` *detail*         | call after user click a cell, usually after this cell is editable
-`after-td-dbclick`      | `Object` *detail*         | call after user dbclick a cell
-`after-create`          | `Object` *new_record*     | call after a record is created internally
-`after-copy`            | `Object` *new_record*     | call after a record is copyed from another internally
-`after-remove`          | `Object` *removed_record* | call after a record is removed internally
+Name                    | Arguments | Description
+---                     | ---       | ---
+`after-invalid`         | `Event`   | call after saving a cell by it's invalid
+`after-td-click`        | `Event`   | call after user click a cell, usually after this cell is editable
+`after-td-dbclick`      | `Event`   | call after user dbclick a cell
+`before-create`         | `Event`   | call before a record is created internally
+`after-create`          | `Event`   | call after a record is created internally
+`before-copy`           | `Event`   | call before a record is copyed from another internally
+`after-copy`            | `Event`   | call after a record is copyed from another internally
+`before-remove`         | `Event`   | call before a record is removed internally
+`after-remove`          | `Event`   | call after a record is removed internally
 
 ## Browser Compatability
 
