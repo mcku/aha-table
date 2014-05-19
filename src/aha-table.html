@@ -25,6 +25,7 @@
  *         summarytitle="Viewing">
  *         <aha-column name="title" 
  *             type="string" 
+ *             label="My Title"
  *             sortable="true"
  *             searchable="true"
  *             required="true"
@@ -186,11 +187,8 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			</thead>
 			<tbody>
 				<tr template
-					repeat="{{ row in data | _sort(sortedColumn, descending) }}"
-					if="{{!row._hidden && !row._filtered}}"
+					repeat="{{ row in viewingRows }}"
 					class="rows
-						{{ row._hidden || row._filtered ? 'hide' : ''}}
-						{{ row._selected ? 'selected' : '' }}
 						{{ row._modified ? 'modified' : '' }}
 						{{ row._editing  ? 'editing'  : '' }}
 					">
@@ -358,6 +356,10 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 		//editingRow: current editing row
 		//@type {Object}
 		editingRow : undefined,
+		//if filtering has been performed.
+		filtered: false,
+		//editingRow: current rows in display/view
+		viewingRows : [],
 		//descending: current sorting order
 		descending: false,
 		//pagesize: the number of items to show per page
@@ -486,72 +488,51 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 					this.sortedColumn = sortingColumn;
 				}
 			}
+
+			this.refreshPagination();
 		},
 		search: function(e, p) {
 			if(e.target.templateInstance.model.column){
 				var searchedColumn = e.target.templateInstance.model.column.name;
-				for (var i = this.data.length - 1; i >= 0; i--) {
-					var row = this.data[i];
-					if (row._not_matched_columns === undefined) {
-						row._not_matched_columns = [];
-					}
+				this.data.forEach(function(row){
+					var matched = false;
+					row._not_matched_columns = row._not_matched_columns || [];
 
+					//checkbox will only filter checked rows.
 					if ("CHECKBOX" === e.target.type.toUpperCase()) {
-						row._filtered = e.target.checked && !row[searchedColumn];
-						continue;
+						matched = !e.target.checked || row[searchedColumn];
+					} else if (
+						// empty search means it always match
+						e.target.value === "" 
+						|| 
+						// non-empty search and the content matches.
+						row[searchedColumn] 
+						&& row[searchedColumn].toString().indexOf(e.target.value.toString().toLowerCase()) > -1) {
+						matched = true;
 					}
 
-					if (e.target.value === ""
-						|| row[searchedColumn]
-						&& row[searchedColumn].toString().slice(0, e.target.value.length).toLowerCase() == e.target.value.toString().toLowerCase()) {
-						var _not_matched_index = row._not_matched_columns.indexOf(searchedColumn);
-						if (_not_matched_index > -1) {
-							row._not_matched_columns.splice(_not_matched_index, 1);
+					if (matched) {
+						if (row._not_matched_columns.indexOf(searchedColumn) > -1) {
+							// then we remove matched column from _not_matched_columns list.
+							row._not_matched_columns = row._not_matched_columns.splice(row._not_matched_columns.indexOf(searchedColumn), 1);
 						}
-						if (row._not_matched_columns.length === 0) {
-							row._filtered = false;
-						} else {
-							row._filtered = true;
-						}
+						// update _filtered state
+						// true if there's other not-matched_column
+						// false if all column matches.
+						row._filtered = row._not_matched_columns.length > 0;
 					} else {
+						// Not matched!
 						row._filtered = true;
 						if (row._not_matched_columns.indexOf(searchedColumn) === -1) {
 							row._not_matched_columns.push(searchedColumn);
 						}
 					}
+				});
 
+				this.filtered = this.data.some(function(row){return row._filtered;});
 
-				};
-
-				this.currentpage = 1;
 				this.refreshPagination();
 			}
-		},
-		_sort: function(array, key, desc) {
-			if (!array) return;
-
-			return array.sort(function(a, b) {
-				var x = a[key], y = b[key];
-
-				if (typeof x === 'undefined' || typeof y === 'undefined') {
-					//sort undefined after
-					if (typeof x === 'undefined'){
-						return !desc;
-					}else{
-						return desc;
-					}
-				} else {
-					if (typeof x === "string" && typeof y === "string"){
-						x = x.toLowerCase();
-						y = y.toLowerCase();
-					}
-					if (desc){
-						return ((x < y) ? 1 : ((x > y) ? -1 : 0));
-					} else {
-						return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-					}
-				}
-			});
 		},
 
 		//==================
@@ -586,35 +567,48 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 		},
 		pagesizeChanged: function(){
 			this.pagesize = parseInt(this.pagesize);
-			this.currentpage = 1;
 			this.refreshPagination();
 		},
 		// call this when total count is no changed.
 		filterPage: function() {
 			var from = (this.currentpage-1) * this.pagesize;
 			var to   = from + this.pagesize;
-			var count = 0;
-			for (var i = 0; i < this.data.length; i++) {
-				var row = this.data[i];
-				if (!row._filtered) {
-					count++;
-				}
-				if (count <= from || count > to) {
-					row._hidden = true;
-				} else {
-					row._hidden = false;
-				}
-			};
+			var filteredRows = this.filtered 
+					? this.data.filter(function(r){return !r._filtered;})
+					: this.data;
+			if (this.sortedColumn) {
+				// sorting map: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Sorting_maps
+				filteredRows = 
+				filteredRows
+				.map(function(e, i){
+					var v = e[this.sortedColumn];
+					return {
+						index: i, 
+						value: typeof v === "string" ? v.toLowerCase() : v
+					};
+				}, this)
+				.sort(function(a, b) {
+					return this.descending 
+					? (a.value < b.value ? 1 : -1)
+					: (a.value > b.value ? 1 : -1);
+				}.bind(this))
+				.map(function(e){
+					return filteredRows[e.index];
+				});
+			}
+			this.viewingRows = filteredRows.slice(from, to);
 		},
 		// call this when total count is change.
 		refreshPagination: function() {
+			// Usually go to the first page is the best way to avoid chaos.
+			this.currentpage = 1;
 			// Cache the total page count and item count
 			var count = 0;
-			for (var i = this.data.length - 1; i >= 0; i--) {
-				if (!this.data[i]._filtered) {
+			this.data.forEach(function(row) {
+				if (!row._filtered) {
 					count++;
 				}
-			};
+			});
 			this.itemCount = count;
 			this.pageCount = Math.ceil( count / this.pagesize );
 
@@ -662,31 +656,27 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 		},
 		selectall: function(e,p){
 			if(e.target.checked){
-				for(var i=0;i<this.data.length;i++){
-					var row = this.data[i];
-					if (!row._filtered && !row._hidden) {
-						if(this.selected.indexOf(row)==-1) {
-							this.selected.push(row);
-						}
-						row._selected = true;
+				this.viewingRows.forEach(function(row){
+					if(this.selected.indexOf(row)==-1) {
+						this.selected.push(row);
 					}
-				}
+					row._selected = true;
+				}, this);
 			}else{
-				this.selected = [];
-				for(var i=0;i<this.data.length;i++){
-					this.data[i]._selected = false;
-				}
+				this.data.forEach(function(row) {
+					row._selected = false;
+				});
 			}
 		},
 		create: function(obj) {
 			this.fire('before-create', obj);
 			var _default = {_editing: true, _modified: true};
 			var _new = obj instanceof Object ? obj : _default;
-			for (var i = this.meta.length - 1; i >= 0; i--) {
-				if (this.meta[i].default && _new[this.meta[i].name] === undefined) {
-					_new[this.meta[i].name] = this.meta[i].default;
+			this.meta.forEach(function(column) {
+				if (column.default && _new[column.name] === undefined) {
+					_new[column.name] = column.default;
 				}
-			};
+			});
 			this.data.splice(0,0,_new);
 			this.modified.push(_new);
 			this.fire('after-create', _new);
@@ -772,18 +762,16 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			placeholder: undefined,
 			default: undefined,
 			//choices read from data-choices attribute
-			options: undefined,
+			options: [],
 			//hint text in column header
 			hint: undefined,
 			//placehoder for filter input
 			searchplaceholder: undefined,
 			ready: function() {
 				if (this.dataset.choices) {
-					this.options = [];
-					var choices = JSON.parse(this.dataset.choices);
-					for (var option in choices) {
+					JSON.parse(this.dataset.choices).forEach(function(option) {
 						this.options.push({'value': option, 'label': choices[option]});
-					}
+					}, this);
 				}
 			}
 		});
