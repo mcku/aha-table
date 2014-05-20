@@ -236,17 +236,17 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 							<input type="date" 
 								required?="{{ column.required }}"
 								class="{{ 'date' === column.type ? '' : 'hide'}}"
-								on-change="{{ save }}" 
+								on-blur="{{ save }}" 
 								value="{{ row[column.name] }}"/>
 							<input type="time" 
 								required?="{{ column.required }}"
 								class="{{ 'time' === column.type ? '' : 'hide'}}"
-								on-change="{{ save }}" 
+								on-blur="{{ save }}" 
 								value="{{ row[column.name] }}"/>
 							<input type="datetime" 
 								required?="{{ column.required }}"
 								class="{{ 'datetime' === column.type ? '' : 'hide'}}"
-								on-change="{{ save }}" 
+								on-blur="{{ save }}" 
 								value="{{ row[column.name] }}"/>
 							<textarea
 								required?="{{ column.required }}"
@@ -769,7 +769,6 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			searchplaceholder: undefined,
 			ready: function() {
 				if (this.dataset.choices) {
-					this.options=[];
 					var choices = JSON.parse(this.dataset.choices);
 					for(option in choices) {
 						this.options.push({'value': option, 'label': choices[option]});
