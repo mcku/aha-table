@@ -769,6 +769,7 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			searchplaceholder: undefined,
 			ready: function() {
 				if (this.dataset.choices) {
+					this.options = [];
 					var choices = JSON.parse(this.dataset.choices);
 					for(option in choices) {
 						this.options.push({'value': option, 'label': choices[option]});
