@@ -1,6 +1,8 @@
 bower_components/
 node_modules/
-dist/aha-tbody.html
-dist/aha-th.html
-dist/aha-td.html
-dist/aha-tr.html
+dist/aha-table.html
+package.json
+bower.json
+README.md
+Gruntfile.js
+.editorconfig
