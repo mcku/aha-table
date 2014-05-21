@@ -9,27 +9,31 @@
 [Performance Test!](http://liuwenchao.github.io/aha-table/performance.html)
 
 
-## Usage
+## Install
 
-1. Install the component using [Bower](http://bower.io/):
+Install the component using [Bower](http://bower.io/):
 
     ```sh
     $ bower install aha-table --save
     ```
 
-2. Import Web Components' polyfill:
+Or [download as ZIP](https://github.com/liuwenchao/aha-table/archive/master.zip).
+
+## Usage
+
+1. Import Web Components' polyfill:
 
     ```html
     <script src="bower_components/platform/platform.js"></script>
     ```
 
-3. Import Custom Element:
+2. Import Custom Element:
 
     ```html
     <link rel="import" href="bower_components/aha-table/dist/aha-table.html">
     ```
 
-4. Start using it!
+3. Start using it!
 
     ```html
     <aha-table></aha-table>
