@@ -57,7 +57,9 @@
      </aha-table>
     ```
 
-## Options
+## &lt;aha-table&gt;
+
+### Options
 
 Attribute       | Options       | Default   | Description
 ---             | ---           | ---       | ---
@@ -91,7 +93,26 @@ Attribute       | Options       | Default   | Description
 `filterhiddenclass`   | *String*      | undefined | customized class of filterrow when filter row is hidden
 
 
-## Options for aha-column
+## Events
+
+Name                    | Arguments | Description
+---                     | ---       | ---
+`after-invalid`         | `Event`   | call after saving a cell by it's invalid
+`after-td-click`        | `Event`   | call after user click a cell, usually after this cell is editable
+`after-td-dbclick`      | `Event`   | call after user dbclick a cell
+`before-create`         | `Event`   | call before a record is created internally
+`after-create`          | `Event`   | call after a record is created internally
+`before-copy`           | `Event`   | call before a record is copyed from another internally
+`after-copy`            | `Event`   | call after a record is copyed from another internally
+`before-remove`         | `Event`   | call before a record is removed internally
+`after-remove`          | `Event`   | call after a record is removed internally
+
+
+## &lt;aha-column&gt;
+
+Provides you a declarative way to define column meta.
+
+### Options
 
 Attribute           | Options                   | Default               | Description
 ---                 | ---                       | ---                   | ---
@@ -108,19 +129,6 @@ Attribute           | Options                   | Default               | Descri
 `hint`              | *String*                  | undefined             | this text will be displayed at the column header for instruction.
 `searchplaceholder` | *String*                  | undefined             | this text will be displayed in search filter input box.
 
-## Events
-
-Name                    | Arguments | Description
----                     | ---       | ---
-`after-invalid`         | `Event`   | call after saving a cell by it's invalid
-`after-td-click`        | `Event`   | call after user click a cell, usually after this cell is editable
-`after-td-dbclick`      | `Event`   | call after user dbclick a cell
-`before-create`         | `Event`   | call before a record is created internally
-`after-create`          | `Event`   | call after a record is created internally
-`before-copy`           | `Event`   | call before a record is copyed from another internally
-`after-copy`            | `Event`   | call after a record is copyed from another internally
-`before-remove`         | `Event`   | call before a record is removed internally
-`after-remove`          | `Event`   | call after a record is removed internally
 
 ## Browser Compatability
 
