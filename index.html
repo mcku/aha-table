@@ -29,7 +29,7 @@
 		padding: 8px 5px;
 		border: 1px solid #a0cfef;
 	}
-	#themed tbody tr.rows:hover, .selected {
+	#themed tbody tr.rows:hover, #themed .rows.selected {
 		background-color: #f3f3f3;
 		color: #1B8CCD;
 	}
@@ -81,16 +81,21 @@
 	<h2>Advanced usage: themed, customized columns, customized attributes, customized event handlers.</h2>
 	<div id="console"></div>
 	<aha-table id="themed"
-		selectable="true" 
-		copyable="true"
-		searchable="false"
+
+		selectable
+		searchable
+		copyable
+		removable
+
 		pagesize="5" 
 		data-sizelist="[2,5,10]"
+
 		pagesizetext="Page Size: " 
 		summarytext="Viewing: "
 		pagetext="Page:"
 		pageoftext="of"
 		itemoftext="of"
+
 		searchtitle="Show/Hide Filters"
 		sorttitle="click to sort"
 		selecttitle="click to select"
@@ -103,6 +108,7 @@
 		previoustitle="Previous"
 		nexttitle="Next"
 		lasttitle="Last"
+
 		copyclass="fa fa-copy"
 		hintclass="fa fa-info-circle"
 		removeclass="fa fa-trash-o"
@@ -110,48 +116,71 @@
 		filterhiddenclass="fa fa-search-plus">
 		<aha-column name="title" 
 			type="string" 
-			sortable="false"
-			required="true"
-			editable="false"
+
+			sortable
+			searchable
+			editable
+			required
+
 			searchplaceholder="Type to filter title"
 			placeholder="Evenet Title" 
 			default="" 
 			hint="Meaningful title will help you remember"></aha-column>
 		<aha-column name="date"
 			type="date"
-			searchable="false"
-			required="true"
+
+			searchable
+			editable
+			sortable
+			required
+
 			placeholder="Event Date" 
 			hint="Dates are required"
 			default="2011-12-21"></aha-column>
 		<aha-column name="time"
 			type="time"
-			searchable="false"
+			editable
+
 			placeholder="Event Time" 
 			hint="Time are not required"
 			default="19:00"></aha-column>
 		<aha-column name="datetime"
 			type="datetime"
-			searchable="false"
+			editable
+
 			placeholder="Stop Date Time" 
 			hint="Time are not required"></aha-column>
 		<aha-column name="type"
 			type="choice"
-			required="true"
+
+			searchable
+			editable
+			sortable
+			required
+
 			placeholder="Event Type" 
 			default="private"
 			hint="Public events will be available to everyone"
 			data-choices='{"":"", "private":"Private Event", "public":"Public Event"}'></aha-column>
 		<aha-column name="enabled" 
 			type="boolean"
-			required="true"
+
+			searchable
+			editable
+			sortable
+			required
+
 			data-choices='{"1":"Yes", "0":"No"}'
 			placeholder="Yes/No" 
 			hint="Only enabled events will get alert"
 			default=""></aha-column>
 		<aha-column name="content"
 			type="text"
-			required="true"
+
+			searchable
+			editable
+			required
+
 			hint="Keep it short"
 			placeholder="Event Content" 
 			default=""></aha-column>
