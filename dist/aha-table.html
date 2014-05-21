@@ -191,6 +191,7 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 					class="rows
 						{{ row._modified ? 'modified' : '' }}
 						{{ row._editing  ? 'editing'  : '' }}
+						{{ row._selected ? 'selected'  : '' }}
 					">
 					<td>
 						<input type="checkbox" 
@@ -328,13 +329,13 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 		//all visiable rows are reference here.
 		viewingRow: [], 
 		//selectable: if table row is selectable
-		selectable: true,
+		selectable: false,
 		//copyable: if table row is copyable
-		copyable: true,
+		copyable: false,
 		//removable: if table row is removable
-		removable: true,
+		removable: false,
 		//searchable: if table row is searchable
-		searchable: true,
+		searchable: false,
 		// text displayed in first column of search row.
 		searchtitle: "",
 		// text displayed as title of select checkbox.
@@ -427,6 +428,7 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			}
 			this.refreshPagination();
 		},
+		modifiedChanged: function() {},
 		//translate value to labels for select
 		translate: function(value, options, blank){
 			if (value != "" && options) {
@@ -439,7 +441,6 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			value = value === undefined || value === null ? '' : value;
 			return value === "" ? blank : value;
 		},
-		modifiedChanged: function() {},
 		capitalize: function(value) {
 			if (!value instanceof String || value.length === 0) 
 				return value;
@@ -754,9 +755,9 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 			name: "",
 			//column type: string, text, date, time, datetime, choice
 			type: "string",
-			sortable: true,
-			searchable: true,
-			editable: true,
+			sortable: false,
+			searchable: false,
+			editable: false,
 			requried: false,
 			//used for placeholder for empty cell.
 			placeholder: undefined,
