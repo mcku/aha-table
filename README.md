@@ -41,19 +41,18 @@ Or [download as ZIP](https://github.com/liuwenchao/aha-table/archive/master.zip)
 
     ```html
     <aha-table
-          selectable="true" 
-          copyable="true"
-          seachable="true"
+          selectable
+          copyable
+          seachable
           pagesize="20" 
           pagesizetitle="Page Size:" 
           summarytitle="Viewing">
 
           <aha-column name="title" 
               type="string" 
-              sortable="true"
-              searchable="true"
-              required="true"
-              editable="false"
+              sortable
+              searchable
+              required
               placeholder="Empty Field Placeholder Text" 
               default="" 
               hint="a hint in column header">
