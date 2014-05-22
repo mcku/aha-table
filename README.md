@@ -68,10 +68,10 @@ Or [download as ZIP](https://github.com/liuwenchao/aha-table/archive/master.zip)
 Attribute       | Options       | Default   | Description
 ---             | ---           | ---       | ---
 `data`          | *Array*       | []        | data for this table, need to set in JS.
-`selectable`    | *Boolean*     | True      | if selection box is displayed
-`searchable`    | *Boolean*     | True      | if search row is displayed
-`copyable`      | *Boolean*     | True      | if copy handler is displayed
-`removable`     | *Boolean*     | True      | if remove handler is displayed
+`selectable`    | *Boolean*     | false     | if selection box is displayed
+`searchable`    | *Boolean*     | False      | if search row is displayed
+`copyable`      | *Boolean*     | False      | if copy handler is displayed
+`removable`     | *Boolean*     | False      | if remove handler is displayed
 `pagesize`      | *Number*      | 10        | record set size for each page
 `data-sizelist` | *Array*       | [5, 10, 20, 50, 100]      | list for page size dropdown
 `selecttitle`   | *String*      | undefined | title for select checkbox
@@ -123,10 +123,10 @@ Attribute           | Options                   | Default               | Descri
 `name`              | *String*                  | undefined             | name of the column
 `label`             | *String*                  | undefined             | this text woll be displayed as the column name in table header.
 `type`              | *String*                  | undefined             | one of: string, text, choice, boolean, date, time, datetime
-`sortable`          | *Boolean*                 | True                  | if this column is sortable
-`searchable`        | *Boolean*                 | True                  | if this column is searchable
-`editable`          | *Boolean*                 | True                  | if this column is editable
-`required`          | *Boolean*                 | True                  | if this column is required, Event 'after-invalid' will be invoked
+`sortable`          | *Boolean*                 | False                  | if this column is sortable
+`searchable`        | *Boolean*                 | False                  | if this column is searchable
+`editable`          | *Boolean*                 | False                  | if this column is editable
+`required`          | *Boolean*                 | False                  | if this column is required, Event 'after-invalid' will be invoked
 `placeholder`       | *String*                  | undefined             | this text will be displayed when this cell is empty
 `default`           | *String*                  | undefined             | default value, applied at creation
 `data-choices`      | *Array*                   | []                    | options for select dropdown, in editing and searching.
