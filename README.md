@@ -68,7 +68,7 @@ Or [download as ZIP](https://github.com/liuwenchao/aha-table/archive/master.zip)
 Attribute       | Options       | Default   | Description
 ---             | ---           | ---       | ---
 `data`          | *Array*       | []        | data for this table, need to set in JS.
-`selectable`    | *Boolean*     | false     | if selection box is displayed
+`selectable`    | *Boolean*     | False     | if selection box is displayed
 `searchable`    | *Boolean*     | False      | if search row is displayed
 `copyable`      | *Boolean*     | False      | if copy handler is displayed
 `removable`     | *Boolean*     | False      | if remove handler is displayed
