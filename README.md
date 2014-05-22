@@ -13,9 +13,9 @@
 
 Install the component using [Bower](http://bower.io/):
 
-    ```sh
-    $ bower install aha-table --save
-    ```
+```sh
+$ bower install aha-table --save
+```
 
 Or [download as ZIP](https://github.com/liuwenchao/aha-table/archive/master.zip).
 
