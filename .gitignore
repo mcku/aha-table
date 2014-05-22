@@ -1,8 +1,0 @@
-bower_components/
-node_modules/
-dist/aha-table.html
-package.json
-bower.json
-README.md
-Gruntfile.js
-.editorconfig
