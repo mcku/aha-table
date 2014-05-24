@@ -57,80 +57,89 @@ selectable searchable copyable removable
 pagesize data-sizelist
 selecttitle selectalltitle sorttitle columntitle copytitle removetitle edittitle searchtitle firsttitle nexttitle previoustitle lasttitle
 pagetext pageoftext pagesizetext summarytext itemoftext
-hintclass copyclass removeclass filtershownclass filterhiddenclass">
+">
 	<template>
 		<style>
 			/* styles for the custom element itself - lowest specificity */
-			aha-table { 
+			:host { 
 				display: block;
 			}
-			aha-table .rows:hover, 
-			aha-table .selected {
+			.rows:hover, 
+			.selected {
 				background-color: #f3f3f3;
 			}
-			aha-table .column-head {
+			.column-head {
 				white-space: nowrap;
 			}
-			aha-table .sortable .column-head,
-			aha-table .filterrow {
+			.sortable .column-head,
+			.filterrow {
 				cursor: pointer;
 			}
-			aha-table .sortable .column-head:hover {
+			.sortable .column-head:hover {
 				text-decoration: underline;
 			}
-			aha-table .arrow-up,
-			aha-table .arrow-down {
+			.arrow-up,
+			.arrow-down {
 				width: 0; 
 				height: 0; 
 				border-left: 5px solid transparent;
 				border-right: 5px solid transparent;
 			}
-			aha-table .arrow-up {
+			.arrow-up {
 				border-bottom: 5px solid black;
 			}
-			aha-table .arrow-down {
+			.arrow-down {
 				border-top: 5px solid black;
 			}
-			aha-table .copy-er, 
-			aha-table .remove-er {
+			.copy-er, 
+			.remove-er {
 				cursor: pointer;
 			}
-			aha-table .searchable input, 
-			aha-table .searchable select {
+			.copy-er i:before{
+				content: '+';
+			}
+			.remove-er i:before {
+				content: '-';
+			}
+			.hint:before {
+				content: 'i';
+			}
+			.searchable input, 
+			.searchable select {
 				width: 80px;
 			}
-			aha-table .pagination .active {
+			.pagination .active {
 				background-color: #ccc;
 			}
-			aha-table .pagination .available:hover {
+			.pagination .available:hover {
 				background-color: #eee;
 			}
-			aha-table .pagination .disabled {
+			.pagination .disabled {
 				color: #ccc;
 			}
-			aha-table .pagination button+button {
+			.pagination button+button {
 				margin-left: -10px;
 			}
-			aha-table .pagination button {
+			.pagination button {
 				background-color: #fff;
 				border: 1px solid #eee;
 				cursor: pointer;
 				user-select: none;
 			}
-			aha-table .pagination input {
+			.pagination input {
 				background-color: #fff;
 				border: 1px solid #eee;
 				width: 20px;
 			}
-			aha-table table .hide {
+			.hide {
 				display: none !important;
 			}
-			aha-table table .empty {
+			.empty {
 				font-style: italic;
 				color: #999;
 			}
 		</style>
-		<table id="main" unresolved="">
+		<table id="aha_table_main" unresolved="">
 			<thead>
 				<tr>
 					<th>
@@ -140,7 +149,7 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 							class="{{ selectable ? '' : 'hide'}}"/>
 						<div
 							title="{{searchtitle}}"
-							class="filterrow {{ searchable ? filtershownclass || 'arrow-up' : filterhiddenclass || 'arrow-down'}}"
+							class="filterrow {{ searchable ? 'arrow-up' : 'arrow-down'}}"
 							on-click="{{ toggleFilters }}"></div>
 					</th>
 					<th template 
@@ -156,8 +165,8 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 							title="{{sorttitle}}"
 							on-click="{{ sort }}">{{ column.label ? column.label : column.name | capitalize }}</span>
 						<span 
-							class="{{ column.hint ? 'hint' : 'hide' }} {{hintclass}}" 
-							title="{{ column.hint }}">{{hintclass ? '' : 'i'}}</span>
+							class="{{ column.hint ? 'hint' : 'hide' }}" 
+							title="{{ column.hint }}"></span>
 					</th>
 				</tr>
 				<tr class="search-head {{ searchable ? '' : 'hide'}}">
@@ -202,12 +211,12 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 						<a class="copy-er {{ copyable ? '' : 'hide' }}" 
 							on-click="{{copy}}" 
 							title="{{ copytitle }}">
-							<i class="{{ copyclass }}">{{copyclass ? '' : 'C'}}</i>
+							<i></i>
 						</a>
 						<a class="remove-er {{ removable ? '' : 'hide' }}" 
 							on-click="{{remove}}" 
 							title="{{ removetitle }}">
-							<i class="{{ removeclass }}">{{removeclass ? '' : 'R'}}</i>
+							<i></i>
 						</a>
 					</td>
 					<td template 
@@ -260,7 +269,7 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 								checked?="{{ row[column.name] }}" />
 						</div>
 						<div class="{{ column.editable && row._editing ? 'hide' : ''}} {{ row[column.name] ? '' : 'empty'}}">{{ 
-							row[column.name] | translate(column.options, column.placeholder) 
+							row[column.name] | _translate(column.options, column.placeholder) 
 						}}</div>
 					</td>
 				</tr>
@@ -399,15 +408,15 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 				this.sizelist = JSON.parse(this.dataset.sizelist);
 			}
 			//Show element when it's ready.
-			this.$.main.setAttribute('resolved', '');
-			this.$.main.removeAttribute('unresolved');
+			this.$.aha_table_main.setAttribute('resolved', '');
+			this.$.aha_table_main.removeAttribute('unresolved');
 		},
 
 		//=============
 		//internal methods
 		dataChanged: function() {
 			if (this.meta.length === 0)  {
-				this.$.main.setAttribute('unresolved', '');
+				this.$.aha_table_main.setAttribute('unresolved', '');
 				// generate meta from data if meta is not provided from aha-column.
 				this.meta = [];
 				for (var prop in this.data[0]) {
@@ -423,14 +432,14 @@ hintclass copyclass removeclass filtershownclass filterhiddenclass">
 						});
 					}
 				}
-				this.$.main.setAttribute('resolved', '');
-				this.$.main.removeAttribute('unresolved');
+				this.$.aha_table_main.setAttribute('resolved', '');
+				this.$.aha_table_main.removeAttribute('unresolved');
 			}
 			this.refreshPagination();
 		},
 		modifiedChanged: function() {},
 		//translate value to labels for select
-		translate: function(value, options, blank){
+		_translate: function(value, options, blank){
 			if (value != "" && options) {
 				for (var i = options.length - 1; i >= 0; i--) {
 					if (options[i].value == value) {
