@@ -79,16 +79,20 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 				text-decoration: underline;
 			}
 			.arrow-up,
-			.arrow-down {
+			.arrow-down,
+			.search,
+			.nosearch {
 				width: 0; 
 				height: 0; 
 				border-left: 5px solid transparent;
 				border-right: 5px solid transparent;
 			}
-			.arrow-up {
+			.arrow-up,
+			.search {
 				border-bottom: 5px solid black;
 			}
-			.arrow-down {
+			.arrow-down,
+			.nosearch {
 				border-top: 5px solid black;
 			}
 			.copy-er, 
@@ -149,7 +153,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 							class="{{ selectable ? '' : 'hide'}}"/>
 						<div
 							title="{{searchtitle}}"
-							class="filterrow {{ searchable ? 'arrow-up' : 'arrow-down'}}"
+							class="filterrow {{ searchable ? 'search' : 'nosearch'}}"
 							on-click="{{ toggleFilters }}"></div>
 					</th>
 					<th template 

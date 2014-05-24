@@ -58,10 +58,12 @@
   background-color: #eee;
 }
 #themed .hint,
-#themed .filterrow,
+#themed .search,
+#themed .nosearch,
 #themed .copy-er i,
 #themed .remove-er i
  {
+  border: 0;
   display: inline-block;
   font-family: FontAwesome;
   font-style: normal;
@@ -73,7 +75,10 @@
 #themed .hint:before {
   content:"\f05a";
 }
-#themed .filterrow:before {
+#themed .search:before {
+  content:"\f00e";
+}
+#themed .nosearch:before {
   content:"\f010";
 }
 #themed .copy-er i:before {

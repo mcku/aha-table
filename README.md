@@ -84,16 +84,11 @@ Attribute       | Options       | Default   | Description
 `previoustitle` | *String*      | undefined | title for previous page clicker
 `nexttitle`     | *String*      | undefined | title for next page clicker
 `lasttitle`     | *String*      | undefined | title for last page clicker
-`copyclass`     | *String*      | undefined | customized class for copy handler
-`removeclass`   | *String*      | undefined | customized class for remove handler
-`hintclass`     | *String*      | undefined | customized class for hint element in header
 `pagetext`      | *String*      | undefined | text before current page number
 `pageoftext`    | *String*      | undefined | text between page range and total page number
 `pagesizetext`  | *String*      | undefined | text before page size dropdown
 `summarytitle`  | *String*      | undefined | text before pagination summary
 `itemoftext`    | *String*      | undefined | text between item count range and total item number
-`filtershownclass`    | *String*      | undefined | customized class of filterrow when filter row is shown
-`filterhiddenclass`   | *String*      | undefined | customized class of filterrow when filter row is hidden
 
 
 ## Events
