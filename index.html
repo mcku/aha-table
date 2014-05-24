@@ -13,63 +13,13 @@
 	<!-- Importing Custom Elements -->
 	<link rel="import" href="src/aha-table.html">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+	<!-- used when shadow dom is natively implemented -->
+	<link rel="stylesheet" href="demo/theme.css">
+	<!-- used when shadow dom is not implemented -->
+	<link rel="stylesheet" href="demo/theme-shim.css">
 	<style>
-	#themed table{
-		color: #333;
-		border-spacing: 0;
-		border-collapse: collapse;
-		font-size: 14px;
-		border: 1px solid #a0cfef;
-	}
-	#themed .pagination table, #themed .pagination tr, #themed .pagination td{
-		border: 0;
-	}
-	#themed th.sortable, #themed .rows td {
-		white-space: nowrap;
-		padding: 8px 5px;
-		border: 1px solid #a0cfef;
-	}
-	#themed tbody tr.rows:hover, #themed .rows.selected {
-		background-color: #f3f3f3;
-		color: #1B8CCD;
-	}
-	#themed tbody tr.rows.editing {
-		background-color: #fbec88;
-		border: 1px solid #fad42e;
-	}
-	#themed th.searchable input, #themed th.searchable select {
-		width: 90%;
-	}
-	#themed th {
-		border: 1px solid #a0cfef;
-		background: #c3e2f6;
-		color: #2e6e9e;
-		font-weight: bold;
-	}
-	#themed sup {
-		color:yellow;
-	}
-	#themed .search-head input {
-		width: 40px;
-		min-width: 90%;
-	}
 	#console {
 		color: red;
-	}
-	#themed .paging {
-		display: block;
-		float: left;
-	}
-	#themed .pagesize {
-		display: block;
-		float: left;
-	}
-	#themed .summary {
-		display: block;
-		float: right;
-	}
-	#themed tfoot td {
-		background-color: #eee;
 	}
 	</style>
 </head>
@@ -108,12 +58,7 @@
 		previoustitle="Previous"
 		nexttitle="Next"
 		lasttitle="Last"
-
-		copyclass="fa fa-copy"
-		hintclass="fa fa-info-circle"
-		removeclass="fa fa-trash-o"
-		filtershownclass="fa fa-search-minus"
-		filterhiddenclass="fa fa-search-plus">
+		>
 		<aha-column name="title" 
 			type="string" 
 
