@@ -444,7 +444,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 		modifiedChanged: function() {},
 		//translate value to labels for select
 		_translate: function(value, options, blank){
-			if (value != "" && options) {
+			if (value !== "" && options) {
 				for (var i = options.length - 1; i >= 0; i--) {
 					if (options[i].value == value) {
 						return options[i].label;
