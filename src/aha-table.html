@@ -272,7 +272,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 								on-change="{{ save }}" 
 								checked?="{{ row[column.name] }}" />
 						</div>
-						<div class="{{ column.editable && row._editing ? 'hide' : ''}} {{ row[column.name] ? '' : 'empty'}}">{{ 
+						<div class="{{ column.editable && row._editing ? 'hide' : ''}} {{ row[column.name] === null || row[column.name] === undefined ? 'empty' : ''}}">{{ 
 							row[column.name] | _translate(column.options, column.placeholder) 
 						}}</div>
 					</td>
