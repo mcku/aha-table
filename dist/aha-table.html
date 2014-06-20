@@ -379,7 +379,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 		//pagesize: the number of items to show per page
 		pagesize: 10,
 		//currentpage: the current active page in view
-		currentpage: 1,
+		currentpage: 0,
 		//pageCount: the number of paginated pages
 		pageCount: 0,
 		//itemCount: the number of visible items
@@ -414,6 +414,8 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			//Show element when it's ready.
 			this.$.aha_table_main.setAttribute('resolved', '');
 			this.$.aha_table_main.removeAttribute('unresolved');
+
+			this.currentpage = 1;
 		},
 
 		//=============
@@ -439,7 +441,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 				this.$.aha_table_main.setAttribute('resolved', '');
 				this.$.aha_table_main.removeAttribute('unresolved');
 			}
-			this.refreshPagination();
+			this.refreshPagination(true);
 		},
 		modifiedChanged: function() {},
 		//translate value to labels for select
@@ -613,9 +615,11 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			this.viewingRows = filteredRows.slice(from, to);
 		},
 		// call this when total count is change.
-		refreshPagination: function() {
-			// Usually go to the first page is the best way to avoid chaos.
-			this.currentpage = 1;
+		refreshPagination: function(keepInTheCurentPage) {
+			if (!keepInTheCurentPage) {
+				// Usually go to the first page is the best way to avoid chaos.
+				this.currentpage = 1;
+			}
 			// Cache the total page count and item count
 			var count = 0;
 			this.data.forEach(function(row) {
