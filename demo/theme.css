@@ -61,6 +61,8 @@
 #themed::shadow .search,
 #themed::shadow .nosearch,
 #themed::shadow .copy-er i,
+#themed::shadow .move-down-er i,
+#themed::shadow .move-up-er i,
 #themed::shadow .remove-er i
  {
   border: 0;
@@ -88,4 +90,10 @@
 }
 #themed::shadow .remove-er i:before {
   content:"\f014";
+}
+#themed::shadow .move-down-er i:before {
+  content:"\f063";
+}
+#themed::shadow .move-up-er i:before {
+  content:"\f062";
 }

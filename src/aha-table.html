@@ -17,20 +17,22 @@
  *     <aha-table></aha-table>
  *
  *     <aha-table id="raw" 
- *         selectable="true" 
- *         copyable="true"
- *         seachable="true"
+ *         selectable
+ *         copyable
+ *         removable
+ *         movable
+ *         seachable
  *         pagesize="20" 
  *         pagesizetitle="Page Size:" 
  *         summarytitle="Viewing">
  *         <aha-column name="title" 
  *             type="string" 
  *             label="My Title"
- *             sortable="true"
- *             searchable="true"
- *             required="true"
- *             editable="false"
- *             placeholder="" 
+ *             sortable
+ *             searchable
+ *             required
+ *             editable
+ *             placeholder="Example text" 
  *             default="" 
  *             hint="Meaning title will help you remember">
  *         </aha-column>
@@ -43,6 +45,8 @@
  *     after-create(Object new_record)
  *     after-copy(Object new_record)
  *     after-remove(Object removed_record)
+ *     after-move-down(Object moved_record)
+ *     after-move-up(Object moved_record)
  *
  * @class aha-table
  * @author Louis Liu<louis.wenchao.liu@gmail.com>
@@ -53,9 +57,9 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <polymer-element name="aha-table" attributes="
-selectable searchable copyable removable
+selectable searchable copyable removable movable
 pagesize data-sizelist
-selecttitle selectalltitle sorttitle columntitle copytitle removetitle edittitle searchtitle firsttitle nexttitle previoustitle lasttitle
+selecttitle selectalltitle sorttitle columntitle copytitle removetitle movedowntitle  moveuptitle edittitle searchtitle firsttitle nexttitle previoustitle lasttitle
 pagetext pageoftext pagesizetext summarytext itemoftext
 ">
 	<template>
@@ -96,6 +100,8 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 				border-top: 5px solid black;
 			}
 			.copy-er, 
+			.move-down-er,
+			.move-up-er,
 			.remove-er {
 				cursor: pointer;
 			}
@@ -104,6 +110,12 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			}
 			.remove-er i:before {
 				content: '-';
+			}
+			.move-down-er i:before {
+				content: '\2193';
+			}
+			.move-up-er i:before {
+				content: '\2191';
 			}
 			.hint:before {
 				content: 'i';
@@ -220,6 +232,16 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 						<a class="remove-er {{ removable ? '' : 'hide' }}" 
 							on-click="{{remove}}" 
 							title="{{ removetitle }}">
+							<i></i>
+						</a>
+						<a class="move-down-er {{ movable ? '' : 'hide' }}" 
+							on-click="{{movedown}}" 
+							title="{{ movedowntitle }}">
+							<i></i>
+						</a>
+						<a class="move-up-er {{ movable ? '' : 'hide' }}" 
+							on-click="{{moveup}}" 
+							title="{{ moveuptitle }}">
 							<i></i>
 						</a>
 					</td>
@@ -347,6 +369,8 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 		copyable: false,
 		//removable: if table row is removable
 		removable: false,
+		//movable: if table row is movable
+		movable: false,
 		//searchable: if table row is searchable
 		searchable: false,
 		// text displayed in first column of search row.
@@ -363,6 +387,10 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 		copytitle: "",
 		// text displayed as title of remove checkbox..
 		removetitle: "",
+		// text displayed as title of move up indicator.
+		moveuptitle: "",
+		// text displayed as title of move down indicator.
+		movedowntitle: "",
 		// text displayed as title of editable cell.
 		edittitle: "",
 		//sortedColumn: sorted column name
@@ -505,6 +533,10 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 				}
 			}
 
+			this.refreshPagination();
+		},
+		unsort: function() {
+			this.sortedColumn = "";
 			this.refreshPagination();
 		},
 		search: function(e, p) {
@@ -730,12 +762,46 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			}
 			this.fire('after-remove', obj);
 		},
+		movedown: function(e) {
+			var obj = e.target.templateInstance.model.row;
+			this.fire('before-move-down', obj);
+			if (this.sortedColumn) {
+				this.unsort();
+			}
+			this.data.movedown(obj);
+			this.fire('after-move-down', obj);
+		},
+		moveup: function(e) {
+			var obj = e.target.templateInstance.model.row;
+			this.fire('before-move-up', obj);
+			if (this.sortedColumn) {
+				this.unsort();
+			}
+			this.data.moveup(obj);
+			this.fire('after-move-up', obj);
+		},
 		toggleFilters: function() {
 			this.searchable = !this.searchable;
 		}
 	});
 
 	// Private methods
+	Array.prototype.moveup = function (obj) {
+		var index = this.indexOf(obj);
+		if (index > 0) {
+			this[index] = this[index-1];
+			this[index-1] = obj;
+		}
+		return this;
+	}
+	Array.prototype.movedown = function (obj) {
+		var index = this.indexOf(obj);
+		if (index > -1 && index < this.length - 1) {
+			this[index] = this[index+1];
+			this[index+1] = obj;
+		}
+		return this;
+	}
 	</script>
 </polymer-element>
 
@@ -750,11 +816,11 @@ pagetext pageoftext pagesizetext summarytext itemoftext
  *    <aha-column 
  *         name="content"
  *         type="text"
- *         sortable="true"
- *         searchable="true"
- *         required="true"
- *         editable="true"
- *         placeholder="" 
+ *         sortable
+ *         searchable
+ *         required
+ *         editable
+ *         placeholder="example" 
  *         default="">
  *    </aha-column>
  *
