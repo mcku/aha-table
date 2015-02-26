@@ -36,6 +36,7 @@
 		searchable
 		copyable
 		removable
+		movable
 
 		pagesize="5" 
 		data-sizelist="[2,5,10]"
@@ -53,6 +54,8 @@
 		edittitle="click to edit"
 		copytitle="click to copy"
 		removetitle="click to remove"
+		movedowntitle="move down"
+		moveuptitle="move up"
 		searchtitle="click to show/hide search filters bar"
 		firsttitle="First"
 		previoustitle="Previous"
@@ -172,6 +175,12 @@
 		});
 		themed.addEventListener('after-copy', function(e) {
 			table_log('copied one record!');
+		});
+		themed.addEventListener('after-move-down', function(e) {
+			table_log('moved one record down!');
+		});
+		themed.addEventListener('after-move-up', function(e) {
+			table_log('moved one record up!');
 		});
 	</script>
 </body>

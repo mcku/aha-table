@@ -61,6 +61,8 @@
 #themed .search,
 #themed .nosearch,
 #themed .copy-er i,
+#themed .move-down-er i,
+#themed .move-up-er i,
 #themed .remove-er i
  {
   border: 0;
@@ -88,4 +90,10 @@
 }
 #themed .remove-er i:before {
   content:"\f014";
+}
+#themed .move-down-er i:before {
+  content:"\f063";
+}
+#themed .move-up-er i:before {
+  content:"\f062";
 }

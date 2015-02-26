@@ -1,6 +1,6 @@
 # &lt;aha-table&gt; ![Bower Version](https://badge.fury.io/bo/aha-table.svg)
 
-> A Polymer element for a searchable, sortable, paginatable, inline-editable, selectable, copyable, removable table/grid.
+> A Polymer element for a searchable, sortable, paginatable, inline-editable, selectable, copyable, removable, movable table/grid.
 
 ## Demo
 
@@ -43,6 +43,8 @@ Or [download as ZIP](https://github.com/liuwenchao/aha-table/archive/master.zip)
     <aha-table
           selectable
           copyable
+          removable
+          movable
           seachable
           pagesize="20" 
           pagesizetitle="Page Size:" 
@@ -71,12 +73,15 @@ Attribute       | Options       | Default   | Description
 `searchable`    | *Boolean*     | False      | if search row is displayed
 `copyable`      | *Boolean*     | False      | if copy handler is displayed
 `removable`     | *Boolean*     | False      | if remove handler is displayed
+`movable`       | *Boolean*     | False      | if move up/down handler is displayed
 `pagesize`      | *Number*      | 10        | record set size for each page
 `data-sizelist` | *Array*       | [5, 10, 20, 50, 100]      | list for page size dropdown
 `selecttitle`   | *String*      | undefined | title for select checkbox
 `selectalltitle`| *String*      | undefined | title for selectall checkbox
 `copytitle`     | *String*      | undefined | title for copy indicator
-`deletetitle`   | *String*      | undefined | title for remove indicator
+`removetitle`   | *String*      | undefined | title for remove indicator
+`movedowntitle` | *String*      | undefined | title for move down indicator
+`moveuptitle`   | *String*      | undefined | title for move up indicator
 `sorttitle`     | *String*      | undefined | title for sortable column
 `edittitle`     | *String*      | undefined | title for editable data cell
 `searchtitle`   | *String*      | undefined | title for search filter row toggler
@@ -104,6 +109,10 @@ Name                    | Arguments | Description
 `after-copy`            | `Event`   | call after a record is copyed from another internally
 `before-remove`         | `Event`   | call before a record is removed internally
 `after-remove`          | `Event`   | call after a record is removed internally
+`before-move-down`      | `Event`   | call before a record is moved down
+`after-move-down`       | `Event`   | call after a record is moved down
+`before-move-up`        | `Event`   | call before a record is moved up
+`after-move-up`         | `Event`   | call after a record is moved up
 
 
 ## &lt;aha-column&gt;
@@ -157,7 +166,7 @@ In order to run it locally you'll need to fetch some dependencies and a basic se
 3. To test your project, start the development server and open `http://localhost:8000`.
 
     ```sh
-    $ grunt
+    $ grunt server
     ```
 
 4. Once you finish developing it, build the distribution files and publish it on Bower.
