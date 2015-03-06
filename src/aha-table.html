@@ -555,7 +555,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 						|| 
 						// non-empty search and the content matches.
 						row[searchedColumn] 
-						&& row[searchedColumn].toString().indexOf(e.target.value.toString().toLowerCase()) > -1) {
+						&& row[searchedColumn].toString().toLowerCase().indexOf(e.target.value.toString().toLowerCase()) > -1) {
 						matched = true;
 					}
 
