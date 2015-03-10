@@ -6,7 +6,7 @@
 
 [Check it live!](http://liuwenchao.github.io/aha-table)
 
-[Performance Test!](http://liuwenchao.github.io/aha-table/performance.html)
+[Performance Test!](http://liuwenchao.github.io/aha-table/demo/performance.html)
 
 
 ## Install
