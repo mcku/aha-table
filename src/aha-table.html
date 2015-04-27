@@ -255,7 +255,6 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 							<select 
 								required?="{{ column.required }}"
 								class="{{ 'choice' === column.type ? '' : 'hide'}}"
-								on-change="{{ save }}" 
 								on-blur="{{ save }}">
 								<option template
 									repeat="{{ option in column.options }}"
