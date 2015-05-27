@@ -46,17 +46,17 @@ Or [download as ZIP](https://github.com/liuwenchao/aha-table/archive/master.zip)
           removable
           movable
           seachable
-          pagesize="20" 
-          pagesizetitle="Page Size:" 
+          pagesize="20"
+          pagesizetitle="Page Size:"
           summarytitle="Viewing">
 
-          <aha-column name="title" 
-              type="string" 
+          <aha-column name="title"
+              type="string"
               sortable
               searchable
               required
-              placeholder="Empty Field Placeholder Text" 
-              default="" 
+              placeholder="Empty Field Placeholder Text"
+              default=""
               hint="a hint in column header">
           </aha-column>
      </aha-table>
@@ -107,6 +107,8 @@ Name                    | Arguments | Description
 `after-create`          | `Event`   | call after a record is created internally
 `before-copy`           | `Event`   | call before a record is copyed from another internally
 `after-copy`            | `Event`   | call after a record is copyed from another internally
+`before-select`         | `Event`   | call before a record is selected
+`after-select`          | `Event`   | call after a record is selected
 `before-remove`         | `Event`   | call before a record is removed internally
 `after-remove`          | `Event`   | call after a record is removed internally
 `before-move-down`      | `Event`   | call before a record is moved down

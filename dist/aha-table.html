@@ -11,29 +11,29 @@
  * aha-table is an data table/grid, it cousumes a modal data
  * and modal meta to show a table that can search, sort, edit
  * in place and pagiation, click to edit.
- * 
+ *
  * Examples:
  *
  *     <aha-table></aha-table>
  *
- *     <aha-table id="raw" 
+ *     <aha-table id="raw"
  *         selectable
  *         copyable
  *         removable
  *         movable
  *         seachable
- *         pagesize="20" 
- *         pagesizetitle="Page Size:" 
+ *         pagesize="20"
+ *         pagesizetitle="Page Size:"
  *         summarytitle="Viewing">
- *         <aha-column name="title" 
- *             type="string" 
+ *         <aha-column name="title"
+ *             type="string"
  *             label="My Title"
  *             sortable
  *             searchable
  *             required
  *             editable
- *             placeholder="Example text" 
- *             default="" 
+ *             placeholder="Example text"
+ *             default=""
  *             hint="Meaning title will help you remember">
  *         </aha-column>
  *     </aha-table/>
@@ -44,6 +44,7 @@
  *     after-td-dbclick(Object detail)
  *     after-create(Object new_record)
  *     after-copy(Object new_record)
+ *     after-select(Object new_record)
  *     after-remove(Object removed_record)
  *     after-move-down(Object moved_record)
  *     after-move-up(Object moved_record)
@@ -65,10 +66,10 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 	<template>
 		<style>
 			/* styles for the custom element itself - lowest specificity */
-			:host { 
+			:host {
 				display: block;
 			}
-			.rows:hover, 
+			.rows:hover,
 			.selected {
 				background-color: #f3f3f3;
 			}
@@ -86,8 +87,8 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			.arrow-down,
 			.search,
 			.nosearch {
-				width: 0; 
-				height: 0; 
+				width: 0;
+				height: 0;
 				border-left: 5px solid transparent;
 				border-right: 5px solid transparent;
 			}
@@ -99,7 +100,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			.nosearch {
 				border-top: 5px solid black;
 			}
-			.copy-er, 
+			.copy-er,
 			.move-down-er,
 			.move-up-er,
 			.remove-er {
@@ -120,7 +121,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			.hint:before {
 				content: 'i';
 			}
-			.searchable input, 
+			.searchable input,
 			.searchable select {
 				width: 80px;
 			}
@@ -159,7 +160,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			<thead>
 				<tr>
 					<th>
-						<input type="checkbox" 
+						<input type="checkbox"
 							on-change="{{ selectall }}"
 							title="{{ selectalltitle }}"
 							class="{{ selectable ? '' : 'hide'}}"/>
@@ -168,7 +169,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 							class="filterrow {{ searchable ? 'search' : 'nosearch'}}"
 							on-click="{{ toggleFilters }}"></div>
 					</th>
-					<th template 
+					<th template
 						repeat="{{ column in meta }}"
 						title="{{ columntitle }}"
 						class="{{ column.sortable ? 'sortable' : ''}} aha-{{column.name}}-th">
@@ -176,12 +177,12 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 							{{ sortedColumn == column.name ? 'sorting ' : 'hide'}}
 							{{ descending ? 'arrow-down' : 'arrow-up'}}">
 						</span>
-						<span 
-							class="column-head" 
+						<span
+							class="column-head"
 							title="{{sorttitle}}"
 							on-click="{{ sort }}">{{ column.label ? column.label : column.name | capitalize }}</span>
-						<span 
-							class="{{ column.hint ? 'hint' : 'hide' }}" 
+						<span
+							class="{{ column.hint ? 'hint' : 'hide' }}"
 							title="{{ column.hint }}"></span>
 					</th>
 				</tr>
@@ -190,21 +191,21 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 					<th template
 						repeat="{{ column in meta }}">
 						<div class="{{ column.searchable ? 'searchable' : 'hide'}}">
-							<select 
-								on-change="{{ search }}" 
+							<select
+								on-change="{{ search }}"
 								class="{{ 'choice' === column.type ? '' : 'hide' }}">
-									<option template 
+									<option template
 										repeat="{{ option in column.options }}"
 										value="{{ option.value }}">
 										{{ option.label }}
 									</option>
 							</select>
-							<input type="checkbox" 
-								on-change="{{ search }}" 
+							<input type="checkbox"
+								on-change="{{ search }}"
 								class="{{ 'boolean' === column.type ? '' : 'hide' }}"/>
-							<input type="text" 
-								on-keyup="{{ search }}" 
-								placeholder?="{{ column.searchplaceholder }}" 
+							<input type="text"
+								on-keyup="{{ search }}"
+								placeholder?="{{ column.searchplaceholder }}"
 								class="{{ 'choice' !== column.type && 'boolean' !== column.type ? '' : 'hide' }}"/>
 						</div>
 					</th>
@@ -219,69 +220,69 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 						{{ row._selected ? 'selected'  : '' }}
 					">
 					<td>
-						<input type="checkbox" 
+						<input type="checkbox"
 						 	title="{{ selecttitle }}"
-						 	class="{{ selectable ? '' : 'hide'}}" 
-							on-change="{{ select }}" 
+						 	class="{{ selectable ? '' : 'hide'}}"
+							on-change="{{ select }}"
 							checked?="{{ row._selected }}"/>
-						<a class="copy-er {{ copyable ? '' : 'hide' }}" 
-							on-click="{{copy}}" 
+						<a class="copy-er {{ copyable ? '' : 'hide' }}"
+							on-click="{{copy}}"
 							title="{{ copytitle }}">
 							<i></i>
 						</a>
-						<a class="remove-er {{ removable ? '' : 'hide' }}" 
-							on-click="{{remove}}" 
+						<a class="remove-er {{ removable ? '' : 'hide' }}"
+							on-click="{{remove}}"
 							title="{{ removetitle }}">
 							<i></i>
 						</a>
-						<a class="move-down-er {{ movable ? '' : 'hide' }}" 
-							on-click="{{movedown}}" 
+						<a class="move-down-er {{ movable ? '' : 'hide' }}"
+							on-click="{{movedown}}"
 							title="{{ movedowntitle }}">
 							<i></i>
 						</a>
-						<a class="move-up-er {{ movable ? '' : 'hide' }}" 
-							on-click="{{moveup}}" 
+						<a class="move-up-er {{ movable ? '' : 'hide' }}"
+							on-click="{{moveup}}"
 							title="{{ moveuptitle }}">
 							<i></i>
 						</a>
 					</td>
-					<td template 
-						repeat="{{ column in meta }}" 
-						on-dblclick="{{ dbclick }}" 
-						on-click="{{ click }}" 
-						title="{{ column.editable ? edittitle: '' }}" 
+					<td template
+						repeat="{{ column in meta }}"
+						on-dblclick="{{ dbclick }}"
+						on-click="{{ click }}"
+						title="{{ column.editable ? edittitle: '' }}"
 						class="aha-td aha-{{column.name}}-td">
 						<div class="{{ column.editable && row._editing ? '' : 'hide'}}">
-							<select 
+							<select
 								required?="{{ column.required }}"
 								class="{{ 'choice' === column.type ? '' : 'hide'}}"
 								on-blur="{{ save }}">
 								<option template
 									repeat="{{ option in column.options }}"
-									value="{{ option.value }}" 
+									value="{{ option.value }}"
 									selected?="{{ row[column.name] == option.value }}">
 									{{ option.label }}
 								</option>
 							</select>
-							<input type="text" 
+							<input type="text"
 								required?="{{ column.required }}"
 								class="{{ 'string' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}" 
+								on-blur="{{ save }}"
 								value="{{ row[column.name] }}"/>
-							<input type="date" 
+							<input type="date"
 								required?="{{ column.required }}"
 								class="{{ 'date' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}" 
+								on-blur="{{ save }}"
 								value="{{ row[column.name] }}"/>
-							<input type="time" 
+							<input type="time"
 								required?="{{ column.required }}"
 								class="{{ 'time' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}" 
+								on-blur="{{ save }}"
 								value="{{ row[column.name] }}"/>
-							<input type="datetime" 
+							<input type="datetime"
 								required?="{{ column.required }}"
 								class="{{ 'datetime' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}" 
+								on-blur="{{ save }}"
 								value="{{ row[column.name] }}"/>
 							<textarea
 								required?="{{ column.required }}"
@@ -290,11 +291,11 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 								on-blur="{{ save }}">{{ row[column.name] }}</textarea>
 							<input type="checkbox"
 								class="{{ 'boolean' === column.type ? '' : 'hide'}}"
-								on-change="{{ save }}" 
+								on-change="{{ save }}"
 								checked?="{{ row[column.name] }}" />
 						</div>
-						<div class="{{ column.editable && row._editing ? 'hide' : ''}} {{ row[column.name] === null || row[column.name] === undefined ? 'empty' : ''}}">{{ 
-							row[column.name] | _translate(column.options, column.placeholder) 
+						<div class="{{ column.editable && row._editing ? 'hide' : ''}} {{ row[column.name] === null || row[column.name] === undefined ? 'empty' : ''}}">{{
+							row[column.name] | _translate(column.options, column.placeholder)
 						}}</div>
 					</td>
 				</tr>
@@ -361,7 +362,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 		//selected: all selected row will be referenced here.
 		selected: [],
 		//all visiable rows are reference here.
-		viewingRow: [], 
+		viewingRow: [],
 		//selectable: if table row is selectable
 		selectable: false,
 		//copyable: if table row is copyable
@@ -456,11 +457,11 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 					if (prop.indexOf('_') !== 0) {//skip internal field
 						this.meta.push({
 							name: prop,
-							label: prop.charAt(0).toUpperCase() + prop.slice(1), 
-							type: [true, false].indexOf(this.data[0][prop]) > -1 ? "boolean" : "string", 
-							sortable: true, 
-							searchable: true, 
-							editable: true, 
+							label: prop.charAt(0).toUpperCase() + prop.slice(1),
+							type: [true, false].indexOf(this.data[0][prop]) > -1 ? "boolean" : "string",
+							sortable: true,
+							searchable: true,
+							editable: true,
 							required: false
 						});
 					}
@@ -484,7 +485,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			return value === "" ? blank : value;
 		},
 		capitalize: function(value) {
-			if (!value instanceof String || value.length === 0) 
+			if (!value instanceof String || value.length === 0)
 				return value;
 			return value.charAt(0).toUpperCase() + value.slice(1);
 		},
@@ -510,7 +511,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 					this.modified.push(row);
 				}
 
-				if (!e.relatedTarget 
+				if (!e.relatedTarget
 					|| !e.relatedTarget.templateInstance
 					|| e.relatedTarget.templateInstance.model.row !== e.target.templateInstance.model.row) {
 					row._editing = false;
@@ -550,10 +551,10 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 						matched = !e.target.checked || row[searchedColumn];
 					} else if (
 						// empty search means it always match
-						e.target.value === "" 
-						|| 
+						e.target.value === ""
+						||
 						// non-empty search and the content matches.
-						row[searchedColumn] 
+						row[searchedColumn]
 						&& row[searchedColumn].toString().toLowerCase().indexOf(e.target.value.toString().toLowerCase()) > -1) {
 						matched = true;
 					}
@@ -620,22 +621,22 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 		filterPage: function() {
 			var from = (this.currentpage-1) * this.pagesize;
 			var to   = from + this.pagesize;
-			var filteredRows = this.filtered 
+			var filteredRows = this.filtered
 					? this.data.filter(function(r){return !r._filtered;})
 					: this.data;
 			if (this.sortedColumn) {
 				// sorting map: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Sorting_maps
-				filteredRows = 
+				filteredRows =
 				filteredRows
 				.map(function(e, i){
 					var v = e[this.sortedColumn];
 					return {
-						index: i, 
+						index: i,
 						value: typeof v === "string" ? v.toLowerCase() : v
 					};
 				}, this)
 				.sort(function(a, b) {
-					return this.descending 
+					return this.descending
 					? (a.value < b.value ? 1 : -1)
 					: (a.value > b.value ? 1 : -1);
 				}.bind(this))
@@ -686,6 +687,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 		select: function(e,p){
 			if (this.selectable) {
 				var row = e.target.templateInstance.model.row;
+				this.fire('before-select', row);
 				var index = this.selected.indexOf(row);
 				if (index > -1) {
 					if(row._selected){
@@ -701,6 +703,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 				if (!row._editing) {
 					e.preventDefault();
 				}
+				this.fire('after-select', row);
 			}
 		},
 		selectall: function(e,p){
@@ -812,14 +815,14 @@ pagetext pageoftext pagesizetext summarytext itemoftext
  *
  * child element for aha-table, used for meta building
  *
- *    <aha-column 
+ *    <aha-column
  *         name="content"
  *         type="text"
  *         sortable
  *         searchable
  *         required
  *         editable
- *         placeholder="example" 
+ *         placeholder="example"
  *         default="">
  *    </aha-column>
  *
