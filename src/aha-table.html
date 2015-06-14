@@ -57,399 +57,546 @@
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="aha-table" attributes="
-selectable searchable copyable removable movable
-pagesize data-sizelist
-selecttitle selectalltitle sorttitle columntitle copytitle removetitle movedowntitle  moveuptitle edittitle searchtitle firsttitle nexttitle previoustitle lasttitle
-pagetext pageoftext pagesizetext summarytext itemoftext
-">
+<dom-module id="aha-table">
+	<style>
+		/* styles for the custom element itself - lowest specificity */
+		:host {
+			display: block;
+			box-sizing: border-box;
+		}
+		.rows:hover,
+		.selected {
+			background-color: #f3f3f3;
+		}
+		.column-head {
+			white-space: nowrap;
+		}
+		.sortable .column-head,
+		.filterrow {
+			cursor: pointer;
+		}
+		.sortable .column-head:hover {
+			text-decoration: underline;
+		}
+		.arrow-up,
+		.arrow-down,
+		.filterrow,
+		.nosearch {
+			width: 0;
+			height: 0;
+			border-left: 5px solid transparent;
+			border-right: 5px solid transparent;
+			border-top: 5px solid black;
+		}
+		.arrow-up,
+		.filterrow.search {
+			border-top: 0;
+			border-bottom: 5px solid black;
+		}
+		.copy-er,
+		.move-down-er,
+		.move-up-er,
+		.remove-er {
+			cursor: pointer;
+		}
+		.copy-er i:before{
+			content: '+';
+		}
+		.remove-er i:before {
+			content: '-';
+		}
+		.move-down-er i:before {
+			content: '\2193';
+		}
+		.move-up-er i:before {
+			content: '\2191';
+		}
+		.hint:before {
+			content: 'i';
+		}
+		.searchable input,
+		.searchable select {
+			width: 80px;
+		}
+		.pagination .active {
+			background-color: #ccc;
+		}
+		.pagination .available:hover {
+			background-color: #eee;
+		}
+		.pagination .disabled {
+			color: #ccc;
+		}
+		.pagination button+button {
+			margin-left: -10px;
+		}
+		.pagination button {
+			background-color: #fff;
+			border: 1px solid #eee;
+			cursor: pointer;
+			user-select: none;
+		}
+		.pagination input {
+			background-color: #fff;
+			border: 1px solid #eee;
+			width: 20px;
+		}
+		.hide {
+			display: none !important;
+		}
+		.empty {
+			font-style: italic;
+			color: #999;
+		}
+	</style>
 	<template>
-		<style>
-			/* styles for the custom element itself - lowest specificity */
-			:host {
-				display: block;
-			}
-			.rows:hover,
-			.selected {
-				background-color: #f3f3f3;
-			}
-			.column-head {
-				white-space: nowrap;
-			}
-			.sortable .column-head,
-			.filterrow {
-				cursor: pointer;
-			}
-			.sortable .column-head:hover {
-				text-decoration: underline;
-			}
-			.arrow-up,
-			.arrow-down,
-			.search,
-			.nosearch {
-				width: 0;
-				height: 0;
-				border-left: 5px solid transparent;
-				border-right: 5px solid transparent;
-			}
-			.arrow-up,
-			.search {
-				border-bottom: 5px solid black;
-			}
-			.arrow-down,
-			.nosearch {
-				border-top: 5px solid black;
-			}
-			.copy-er,
-			.move-down-er,
-			.move-up-er,
-			.remove-er {
-				cursor: pointer;
-			}
-			.copy-er i:before{
-				content: '+';
-			}
-			.remove-er i:before {
-				content: '-';
-			}
-			.move-down-er i:before {
-				content: '\2193';
-			}
-			.move-up-er i:before {
-				content: '\2191';
-			}
-			.hint:before {
-				content: 'i';
-			}
-			.searchable input,
-			.searchable select {
-				width: 80px;
-			}
-			.pagination .active {
-				background-color: #ccc;
-			}
-			.pagination .available:hover {
-				background-color: #eee;
-			}
-			.pagination .disabled {
-				color: #ccc;
-			}
-			.pagination button+button {
-				margin-left: -10px;
-			}
-			.pagination button {
-				background-color: #fff;
-				border: 1px solid #eee;
-				cursor: pointer;
-				user-select: none;
-			}
-			.pagination input {
-				background-color: #fff;
-				border: 1px solid #eee;
-				width: 20px;
-			}
-			.hide {
-				display: none !important;
-			}
-			.empty {
-				font-style: italic;
-				color: #999;
-			}
-		</style>
 		<table id="aha_table_main" unresolved="">
 			<thead>
 				<tr>
 					<th>
 						<input type="checkbox"
-							on-change="{{ selectall }}"
-							title="{{ selectalltitle }}"
-							class="{{ selectable ? '' : 'hide'}}"/>
+							on-change="{{selectall}}"
+							title$="{{selectalltitle}}"
+							hidden$="{{!selectable}}"/>
 						<div
-							title="{{searchtitle}}"
-							class="filterrow {{ searchable ? 'search' : 'nosearch'}}"
-							on-click="{{ toggleFilters }}"></div>
+							title$="{{searchtitle}}"
+							hidden$="{{!searchable}}"
+							class="filterrow search"
+							on-click="toggleFilters"></div>
 					</th>
-					<th template
-						repeat="{{ column in meta }}"
-						title="{{ columntitle }}"
-						class="{{ column.sortable ? 'sortable' : ''}} aha-{{column.name}}-th">
-						<span class="
-							{{ sortedColumn == column.name ? 'sorting ' : 'hide'}}
-							{{ descending ? 'arrow-down' : 'arrow-up'}}">
-						</span>
-						<span
-							class="column-head"
-							title="{{sorttitle}}"
-							on-click="{{ sort }}">{{ column.label ? column.label : column.name | capitalize }}</span>
-						<span
-							class="{{ column.hint ? 'hint' : 'hide' }}"
-							title="{{ column.hint }}"></span>
-					</th>
+					<template is="dom-repeat" items="meta" as="column">
+						<th
+							title$="{{columntitle}}"
+							class="{{column.getHeader(column.name, column.sorting)}}">
+							<span
+								hidden$="sortedColumn !== column.name"
+								class="column.getSortingClass(column.descending)">
+							</span>
+							<span
+								class="column-head"
+								title$="{{sorttitle}}"
+								on-click="sort">{{column.label}}</span>
+							<span
+								hidden$="{{!column.hint}}"
+								class="hint"
+								title$="{{column.hint}}"></span>
+						</th>
+					</template>
 				</tr>
-				<tr class="search-head {{ searchable ? '' : 'hide'}}">
+				<tr class="search-head" hidden$="{{!searchable}}">
 					<th></th>
-					<th template
-						repeat="{{ column in meta }}">
-						<div class="{{ column.searchable ? 'searchable' : 'hide'}}">
-							<select
-								on-change="{{ search }}"
-								class="{{ 'choice' === column.type ? '' : 'hide' }}">
-									<option template
-										repeat="{{ option in column.options }}"
-										value="{{ option.value }}">
-										{{ option.label }}
-									</option>
-							</select>
-							<input type="checkbox"
-								on-change="{{ search }}"
-								class="{{ 'boolean' === column.type ? '' : 'hide' }}"/>
-							<input type="text"
-								on-keyup="{{ search }}"
-								placeholder?="{{ column.searchplaceholder }}"
-								class="{{ 'choice' !== column.type && 'boolean' !== column.type ? '' : 'hide' }}"/>
-						</div>
-					</th>
+					<template is="dom-repeat" items="meta" as="column">
+						<th>
+							<div
+							 	hidden$="{{!column.searchable}}"
+								class="searchable">
+								<template is="dom-if" if="{{column.isType('Choice')}}">
+									<select
+										on-change="search"
+											<template is="dom-repeat" items="column.options" as="option">
+												<option value$="{{option.value}}">{{option.label}}</option>
+											</template>
+									</select>
+								</template>
+								<template is="dom-if" if="{{column.isType('boolean')}}">
+									<input type="checkbox"
+										on-change="search"/>
+								</template>
+								<template is="dom-if" if="{{column.isTextType()}}">
+									<input type="text"
+										on-keyup="search"
+										placeholder$="{{column.searchplaceholder}}"/>
+								</template>
+							</div>
+						</th>
+					</template>
 				</tr>
 			</thead>
 			<tbody>
-				<tr template
-					repeat="{{ row in viewingRows }}"
-					class="rows
-						{{ row._modified ? 'modified' : '' }}
-						{{ row._editing  ? 'editing'  : '' }}
-						{{ row._selected ? 'selected'  : '' }}
-					">
+				<template is="dom-repeat" items="viewingRows" as="row">
+				<tr class="{{getRowClass(row)}}">
 					<td>
 						<input type="checkbox"
-						 	title="{{ selecttitle }}"
-						 	class="{{ selectable ? '' : 'hide'}}"
-							on-change="{{ select }}"
-							checked?="{{ row._selected }}"/>
-						<a class="copy-er {{ copyable ? '' : 'hide' }}"
-							on-click="{{copy}}"
-							title="{{ copytitle }}">
+						 	title$="{{selecttitle}}"
+						 	hidden$="{{!selectable}}"
+							on-change="select"
+							checked$="{{row._selected}}"/>
+						<a
+						 	hidden$="{{!copyable}}"
+							class="copy-er"
+							on-click="copy"
+							title$="{{copytitle}}">
 							<i></i>
 						</a>
-						<a class="remove-er {{ removable ? '' : 'hide' }}"
-							on-click="{{remove}}"
-							title="{{ removetitle }}">
+						<a
+						 	hidden$="{{!removable}}"
+							class="remove-er"
+							on-click="remove"
+							title="{{removetitle}}">
 							<i></i>
 						</a>
-						<a class="move-down-er {{ movable ? '' : 'hide' }}"
-							on-click="{{movedown}}"
-							title="{{ movedowntitle }}">
+						<a
+						 	hidden$="{{!movable}}"
+							class="move-down-er"
+							on-click="movedown"
+							title$="{{movedowntitle}}">
 							<i></i>
 						</a>
-						<a class="move-up-er {{ movable ? '' : 'hide' }}"
-							on-click="{{moveup}}"
-							title="{{ moveuptitle }}">
+						<a
+						 	hidden$="{{!movable}}"
+						  class="move-up-er"
+							on-click="moveup"
+							title$="{{moveuptitle}}">
 							<i></i>
 						</a>
 					</td>
-					<td template
-						repeat="{{ column in meta }}"
-						on-dblclick="{{ dbclick }}"
-						on-click="{{ click }}"
-						title="{{ column.editable ? edittitle: '' }}"
-						class="aha-td aha-{{column.name}}-td">
-						<div class="{{ column.editable && row._editing ? '' : 'hide'}}">
-							<select
-								required?="{{ column.required }}"
-								class="{{ 'choice' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}">
-								<option template
-									repeat="{{ option in column.options }}"
-									value="{{ option.value }}"
-									selected?="{{ row[column.name] == option.value }}">
-									{{ option.label }}
-								</option>
-							</select>
-							<input type="text"
-								required?="{{ column.required }}"
-								class="{{ 'string' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}"
-								value="{{ row[column.name] }}"/>
-							<input type="date"
-								required?="{{ column.required }}"
-								class="{{ 'date' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}"
-								value="{{ row[column.name] }}"/>
-							<input type="time"
-								required?="{{ column.required }}"
-								class="{{ 'time' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}"
-								value="{{ row[column.name] }}"/>
-							<input type="datetime"
-								required?="{{ column.required }}"
-								class="{{ 'datetime' === column.type ? '' : 'hide'}}"
-								on-blur="{{ save }}"
-								value="{{ row[column.name] }}"/>
-							<textarea
-								required?="{{ column.required }}"
-								class="{{ 'text' === column.type ? '' : 'hide'}}"
-								on-mouseover="{{ focus }}"
-								on-blur="{{ save }}">{{ row[column.name] }}</textarea>
-							<input type="checkbox"
-								class="{{ 'boolean' === column.type ? '' : 'hide'}}"
-								on-change="{{ save }}"
-								checked?="{{ row[column.name] }}" />
-						</div>
-						<div class="{{ column.editable && row._editing ? 'hide' : ''}} {{ row[column.name] === null || row[column.name] === undefined ? 'empty' : ''}}">{{
-							row[column.name] | _translate(column.options, column.placeholder)
-						}}</div>
-					</td>
+					<template is="dom-repeat" items="meta" as="column">
+						<td
+							on-dblclick="dbclick"
+							on-click="click"
+							title="{{column.getEditTitle(column.editable, edittitle)}}"
+							class="{{column.getCellClass(column.name)}}">
+							<div
+								hidden$="{{!isEditing(row._editing, column.editable)}}">
+								<select
+									required$="{{column.required}}"
+									hidden$="{{'choice' !== column.type}}"
+									on-blur="save">
+									<template is="dom-repeat" items="column.options" as="option">
+										<option
+											value="{{option.value}}"
+											selected$="{{row[column.name] == option.value}}">
+											{{option.label}}
+										</option>
+									</template>
+								</select>
+								<input type="text"
+									required$="{{column.required}}"
+									hidden$="{{'string' !== column.type}}"
+									on-blur="save"
+									value$="{{row[column.name]}}"/>
+								<input type="date"
+									required?="{{column.required}}"
+									hidden$="{{'date' !== column.type}}"
+									on-blur="save"
+									value$="{{row[column.name]}}"/>
+								<input type="time"
+									required?="{{column.required}}"
+									hidden$="{{'time' !== column.type}}"
+									on-blur="save"
+									value$="{{row[column.name]}}"/>
+								<input type="datetime"
+									required?="{{column.required}}"
+									hidden$="{{'datetime' !== column.type}}"
+									on-blur="save"
+									value$="{{row[column.name]}}"/>
+								<textarea
+									required?="{{column.required}}"
+									hidden$="{{'text' !== column.type}}"
+									on-mouseover="focus"
+									on-blur="save">{{row[column.name]}}</textarea>
+								<input type="checkbox"
+									hidden$="{{'boolean' !== column.type}}"
+									on-change="save"
+									checked$="{{row[column.name]}}" />
+							</div>
+							<div
+							 	hidden$="{{isEditing(row._editing, column.editable)}}"
+								class$="getReaderClass(row[column.name])">{{readContent(row[column.name])}}</div>
+						</td>
+					</template>
 				</tr>
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="{{meta.length+1}}">
+					<td colspan$="{{getColspan(meta.length)}}">
 						<div class="pagination">
-						<span class="paging">
-							<button
-								title="{{firsttitle}}"
-								class='first {{currentpage === 1 ? "disabled" : "available"}} '
-								on-click="{{firstPage}}">{{first}}</button>
-							<button
-								title="{{previoustitle}}"
-								class='previous {{currentpage === 1 ? "disabled" : "available"}}'
-								on-click="{{prevPage}}">{{previous}}</button>
-							<span class="pager">
-								{{pagetext || ''}}
-								<input type="text" value="{{currentpage}}"/>
-								{{pageoftext || '/'}}
-								{{pageCount}}
+							<span class="paging">
+								<button
+									title$="{{firsttitle}}"
+									class$="{{getPageupClass(currentpage, 'first')}}"
+									on-click="firstPage">{{first}}</button>
+								<button
+									title$="{{previoustitle}}"
+									class$="{{getPageupClass(currentpage, 'previous')}}"
+									on-click="prevPage">{{previous}}</button>
+								<span class="pager">
+									<span>{{pagetext}}</span>
+									<input type="text" value="{{currentpage}}"/>
+									<span>{{pageoftext}}</span>
+									<span>{{pageCount}}</span>
+								</span>
+								<button
+									title$="{{nexttitle}}"
+									class$="{{getPagedownClass(currentpage, pageCount, 'next')}}"
+									on-click="nextPage">{{next}}</button>
+								<button
+									title$="{{lasttitle}}"
+									class$="{{getPagedownClass(currentpage, pageCount, 'last')}}"
+									on-click="lastPage">{{last}}</button>
 							</span>
-							<button
-								title="{{nexttitle}}"
-								class='next {{pageCount <= 0 || currentpage === pageCount? "disabled" : "available"}}'
-								on-click="{{nextPage}}">{{next}}</button>
-							<button
-								title="{{lasttitle}}"
-								class='last {{pageCount <= 0 || currentpage === pageCount? "disabled" : "available"}}'
-								on-click="{{lastPage}}">{{last}}</button>
-						</span>
-						<span class="pagesize">
-							{{ pagesizetext || '' }}
-							<select value="{{pagesize}}">
-								<option template repeat="{{n in sizelist}}" selected?="{{ n == pagesize }}">{{n}}</option>
-							</select>
-						</span>
-						<span class="summary">
-							{{ summarytext || ''}} {{ firstItemIndex }} - {{ lastItemIndex }} {{ itemoftext || '/'}} {{ itemCount }}
-						</span>
+							<span class="pagesize">
+								<span>{{pagesizetext}}</span>
+								<select value="{{pagesize}}">
+									<template is="dom-repeat" items="sizelist" as="n">
+										<option selected$="{{isEqual(n, pagesize)}}">{{n}}</option>
+									</template>
+								</select>
+							</span>
+							<span class="summary">
+								<span>{{summarytext}}</span>
+								<span>{{firstItemIndex}}</span>
+								 -
+								<span>{{lastItemIndex}}</span>
+								<span>{{itemoftext}}</span>
+								<span>{{itemCount}}</span>
+							</span>
 						</div>
 					</td>
 				</tr>
 			</tfoot>
 		</table>
+		<content></content>
 	</template>
-	<script>
-	Polymer('aha-table', {
-		//data: instance of the model data
-		data: [],
-		//meta: instance of the model meta
-		meta: [],
-		/**
-		 * modified: all created or modified row will be referenced here.
-		 * it's hard to determine if it's created or modified after multiple
-		 * operations, because the element doesn't assume there's an id column,
-		 * so you need to determine if by yourself, like check
-		 * if the id exists if your model has an id column.
-		 */
-		modified: [],
-		//deleted: all deleted row will be moved here.
-		deleted: [],
-		//selected: all selected row will be referenced here.
-		selected: [],
-		//all visiable rows are reference here.
-		viewingRow: [],
-		//selectable: if table row is selectable
-		selectable: false,
-		//copyable: if table row is copyable
-		copyable: false,
-		//removable: if table row is removable
-		removable: false,
-		//movable: if table row is movable
-		movable: false,
-		//searchable: if table row is searchable
-		searchable: false,
-		// text displayed in first column of search row.
-		searchtitle: "",
-		// text displayed as title of select checkbox.
-		selecttitle: "",
-		// text displayed as title of selectall checkbox.
-		selectalltitle: "",
-		// text displayed as title of sorting column.
-		sorttitle: "",
-		// text displayed as title of column name.
-		columntitle: "",
-		// text displayed as title of copy indicator.
-		copytitle: "",
-		// text displayed as title of remove checkbox..
-		removetitle: "",
-		// text displayed as title of move up indicator.
-		moveuptitle: "",
-		// text displayed as title of move down indicator.
-		movedowntitle: "",
-		// text displayed as title of editable cell.
-		edittitle: "",
-		//sortedColumn: sorted column name
-		sortedColumn: "",
-		//editingRow: current editing row
-		//@type {Object}
-		editingRow : undefined,
-		//if filtering has been performed.
-		filtered: false,
-		//editingRow: current rows in display/view
-		viewingRows : [],
-		//descending: current sorting order
-		descending: false,
-		//pagesize: the number of items to show per page
-		pagesize: 10,
-		//currentpage: the current active page in view
-		currentpage: 0,
-		//pageCount: the number of paginated pages
-		pageCount: 0,
-		//itemCount: the number of visible items
-		itemCount: 0,
-		//firstItemIndex: the index number of first item in the page, start from 1
-		firstItemIndex: 1,
-		//lastItemIndex: the index number of last item in the page, start from 1
-		lastItemIndex:  1,
-		//sizelist: range list to adjust page size.
-		sizelist: [5, 10, 20, 50, 100],
-		//previous: label for the Previous button
-		previous: "<",
-		//next: label for the Next button
-		next: ">",
-		//first: label for the First page button
-		first: "<<",
-		//last: label for the Last page button
-		last: ">>",
-		//pagesizetitle: label for page size box
-		pagesizetitle: "",
-		//summarytitle: label for table summary area
-		summarytitle: "",
-
-		ready: function() {
+</dom-module>
+<script>
+	Polymer({
+		is: 'aha-table',
+		properties: {
+			//data: instance of the model data
+			data: {
+				type: Array,
+				value: [],
+				observer: 'dataChanged'
+			},
+			//meta: instance of the model meta
+			meta: {
+				type: Array,
+				value: []
+			},
+			/**
+			 * modified: all created or modified row will be referenced here.
+			 * it's hard to determine if it's created or modified after multiple
+			 * operations, because the element doesn't assume there's an id column,
+			 * so you need to determine if by yourself, like check
+			 * if the id exists if your model has an id column.
+			 */
+			modified: {
+				type: Array,
+				value: [],
+				observer: 'modifiedChanged'
+			},
+			//deleted: all deleted row will be moved here.
+			deleted: {
+				type: Array,
+				value: []
+			},
+			//selected: all selected row will be referenced here.
+			selected: {
+				type: Array,
+				value: []
+			},
+			//all visiable rows are reference here.
+			viewingRow: {
+				type: Array,
+				value: []
+			},
+			//selectable: if table row is selectable
+			selectable: Boolean,
+			//copyable: if table row is copyable
+			copyable: Boolean,
+			//removable: if table row is removable
+			removable: Boolean,
+			//movable: if table row is movable
+			movable: Boolean,
+			//searchable: if table row is searchable
+			searchable: Boolean,
+			// text displayed in first column of search row.
+			searchtitle: String,
+			// text displayed as title of select checkbox.
+			selecttitle: String,
+			// text displayed as title of selectall checkbox.
+			selectalltitle: String,
+			// text displayed as title of sorting column.
+			sorttitle: String,
+			// text displayed as title of column name.
+			columntitle: String,
+			// text displayed as title of copy indicator.
+			copytitle: String,
+			// text displayed as title of remove checkbox..
+			removetitle: String,
+			// text displayed as title of move up indicator.
+			moveuptitle: String,
+			// text displayed as title of move down indicator.
+			movedowntitle: String,
+			// text displayed as title of editable cell.
+			edittitle: String,
+			//sortedColumn: sorted column name
+			sortedColumn: String,
+			//editingRow: current editing row
+			//@type {Object}
+			editingRow : Object,
+			//if filtering has been performed.
+			filtered: Boolean,
+			//editingRow: current rows in display/view
+			viewingRows : {
+				type: Array,
+				value: []
+			},
+			//descending: current sorting order
+			descending: Boolean,
+			//pagesize: the number of items to show per page
+			pagesize: {
+				type: Number,
+				value: 10,
+				observer: 'pagesizeChanged'
+			},
+			//currentpage: the current active page in view
+			currentpage: {
+				type: Number,
+				value: 1,
+				observer: 'currentpageChanged'
+			},
+			//pageCount: the number of paginated pages
+			pageCount: {
+				type: Number,
+				value: 0
+			},
+			//itemCount: the number of visible items
+			itemCount: {
+				type: Number,
+				value: 0
+			},
+			//firstItemIndex: the index number of first item in the page, start from 1
+			firstItemIndex: {
+				type: Number,
+				value: 1
+			},
+			//lastItemIndex: the index number of last item in the page, start from 1
+			lastItemIndex:  {
+				type: Number,
+				value: 1
+			},
+			//sizelist: range list to adjust page size.
+			sizelist: {
+				type: Array,
+				value: [5, 10, 20, 50, 100]
+			},
+			//previous: label for the Previous button
+			previous: {
+				type: String,
+				value: "<"
+			},
+			//next: label for the Next button
+			next: {
+				type: String,
+				value: ">"
+			},
+			//first: label for the First page button
+			first: {
+				type: String,
+				value: "<<"
+			},
+			//last: label for the Last page button
+			last: {
+				type: String,
+				value: ">>"
+			},
+			//pagesizetitle: label for page size box
+			pagesizetitle: String,
+			//summarytitle: label for table summary area
+			summarytitle: String
+		},
+		created: function() {
 			var children = this.children || this.impl.children;
-			if (children.length) {
-				this.meta = children.array();
+			if (children.length && children[0].tagName === 'AHA-COLUMN') {
+				this.meta = [];
+				for (var i = 0; i < children.length; i++) {
+					var column = {};
+					for (var j = 0; j < children[i].attributes.length; j++) {
+						var attribute = children[i].attributes[j];
+						column[attribute.nodeName] = attribute.nodeValue;
+					}
+					this.meta.push(column);
+				}
 			}
 			if (this.dataset.sizelist) {
 				this.sizelist = JSON.parse(this.dataset.sizelist);
 			}
+		},
+		ready: function() {
 			//Show element when it's ready.
 			this.$.aha_table_main.setAttribute('resolved', '');
 			this.$.aha_table_main.removeAttribute('unresolved');
-
-			this.currentpage = 1;
+		},
+		getRowClass: function(row) {
+			return ['rows',
+					row._modified ? 'modified' : '',
+					row._editing  ? 'editing'  : '',
+					row._selected ? 'selected'  : ''
+				].join(' ');
+		},
+		isEditing: function(rowEditable, columnEditable) {
+			return rowEditable && columnEditable;
+		},
+		getReaderClass: function(datum) {
+			if (datum === null || datum === undefined
+				|| typeof datum === 'string' && datum.trim().length === 0) {
+				return 'empty';
+			}
+		},
+		readContent: function(datum, options, blank) {
+			if (datum === null || datum === undefined
+				|| typeof datum === 'string' && datum.trim().length === 0) {
+					if (datum !== "" && options) {
+					//translate value to labels for select
+						for (var i = options.length - 1; i >= 0; i--) {
+							if (options[i].value == datum) {
+								return options[i].label;
+							}
+						};
+					}
+					datum = datum === undefined || datum === null ? '' : datum;
+					return datum === "" ? blank : datum;
+			} else {
+				return datum;
+			}
+		},
+		getColspan: function(metaLength) {
+			return metaLength + 1;
+		},
+		isEqual: function(source, target) {
+			return source === target;
+		},
+		getPageupClass: function(currentPage, additionalClass) {
+			return [currentpage === 1 ? "disabled" : "available", additionalClass].join(' ');
+		},
+		getPagedownClass: function(currentPage, pageCount, additionalClass) {
+			return [pageCount <= 0 || currentpage === pageCount ? "disabled" : "available", additionalClass].join(' ');
+		},
+		getEditTitle: function(editable, editTitle) {
+			return editable ? editTitle : '';
+		},
+		getHeaderClasss: function(name, sortable) {
+			return ['aha-', name, '-th'].join('') + (sortable ? ' sortable' : '');
+		},
+		getSortingClasss: function(descending) {
+			return 'sorting ' + descending ? 'arrow-down' : 'arrow-up';
+		},
+		getCellClass: function(name) {
+			reutn ['aha-td aha-', name, '-td'].join('');
+		},
+		isType: function(type) {
+			return this.type === type;
+		},
+		isTextType: function() {
+			return this.type !== 'choice' && this.type !== 'boolean';
 		},
 
 		//=============
 		//internal methods
-		dataChanged: function() {
-			if (this.meta.length === 0)  {
+		dataChanged: function(newValue, oldValue) {
+			if (!this.meta || this.meta.length === 0)  {
 				this.$.aha_table_main.setAttribute('unresolved', '');
 				// generate meta from data if meta is not provided from aha-column.
 				this.meta = [];
@@ -472,18 +619,6 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			this.refreshPagination(true);
 		},
 		modifiedChanged: function() {},
-		//translate value to labels for select
-		_translate: function(value, options, blank){
-			if (value !== "" && options) {
-				for (var i = options.length - 1; i >= 0; i--) {
-					if (options[i].value == value) {
-						return options[i].label;
-					}
-				};
-			}
-			value = value === undefined || value === null ? '' : value;
-			return value === "" ? blank : value;
-		},
 		capitalize: function(value) {
 			if (!value instanceof String || value.length === 0)
 				return value;
@@ -782,8 +917,8 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 			this.data.moveup(obj);
 			this.fire('after-move-up', obj);
 		},
-		toggleFilters: function() {
-			this.searchable = !this.searchable;
+		toggleFilters: function(e) {
+			e.target.classList.toggle('search');
 		}
 	});
 
@@ -804,8 +939,7 @@ pagetext pageoftext pagesizetext summarytext itemoftext
 		}
 		return this;
 	}
-	</script>
-</polymer-element>
+</script>
 
 
 <!--
@@ -831,37 +965,41 @@ pagetext pageoftext pagesizetext summarytext itemoftext
  *
  */
 -->
-<polymer-element name="aha-column" attributes="name label type sortable searchable editable required placeholder default data-choices hint searchplaceholder">
-	<template>
-	</template>
-	<script>
-		Polymer('aha-column', {
+<dom-module id="aha-column"></dom-module>
+<script>
+	Polymer({
+		is: "aha-column",
+		properties: {
 			//column name
-			name: "",
+			name: String,
+			label: String,
 			//column type: string, text, date, time, datetime, choice
-			type: "string",
-			sortable: false,
-			searchable: false,
-			editable: false,
-			requried: false,
+			type: {
+				type: String,
+				value: "string"
+			},
+			sortable: Boolean,
+			searchable: Boolean,
+			editable: Boolean,
+			requried: Boolean,
 			//used for placeholder for empty cell.
-			placeholder: undefined,
-			default: undefined,
+			placeholder: String,
+			default: String,
 			//choices read from data-choices attribute
-			options: [],
+			options: Array,
 			//hint text in column header
-			hint: undefined,
+			hint: String,
 			//placehoder for filter input
-			searchplaceholder: undefined,
-			ready: function() {
-				if (this.dataset.choices) {
-					this.options = [];
-					var choices = JSON.parse(this.dataset.choices);
-					for(option in choices) {
-						this.options.push({'value': option, 'label': choices[option]});
-					}
+			searchplaceholder: String
+		},
+		ready: function() {
+			if (this.dataset.choices) {
+				this.options = [];
+				var choices = JSON.parse(this.dataset.choices);
+				for(option in choices) {
+					this.options.push({'value': option, 'label': choices[option]});
 				}
 			}
-		});
-	</script>
-</polymer-element>
+		}
+	});
+</script>
