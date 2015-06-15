@@ -168,7 +168,8 @@
 						<th
 							title$="{{columntitle}}"
 							class$="{{getHeaderClass(column.name, column.sortable)}}">
-							<span class="sorting"></span>
+							<span
+								class$="{{getSortingClass(column, sortedColumn, descending)}}"></span>
 							<span
 								class="column-head"
 								title$="{{sorttitle}}"
@@ -589,10 +590,10 @@
 		getHeaderClass: function(name, sortable) {
 			return ['aha-', name, '-th'].join('') + (sortable ? ' sortable' : '');
 		},
-		getSortingClass: function(column, sortingColumn) {
+		getSortingClass: function(column, sortingColumn, descending) {
 			var classList = ['sorting']
-			if (sortingColumn === currentColumn) {
-				classList.push(column.descending ? 'arrow-down' : 'arrow-up');
+			if (sortingColumn === column.name) {
+				classList.push(descending ? 'arrow-down' : 'arrow-up');
 			}
 			return classList.join(' ');
 		},
