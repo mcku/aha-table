@@ -514,24 +514,27 @@
 			summarytitle: String
 		},
 
-		created: function() {
+		ready: function() {
 			var children = this.children || this.impl.children;
 			if (children.length && children[0].tagName === 'AHA-COLUMN') {
-				this.meta = [];
+				var meta = [];
 				for (var i = 0; i < children.length; i++) {
 					var column = {};
 					for (var j = 0; j < children[i].attributes.length; j++) {
 						var attribute = children[i].attributes[j];
-						column[attribute.nodeName] = attribute.nodeValue;
+						if (['sortable', 'searchable', 'editable', 'required'].indexOf(attribute.name) >= 0) {
+							column[attribute.nodeName] = true;
+						} else {
+							column[attribute.nodeName] = attribute.nodeValue;
+						}
 					}
-					this.meta.push(column);
+					meta.push(column);
 				}
+				this.set('meta', meta);
 			}
 			if (this.dataset.sizelist) {
 				this.sizelist = JSON.parse(this.dataset.sizelist);
 			}
-		},
-		ready: function() {
 			//Show element when it's ready.
 			this.$.aha_table_main.setAttribute('resolved', '');
 			this.$.aha_table_main.removeAttribute('unresolved');
@@ -764,7 +767,7 @@
 			this.set('pagesize', parseInt(e.target.value));
 		},
 		pagesizeChanged: function(newValue, oldValue){
-			// this.pagesize = parseInt(this.pagesize);
+			this.pagesize = parseInt(this.pagesize);
 			this.refreshPagination();
 		},
 		// call this when total count is no changed.
