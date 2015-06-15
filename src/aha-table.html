@@ -343,7 +343,7 @@
 							</span>
 							<span class="pagesize">
 								<span>{{pagesizetext}}</span>
-								<select value="{{pagesize}}">
+								<select value="{{pagesize}}" on-change="changeSize">
 									<template is="dom-repeat" items="{{sizelist}}" as="n">
 										<option selected$="{{isEqual(n, pagesize)}}">{{n}}</option>
 									</template>
@@ -760,8 +760,11 @@
 				this.lastItemIndex = (this.currentpage)* this.pagesize;
 			}
 		},
-		pagesizeChanged: function(){
-			this.pagesize = parseInt(this.pagesize);
+		changeSize: function(e) {
+			this.set('pagesize', parseInt(e.target.value));
+		},
+		pagesizeChanged: function(newValue, oldValue){
+			// this.pagesize = parseInt(this.pagesize);
 			this.refreshPagination();
 		},
 		// call this when total count is no changed.
@@ -775,21 +778,24 @@
 				// sorting map: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Sorting_maps
 				filteredRows =
 				filteredRows
-				.map(function(e, i){
-					var v = e[this.sortedColumn];
-					return {
-						index: i,
-						value: typeof v === "string" ? v.toLowerCase() : v
-					};
-				}, this)
-				.sort(function(a, b) {
-					return this.descending
-					? (a.value < b.value ? 1 : -1)
-					: (a.value > b.value ? 1 : -1);
-				}.bind(this))
-				.map(function(e){
-					return filteredRows[e.index];
-				});
+					.map(function(e, i){
+						var v = e[this.sortedColumn];
+						if (undefined === v || null === v) {
+							v = '';
+						}
+						return {
+							index: i,
+							value: typeof v === "string" ? v.toLowerCase() : v
+						};
+					}, this)
+					.sort(function(a, b) {
+						return this.descending
+						? (a.value < b.value ? 1 : -1)
+						: (a.value > b.value ? 1 : -1);
+					}.bind(this))
+					.map(function(e){
+						return filteredRows[e.index];
+					});
 			}
 			this.set('viewingRows', filteredRows.slice(from, to));
 		},
