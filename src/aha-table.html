@@ -783,9 +783,16 @@
 					|| e.relatedmodel.row !== e.model.row) {
 					this.set('_editing', false, row);
 
-					e.target.parentElement.setAttribute('hidden', true);
-					e.target.parentElement.nextElementSibling.removeAttribute('hidden');
-					e.target.parentElement.nextElementSibling.innerText = this.readContent(row, column);
+					var editor = e.target.parentElement;
+					var reader = editor.nextElementSibling;
+					editor.setAttribute('hidden', true);
+					reader.removeAttribute('hidden');
+					reader.innerText = this.readContent(row, column);
+					if (row[column.name] !== undefined && row[column.name] !== '') {
+						reader.classList.remove('empty');
+					} else {
+						reader.classList.add('empty');
+					}
 				}
 
 				if (column.required && !e.target.validity.valid) {
