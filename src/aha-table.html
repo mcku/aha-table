@@ -263,9 +263,8 @@
 											on-blur="save">
 											<template is="dom-repeat" items="{{column.options}}" as="option">
 												<option
-													value="{{option.value}}">
-													{{option.label}}
-												</option>
+													selected$="{{isOptionSelected(option.value, row, column.name)}}"
+													value="{{option.value}}">{{option.label}}</option>
 											</template>
 										</select>
 									</template>
@@ -296,12 +295,12 @@
 									<template is="dom-if" if="{{isEqual(column.type, 'text')}}">
 										<textarea
 											required?="{{column.required}}"
-											on-mouseover="focus"
 											on-blur="save">{{getValue(row,column.name)}}</textarea>
 									</template>
 									<template is="dom-if" if="{{isEqual(column.type, 'boolean')}}">
 										<input type="checkbox"
 											on-change="save"
+											on-blur="save"
 											checked$="{{getValue(row,column.name)}}" />
 									</template>
 								</div>
@@ -670,6 +669,9 @@
 		isEqual: function(source, target) {
 			return source === target;
 		},
+		isOptionSelected: function(optionValue, row, column_name) {
+			return optionValue === row[column_name];
+		},
 		getPageupClass: function(currentPage, additionalClass) {
 			return [currentPage === 1 ? "disabled" : "available", additionalClass].join(' ');
 		},
@@ -755,7 +757,7 @@
 			this.set('editingRow', row);
 			e.target.setAttribute('hidden', true);
 			e.target.previousElementSibling.removeAttribute('hidden');
-			e.target.focus();
+			Polymer.dom(e.target.previousElementSibling).querySelector('input,select,textarea').focus();
 		},
 		save: function(e) {
 			var row    = e.model.row;
