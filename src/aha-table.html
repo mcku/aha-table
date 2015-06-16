@@ -214,7 +214,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<template is="dom-repeat" items="{{viewingRows}}" as="row">
+				<template id="recordList" is="dom-repeat" items="{{viewingRows}}" as="row">
 					<tr class$="{{getRowClass(row)}}">
 						<td>
 							<input type="checkbox"
@@ -254,11 +254,10 @@
 						<template is="dom-repeat" items="{{meta}}" as="column">
 							<td
 								on-dblclick="dbclick"
-								on-click="click"
 								title="{{getEditTitle(column.editable, edittitle)}}"
 								class="{{getCellClass(column.name)}}">
-								<div hidden$="{{isNotEditing(row._editing, column.editable)}}">
-									<template is="dom-if" if="{{isEqual(column.type, 'hoice')}}">
+								<div hidden>
+									<template is="dom-if" if="{{isEqual(column.type, 'choice')}}">
 										<select
 											required$="{{column.required}}"
 											on-blur="save">
@@ -300,14 +299,14 @@
 											on-mouseover="focus"
 											on-blur="save">{{getValue(row,column.name)}}</textarea>
 									</template>
-									<template is="dom-if" if="{{isEqual(column.type, 'checkbox')}}">
+									<template is="dom-if" if="{{isEqual(column.type, 'boolean')}}">
 										<input type="checkbox"
 											on-change="save"
 											checked$="{{getValue(row,column.name)}}" />
 									</template>
 								</div>
 							 	<div
-									hidden$="{{isEditing(row._editing, column.editable)}}"
+									on-click="click"
 									class$="{{getReaderClass(row, column.name)}}">{{readContent(row, column)}}</div>
 							</td>
 						</template>
@@ -586,6 +585,10 @@
 			}
 		},
 
+		observers: [
+			'datumChanged(data.*)'
+		],
+
 		ready: function() {
 			var children = this.children || this.impl.children;
 			if (children.length > 1 && children[1].tagName === 'AHA-COLUMN') {
@@ -728,6 +731,15 @@
 			}
 			this.refreshPagination(true);
 		},
+		// change handler on
+		datumChanged: function(changeRecord) {
+			if (changeRecord.path == 'data.splices') {
+				// a record was added or removed
+			} else {
+				// an individual record or its sub-properties changed
+				// check "changeRecord.path" to determine what changed
+			}
+		},
 		modifiedChanged: function() {},
 		capitalize: function(value) {
 			if (!value instanceof String || value.length === 0)
@@ -741,6 +753,9 @@
 				this.set('_editing', false, this.editingRow);
 			}
 			this.set('editingRow', row);
+			e.target.setAttribute('hidden', true);
+			e.target.previousElementSibling.removeAttribute('hidden');
+			e.target.focus();
 		},
 		save: function(e) {
 			var row    = e.model.row;
@@ -760,6 +775,10 @@
 					|| !e.relatedTarget.templateInstance
 					|| e.relatedmodel.row !== e.model.row) {
 					this.set('_editing', false, row);
+
+					e.target.parentElement.setAttribute('hidden', true);
+					e.target.parentElement.nextElementSibling.removeAttribute('hidden');
+					e.target.parentElement.nextElementSibling.innerText = row[column.name];
 				}
 
 				if (column.required && !e.target.validity.valid) {
