@@ -254,17 +254,16 @@
 							<td
 								on-dblclick="dbclick"
 								on-click="click"
-								title="{{column.getEditTitle(column.editable, edittitle)}}"
-								class="{{column.getCellClass(column.name)}}">
-								<div class="hide" hidden$="{{!isEditing(row._editing, column.editable)}}">
+								title="{{getEditTitle(column.editable, edittitle)}}"
+								class="{{getCellClass(column.name)}}">
+								<div hidden$="{{!row._editing || !column.editable}}">
 									<template is="dom-if" if="{{isEqual(column.type, 'hoice')}}">
 										<select
 											required$="{{column.required}}"
 											on-blur="save">
 											<template is="dom-repeat" items="{{column.options}}" as="option">
 												<option
-													value="{{option.value}}"
-													selected$="{{row[column.name] == option.value}}">
+													value="{{option.value}}">
 													{{option.label}}
 												</option>
 											</template>
@@ -307,7 +306,7 @@
 									</template>
 								</div>
 							 	<div
-									hidden$="{{isEditing(row._editing, column.editable)}}"
+									hidden$="{{row._editing && column.editable}}"
 									class$="{{getReaderClass(row, column.name)}}">{{readContent(row, column)}}</div>
 							</td>
 						</template>
@@ -588,6 +587,12 @@
 						var attribute = children[i].attributes[j];
 						if (['sortable', 'searchable', 'editable', 'required'].indexOf(attribute.name) >= 0) {
 							column[attribute.nodeName] = true;
+						} else if (attribute.name === 'data-choices') {
+							column['options'] = [];
+							var choices = JSON.parse(attribute.nodeValue);
+							for(option in choices) {
+								column['options'].push({'value': option, 'label': choices[option]});
+							}
 						} else {
 							column[attribute.nodeName] = attribute.nodeValue;
 						}
@@ -710,11 +715,11 @@
 		},
 		edit: function(e) {
 			var row = e.model.row;
-			row._editing = true;
+			this.set('_editing', true, row);
 			if (this.editingRow && this.editingRow != row) {
-				this.editingRow._editing = false;
+				this.set('_editing', false, this.editingRow);
 			}
-			this.editingRow = row;
+			this.set('editingRow', row);
 		},
 		save: function(e) {
 			var row    = e.model.row;
@@ -1083,15 +1088,6 @@
 			hint: String,
 			//placehoder for filter input
 			searchplaceholder: String
-		},
-		ready: function() {
-			if (this.dataset.choices) {
-				this.options = [];
-				var choices = JSON.parse(this.dataset.choices);
-				for(option in choices) {
-					this.options.push({'value': option, 'label': choices[option]});
-				}
-			}
 		}
 	});
 </script>
