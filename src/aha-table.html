@@ -1018,6 +1018,7 @@
 			_new._modified = true;
 			_new._editing = false;
 			this.splice('data',0,0,_new);
+			this.splice('viewingRows',0,0,_new);
 			this.push('modified', _new);
 			this.fire('after-copy', _new);
 		},
@@ -1027,6 +1028,7 @@
 			var found_index = this.data.indexOf(obj);
 			if (found_index !== -1) {
 				this.splice('data',found_index,1);
+				this.splice('viewingRows',found_index,1);
 				this.push('deleted', obj);
 			}
 			var found_index_in_modified = this.modified.indexOf(obj)
