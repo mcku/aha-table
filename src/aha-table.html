@@ -588,10 +588,6 @@
 			}
 		},
 
-		observers: [
-			'datumChanged(data.*)'
-		],
-
 		ready: function() {
 			var children = this.children || this.impl.children;
 			if (children.length > 1 && children[1].tagName === 'AHA-COLUMN') {
@@ -619,6 +615,9 @@
 					meta.push(column);
 				}
 				this.set('meta', meta);
+			}
+			if (this.get('meta').length === 0) {
+				this.dataChanged(this.get('data'), []);
 			}
 			if (this.dataset.sizelist) {
 				this.sizelist = JSON.parse(this.dataset.sizelist);
@@ -737,15 +736,6 @@
 				this.$.aha_table_main.removeAttribute('unresolved');
 			}
 			this.refreshPagination(true);
-		},
-		// change handler on
-		datumChanged: function(changeRecord) {
-			if (changeRecord.path == 'data.splices') {
-				// a record was added or removed
-			} else {
-				// an individual record or its sub-properties changed
-				// check "changeRecord.path" to determine what changed
-			}
 		},
 		modifiedChanged: function() {},
 		capitalize: function(value) {
