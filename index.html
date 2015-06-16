@@ -155,10 +155,8 @@
 		];
 		var raw     = document.getElementById("raw");
 		var themed  = document.getElementById("themed");
-		// window.addEventListener("polymer-ready", function(){
-			raw.data = events;
-			themed.data = JSON.parse(JSON.stringify(events));//deep copy so that they have independent data source.
-		// });
+		raw.data = events;
+		themed.data = JSON.parse(JSON.stringify(events));//deep copy so that they have independent data source.
 		var table_log = function(msg) {
 			document.getElementById("console").innerHTML = msg;
 		};
