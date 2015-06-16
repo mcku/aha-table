@@ -604,15 +604,15 @@
 							column[attribute.nodeName] = true;
 						} else if (attribute.name === 'data-choices') {
 							column['options'] = [];
-							var choices = JSON.parse(attribute.nodeValue);
+							var choices = JSON.parse(attribute.value);
 							for(option in choices) {
 								column['options'].push({'value': option, 'label': choices[option]});
 							}
 						} else {
-							column[attribute.nodeName] = attribute.nodeValue;
+							column[attribute.nodeName] = attribute.value;
 						}
 						if (!column['label']) {
-							var name = column['name'];
+							var name = column['name'] || '';
 							column['label'] = name.charAt(0).toUpperCase() + name.slice(1);
 						}
 					}
