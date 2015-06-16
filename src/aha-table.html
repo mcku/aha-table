@@ -308,7 +308,7 @@
 								</div>
 							 	<div
 									hidden$="{{isEditing(row._editing, column.editable)}}"
-									class$="getReaderClass(row[column.name])">{{readContent(row, column)}}</div>
+									class$="{{getReaderClass(row, column.name)}}">{{readContent(row, column)}}</div>
 							</td>
 						</template>
 					</tr>
@@ -617,7 +617,8 @@
 		isEditing: function(rowEditable, columnEditable) {
 			return rowEditable && columnEditable;
 		},
-		getReaderClass: function(datum) {
+		getReaderClass: function(row, columnName) {
+			var datum = row[columnName];
 			if (datum === null || datum === undefined
 				|| typeof datum === 'string' && datum.trim().length === 0) {
 				return 'empty';
