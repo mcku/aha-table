@@ -156,7 +156,7 @@
 				<tr>
 					<th>
 						<input type="checkbox"
-							on-change="{{selectall}}"
+							on-change="selectall"
 							title$="{{selectalltitle}}"
 							hidden$="{{!selectable}}"/>
 						<div
@@ -257,7 +257,7 @@
 								on-click="click"
 								title="{{getEditTitle(column.editable, edittitle)}}"
 								class="{{getCellClass(column.name)}}">
-								<div hidden$="{{!row._editing || !column.editable}}">
+								<div hidden$="{{isNotEditing(row._editing, column.editable)}}">
 									<template is="dom-if" if="{{isEqual(column.type, 'hoice')}}">
 										<select
 											required$="{{column.required}}"
@@ -274,40 +274,40 @@
 										<input type="text"
 											required$="{{column.required}}"
 											on-blur="save"
-											value$="{{row[column.name]}}"/>
+											value$="{{getValue(row,column.name)}}"/>
 									</template>
 									<template is="dom-if" if="{{isEqual(column.type, 'date')}}">
 										<input type="date"
 											required?="{{column.required}}"
 											on-blur="save"
-											value$="{{row[column.name]}}"/>
+											value$="{{getValue(row,column.name)}}"/>
 									</template>
 									<template is="dom-if" if="{{isEqual(column.type, 'time')}}">
 										<input type="time"
 											required?="{{column.required}}"
 											on-blur="save"
-											value$="{{row[column.name]}}"/>
+											value$="{{getValue(row,column.name)}}"/>
 									</template>
 									<template is="dom-if" if="{{isEqual(column.type, 'datetime')}}">
 										<input type="datetime"
 											required?="{{column.required}}"
 											on-blur="save"
-											value$="{{row[column.name]}}"/>
+											value$="{{getValue(row,column.name)}}"/>
 									</template>
 									<template is="dom-if" if="{{isEqual(column.type, 'text')}}">
 										<textarea
 											required?="{{column.required}}"
 											on-mouseover="focus"
-											on-blur="save">{{row[column.name]}}</textarea>
+											on-blur="save">{{getValue(row,column.name)}}</textarea>
 									</template>
 									<template is="dom-if" if="{{isEqual(column.type, 'checkbox')}}">
 										<input type="checkbox"
 											on-change="save"
-											checked$="{{row[column.name]}}" />
+											checked$="{{getValue(row,column.name)}}" />
 									</template>
 								</div>
 							 	<div
-									hidden$="{{row._editing && column.editable}}"
+									hidden$="{{isEditing(row._editing, column.editable)}}"
 									class$="{{getReaderClass(row, column.name)}}">{{readContent(row, column)}}</div>
 							</td>
 						</template>
@@ -521,6 +521,14 @@
 				value: 1,
 				observer: 'currentpageChanged'
 			},
+			pageoftext: {
+				type: String,
+				value: "/"
+			},
+			itemoftext: {
+				type: String,
+				value: "/"
+			},
 			//pageCount: the number of paginated pages
 			pageCount: {
 				type: Number,
@@ -623,6 +631,9 @@
 		isEditing: function(rowEditable, columnEditable) {
 			return rowEditable && columnEditable;
 		},
+		isNotEditing: function(rowEditable, columnEditable) {
+			return !rowEditable || !columnEditable;
+		},
 		getReaderClass: function(row, columnName) {
 			var datum = row[columnName];
 			if (datum === null || datum === undefined
@@ -681,6 +692,9 @@
 		isTextType: function(type) {
 			return type !== 'choice' && type !== 'boolean';
 		},
+		getValue: function(row, name) {
+			return row[name];
+		},
 
 		//=============
 		//internal methods
@@ -701,6 +715,12 @@
 							required: false
 						});
 					}
+				}
+				for (var i = 0; i < this.data.length; i++) {
+					this.set('_editing',  false, this.data[i]);
+					this.set('_selected', false, this.data[i]);
+					this.set('_modified', false, this.data[i]);
+					this.set('_filtered', false, this.data[i]);
 				}
 				this.set('meta', meta, this);
 				this.$.aha_table_main.setAttribute('resolved', '');
@@ -727,19 +747,19 @@
 			var column = e.model.column;
 			if(row){
 				if ("CHECKBOX" === e.target.type.toUpperCase()) {
-					row[column.name] = e.target.checked;
+					this.set(column.name, e.target.checked, row);
 				} else {
-					row[column.name] = e.target.value;
+					this.set(column.name, e.target.value,   row);
 				}
 				if (this.modified.indexOf(row) === -1) {
-					row._modified = true;
-					this.modified.push(row);
+					this.set('_modified', true, row);
+					this.push('modified', row);
 				}
 
 				if (!e.relatedTarget
 					|| !e.relatedTarget.templateInstance
 					|| e.relatedmodel.row !== e.model.row) {
-					row._editing = false;
+					this.set('_editing', false, row);
 				}
 
 				if (column.required && !e.target.validity.valid) {
@@ -943,12 +963,12 @@
 					if(this.selected.indexOf(row)==-1) {
 						this.selected.push(row);
 					}
-					row._selected = true;
+					this.set('_selected', true, row);
 				}, this);
 			}else{
 				this.data.forEach(function(row) {
-					row._selected = false;
-				});
+					this.set('_selected', false, row);
+				}, this);
 			}
 		},
 		create: function(obj) {
@@ -960,8 +980,8 @@
 					_new[column.name] = column.default;
 				}
 			});
-			this.data.splice(0,0,_new);
-			this.modified.push(_new);
+			this.splice('data',0,0,_new);
+			this.push('modified', _new);
 			this.fire('after-create', _new);
 		},
 		copy: function(e, detail, sender) {
@@ -976,8 +996,8 @@
 			}
 			_new._modified = true;
 			_new._editing = false;
-			this.data.splice(0,0,_new);
-			this.modified.push(_new);
+			this.splice('data',0,0,_new);
+			this.push('modified', _new);
 			this.fire('after-copy', _new);
 		},
 		remove: function(e, detail, sender) {
@@ -985,13 +1005,13 @@
 			this.fire('before-remove', obj);
 			var found_index = this.data.indexOf(obj);
 			if (found_index !== -1) {
-				this.data.splice(found_index,1);
-				this.deleted.push(obj);
+				this.splice('data',found_index,1);
+				this.push('deleted', obj);
 			}
 			var found_index_in_modified = this.modified.indexOf(obj)
 			if (found_index_in_modified !== -1) {
 				obj._modified = false;
-				this.modified.splice(found_index_in_modified,1);
+				this.splice('modified',found_index_in_modified,1);
 			}
 			this.fire('after-remove', obj);
 		},
