@@ -199,6 +199,7 @@
 									</template>
 									<template is="dom-if" if="{{isEqual(column.type, 'boolean')}}">
 										<input type="checkbox"
+											title$="{{column.hint}}"
 											on-change="search"/>
 									</template>
 									<template is="dom-if" if="{{isTextType(column.type)}}">
@@ -1068,26 +1069,59 @@
 		is: "aha-column",
 		properties: {
 			//column name
-			name: String,
-			label: String,
+			name: {
+				type: String,
+				value: ""
+			},
+			label: {
+				type: String,
+				value: ""
+			},
 			//column type: string, text, date, time, datetime, choice
 			type: {
 				type: String,
 				value: "string"
 			},
-			sortable: Boolean,
-			searchable: Boolean,
-			editable: Boolean,
-			requried: Boolean,
+			sortable: {
+				type: Boolean,
+				value: true
+			},
+			searchable: {
+				type: Boolean,
+				value: true
+			},
+			editable: {
+				type: Boolean,
+				value: false
+			},
+			requried: {
+				type: Boolean,
+				value: false
+			},
 			//used for placeholder for empty cell.
-			placeholder: String,
-			default: String,
+			placeholder: {
+				type: String,
+				value: ""
+			},
+			default: {
+				type: String,
+				value: ""
+			},
 			//choices read from data-choices attribute
-			options: Array,
+			options: {
+				type: String,
+				value: function() { return []; }
+			},
 			//hint text in column header
-			hint: String,
+			hint: {
+				type: String,
+				value: ""
+			},
 			//placehoder for filter input
-			searchplaceholder: String
+			searchplaceholder: {
+				type: String,
+				value: ""
+			}
 		}
 	});
 </script>
