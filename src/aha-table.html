@@ -1037,22 +1037,44 @@
 			this.fire('after-remove', obj);
 		},
 		movedown: function(e) {
-			var obj = e.model.row;
-			this.fire('before-move-down', obj);
+			var row = e.model.row;
+			this.fire('before-move-down', row);
 			if (this.sortedColumn) {
 				this.unsort();
 			}
-			this.data.movedown(obj);
-			this.fire('after-move-down', obj);
+
+			this._movedown('viewingRows', row);
+			this._movedown('data', row);
+			this.fire('after-move-down', row);
+		},
+		_movedown: function(setName, row) {
+			var index = this.get(setName).indexOf(row);
+			var newPosition = index + 1;
+			if (newPosition >= this.get(setName).length) {
+				newPosition = this.get(setName).length;
+			}
+			this.splice(setName,index,1);
+			this.splice(setName,newPosition,0,row);
 		},
 		moveup: function(e) {
-			var obj = e.model.row;
-			this.fire('before-move-up', obj);
+			var row = e.model.row;
+			this.fire('before-move-up', row);
 			if (this.sortedColumn) {
 				this.unsort();
 			}
-			this.data.moveup(obj);
-			this.fire('after-move-up', obj);
+
+			this._moveup('viewingRows', row);
+			this._moveup('data', row);
+			this.fire('after-move-up', row);
+		},
+		_moveup: function(setName, row) {
+			var index = this.get(setName).indexOf(row);
+			var newPosition = index - 1;
+			if (newPosition < 0) {
+				newPosition = 0;
+			}
+			this.splice(setName,index,1);
+			this.splice(setName,newPosition,0,row);
 		},
 		toggleFilters: function(e) {
 			e.target.classList.toggle('search');
@@ -1060,24 +1082,6 @@
 			this.$$('#filter').classList.toggle('hide');
 		}
 	});
-
-	// Private methods
-	Array.prototype.moveup = function (obj) {
-		var index = this.indexOf(obj);
-		if (index > 0) {
-			this[index] = this[index-1];
-			this[index-1] = obj;
-		}
-		return this;
-	}
-	Array.prototype.movedown = function (obj) {
-		var index = this.indexOf(obj);
-		if (index > -1 && index < this.length - 1) {
-			this[index] = this[index+1];
-			this[index+1] = obj;
-		}
-		return this;
-	}
 </script>
 
 
