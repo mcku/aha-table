@@ -24,7 +24,7 @@ Or [download as ZIP](https://github.com/liuwenchao/aha-table/archive/master.zip)
 1. Import Web Components' polyfill:
 
     ```html
-    <script src="bower_components/platform/platform.js"></script>
+    <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
     ```
 
 2. Import Custom Element:
