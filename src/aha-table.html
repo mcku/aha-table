@@ -72,6 +72,7 @@
 			white-space: nowrap;
 		}
 		.sortable .column-head,
+		.hint
 		.filterrow {
 			cursor: pointer;
 		}
@@ -408,49 +409,106 @@
 				value: function() { return []; }
 			},
 			//selectable: if table row is selectable
-			selectable: Boolean,
+			selectable: {
+				type: Boolean,
+				value: false
+			},
 			//copyable: if table row is copyable
-			copyable: Boolean,
+			copyable: {
+				type: Boolean,
+				value: false
+			},
 			//removable: if table row is removable
-			removable: Boolean,
+			removable: {
+				type: Boolean,
+				value: false
+			},
 			//movable: if table row is movable
-			movable: Boolean,
+			movable: {
+				type: Boolean,
+				value: false
+			},
 			//searchable: if table row is searchable
-			searchable: Boolean,
+			searchable: {
+				type: Boolean,
+				value: true
+			},
 			// text displayed in first column of search row.
-			searchtitle: String,
+			searchtitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of select checkbox.
-			selecttitle: String,
+			selecttitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of selectall checkbox.
-			selectalltitle: String,
+			selectalltitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of sorting column.
-			sorttitle: String,
+			sorttitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of column name.
-			columntitle: String,
+			columntitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of copy indicator.
-			copytitle: String,
+			copytitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of remove checkbox..
-			removetitle: String,
+			removetitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of move up indicator.
-			moveuptitle: String,
+			moveuptitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of move down indicator.
-			movedowntitle: String,
+			movedowntitle: {
+				type: String,
+				value: ""
+			},
 			// text displayed as title of editable cell.
-			edittitle: String,
+			edittitle: {
+				type: String,
+				value: ""
+			},
 			//sortedColumn: sorted column name
-			sortedColumn: String,
+			sortedColumn: {
+				type: String,
+				value: ""
+			},
 			//editingRow: current editing row
 			//@type {Object}
-			editingRow : Object,
+			editingRow : {
+				type: Object,
+				value: function() { return {}; }
+			},
 			//if filtering has been performed.
-			filtered: Boolean,
+			filtered: {
+				type: Boolean,
+				value: false
+			},
 			//editingRow: current rows in display/view
 			viewingRows : {
 				type: Array,
 				value: function() { return []; }
 			},
 			//descending: current sorting order
-			descending: Boolean,
+			descending: {
+				type: Boolean,
+				value: false
+			},
 			//pagesize: the number of items to show per page
 			pagesize: {
 				type: Number,
@@ -509,16 +567,22 @@
 				value: ">>"
 			},
 			//pagesizetitle: label for page size box
-			pagesizetitle: String,
+			pagesizetitle: {
+				type: String,
+				value: ""
+			},
 			//summarytitle: label for table summary area
-			summarytitle: String
+			summarytitle: {
+				type: String,
+				value: ""
+			}
 		},
 
 		ready: function() {
 			var children = this.children || this.impl.children;
-			if (children.length && children[0].tagName === 'AHA-COLUMN') {
+			if (children.length > 1 && children[1].tagName === 'AHA-COLUMN') {
 				var meta = [];
-				for (var i = 0; i < children.length; i++) {
+				for (var i = 1; i < children.length; i++) {
 					var column = {};
 					for (var j = 0; j < children[i].attributes.length; j++) {
 						var attribute = children[i].attributes[j];
@@ -526,6 +590,10 @@
 							column[attribute.nodeName] = true;
 						} else {
 							column[attribute.nodeName] = attribute.nodeValue;
+						}
+						if (!column['label']) {
+							var name = column['name'];
+							column['label'] = name.charAt(0).toUpperCase() + name.slice(1);
 						}
 					}
 					meta.push(column);
