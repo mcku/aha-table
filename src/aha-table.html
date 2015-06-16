@@ -982,14 +982,22 @@
 			if(e.target.checked){
 				this.viewingRows.forEach(function(row){
 					if(this.selected.indexOf(row)==-1) {
-						this.selected.push(row);
+						this.push('selected', row);
 					}
 					this.set('_selected', true, row);
 				}, this);
+				var selectors = e.target.parentElement.parentElement.parentElement.nextElementSibling.querySelectorAll('td:first-of-type input');
+				for (var i = 0; i < selectors.length; i++) {
+					selectors[i].setAttribute('checked', true);
+				}
 			}else{
 				this.data.forEach(function(row) {
 					this.set('_selected', false, row);
 				}, this);
+				var selectors = e.target.parentElement.parentElement.parentElement.nextElementSibling.querySelectorAll('td:first-of-type input');
+				for (var i = 0; i < selectors.length; i++) {
+					selectors[i].removeAttribute('checked');
+				}
 			}
 		},
 		create: function(obj) {
