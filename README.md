@@ -178,6 +178,12 @@ In order to run it locally you'll need to fetch some dependencies and a basic se
     $ bower register aha-table https://github.com/liuwenchao/aha-table
     ```
 
+5. deploy
+
+    ```sh
+    $ grunt build && grunt deploy
+    ```
+
 ## Contributing
 
 1. Fork it!
