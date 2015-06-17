@@ -38,6 +38,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build',  ['replace']);
     grunt.registerTask('deploy', ['build', 'gh-pages']);
-    grunt.registerTask('server', ['connect']);
+    grunt.registerTask('server', ['build', 'connect']);
 
 };

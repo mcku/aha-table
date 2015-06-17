@@ -181,7 +181,8 @@ In order to run it locally you'll need to fetch some dependencies and a basic se
 5. deploy
 
     ```sh
-    $ grunt build && grunt deploy
+    $ git add * && git commit && git push
+    $ grunt deploy
     ```
 
 ## Contributing
