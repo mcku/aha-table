@@ -44,6 +44,7 @@
  *     after-td-dbclick(Object detail)
  *     after-create(Object new_record)
  *     after-copy(Object new_record)
+ *     after-save(Object new_record)
  *     after-select(Object new_record)
  *     after-remove(Object removed_record)
  *     after-move-down(Object moved_record)
@@ -758,6 +759,7 @@
 			var row    = e.model.row;
 			var column = e.model.column;
 			if(row){
+				this.fire('before-save', {"event": e, "row" : row, "column" : column});
 				if ("CHECKBOX" === e.target.type.toUpperCase()) {
 					this.set(column.name, e.target.checked, row);
 				} else {
@@ -788,6 +790,7 @@
 				if (column.required && !e.target.validity.valid) {
 					this.fire('after-invalid', {"event": e, "row" : row, "column" : column});
 				}
+				this.fire('after-save', {"event": e, "row" : row, "column" : column});
 			}
 		},
 		sort: function(e, p) {
