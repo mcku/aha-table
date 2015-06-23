@@ -44,6 +44,7 @@
  *     after-td-dbclick(Object detail)
  *     after-create(Object new_record)
  *     after-copy(Object new_record)
+ *     after-save(Object new_record)
  *     after-select(Object new_record)
  *     after-remove(Object removed_record)
  *     after-move-down(Object moved_record)
@@ -788,6 +789,7 @@
 				if (column.required && !e.target.validity.valid) {
 					this.fire('after-invalid', {"event": e, "row" : row, "column" : column});
 				}
+				this.fire('after-save', {"event": e, "row" : row, "column" : column});
 			}
 		},
 		sort: function(e, p) {

@@ -107,6 +107,8 @@ Name                    | Arguments | Description
 `after-create`          | `Event`   | call after a record is created internally
 `before-copy`           | `Event`   | call before a record is copyed from another internally
 `after-copy`            | `Event`   | call after a record is copyed from another internally
+`before-save`           | `Event`   | call before a record is saved from another internally
+`after-save`            | `Event`   | call after a record is saved from another internally
 `before-select`         | `Event`   | call before a record is selected
 `after-select`          | `Event`   | call after a record is selected
 `before-remove`         | `Event`   | call before a record is removed internally
