@@ -309,9 +309,16 @@
 											checked$="{{getValue(row,column.name)}}" />
 									</template>
 								</div>
-							 	<div
+                                <div
 									on-click="click"
-									class$="{{getReaderClass(row, column.name)}}">{{readContent(row, column)}}</div>
+									class$="{{getReaderClass(row, column.name)}}">
+                                    <template is="dom-if" if="{{!isEqual(column.type, 'html')}}">
+                                        <span>{{readContent(row, column)}}</span>
+                                    </template>
+                                    <template is="dom-if" if="{{isEqual(column.type, 'html')}}">
+                                        <aha-html-echo html="{{readContent(row, column)}}"></aha-html-echo>
+                                    </template>
+                                </div>
 							</td>
 						</template>
 					</tr>
@@ -759,6 +766,7 @@
 			var row    = e.model.row;
 			var column = e.model.column;
 			if(row){
+				this.fire('before-save', {"event": e, "row" : row, "column" : column});
 				if ("CHECKBOX" === e.target.type.toUpperCase()) {
 					this.set(column.name, e.target.checked, row);
 				} else {
@@ -1183,4 +1191,43 @@
 			}
 		}
 	});
+</script>
+
+
+
+
+<!--
+/**
+ * @module aha-html-echo
+ *
+ *
+ * Generates html elements dynamically, inspired by sortable-table
+ * https://github.com/stevenrskelton/sortable-table
+ *
+ * WARNING! Potential XSS vulnerability if `html` comes from an untrusted source
+ *
+ *    <aha-html-echo
+ *         html="html">
+ *    </aha-html-echo>
+ *
+ * @class aha-html-echo
+ * @author Michael Heinrichs<michael.heinrichs@canoo.com>
+ *
+ */
+-->
+<script>
+    Polymer({
+        is: "aha-html-echo",
+        properties: {
+            //column name
+            html: {
+                type: String,
+                value: "",
+                observer: "onHtmlChanged"
+            }
+        },
+        onHtmlChanged: function() {
+            this.innerHTML = this.html;
+        }
+    });
 </script>
