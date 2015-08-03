@@ -627,7 +627,7 @@
 			if (this.get('meta').length === 0) {
 				this.dataChanged(this.get('data'), []);
 			}
-			if (this.dataset.sizelist) {
+			if (this.dataset && this.dataset.sizelist) {
 				this.sizelist = JSON.parse(this.dataset.sizelist);
 			}
 			//Show element when it's ready.
