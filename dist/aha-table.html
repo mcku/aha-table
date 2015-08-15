@@ -655,9 +655,13 @@
 			}
 			return classList.join(' ');
 		},
-		readContent: function(row, column) {
+		readContent: function(row, column) {            
 			var datum = row[column.name];
-			if (datum === null || datum === undefined
+            if (column.renderer !== null && column.renderer !== undefined
+                    && typeof column.renderer === 'string' && column.renderer.trim().length > 0) {
+                datum = this._render(column.renderer, datum, row, column);
+            }
+            if (datum === null || datum === undefined
 				|| typeof datum === 'string' && datum.trim().length === 0) {
 					var options = column.options;
 					var blank = column.placeholder;
@@ -1103,7 +1107,37 @@
 			e.target.classList.toggle('search');
 			e.target.classList.toggle('nosearch');
 			this.$$('#filter').classList.toggle('hide');
-		}
+		},
+        _render: function(name, datum, row, col) {
+            var args = [ datum, row, col, this ];
+            var displayValue = this._invokeRenderer(datum, name, args);
+            if (displayValue !== null) {                
+                return displayValue;                
+            }
+            displayValue = this._invokeRenderer(row, name, args);
+            if (displayValue !== null) {                
+                return displayValue;                
+            }
+            
+            displayValue = this._invokeRenderer(this, name, args);
+            if (displayValue !== null) {                
+                return displayValue;                
+            }
+            
+            displayValue = this._invokeRenderer(this.domHost, name, args);
+            if (displayValue === null || displayValue === undefined) {
+                displayValue = datum;
+            }
+            return displayValue;
+        },
+        _invokeRenderer: function (b, name, args) {
+            var fn = b[name];
+            if (fn) {                
+                return fn.apply(this, args || Polymer.nar);
+            }
+            return null;
+        }
+
 	});
 </script>
 
@@ -1188,7 +1222,11 @@
 			searchplaceholder: {
 				type: String,
 				value: ""
-			}
+			},
+            //renderer - function called to display value
+            renderer: {
+                type: String
+            }            
 		}
 	});
 </script>
