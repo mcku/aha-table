@@ -139,6 +139,12 @@
 
             placeholder=""
             default=""></aha-column>
+        <aha-column name="title"
+            label="Renderer"
+            type="string"
+            renderer="customRenderer"
+            placeholder=""
+            default=""></aha-column>
 	</aha-table>
 	<BUTTON id="create" onclick="themed.create();">Create</BUTTON>
 
@@ -190,6 +196,9 @@
 		themed.addEventListener('after-move-up', function(e) {
 			table_log('moved one record up!');
 		});
+        themed.customRenderer = function(datum, row, col, ahaTable) {            
+            return datum.toUpperCase();
+        }
 	</script>
 </body>
 </html>
