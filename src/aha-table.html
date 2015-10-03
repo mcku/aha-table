@@ -309,16 +309,16 @@
 											checked$="{{getValue(row,column.name)}}" />
 									</template>
 								</div>
-                                <div
+								<div
 									on-click="click"
 									class$="{{getReaderClass(row, column.name)}}">
-                                    <template is="dom-if" if="{{!isEqual(column.type, 'html')}}">
-                                        <span>{{readContent(row, column)}}</span>
-                                    </template>
-                                    <template is="dom-if" if="{{isEqual(column.type, 'html')}}">
-                                        <aha-html-echo html="{{readContent(row, column)}}"></aha-html-echo>
-                                    </template>
-                                </div>
+									<template is="dom-if" if="{{!isEqual(column.type, 'html')}}">
+										<span>{{readContent(row, column)}}</span>
+									</template>
+									<template is="dom-if" if="{{isEqual(column.type, 'html')}}">
+										<aha-html-echo html="{{readContent(row, column)}}"></aha-html-echo>
+									</template>
+								</div>
 							</td>
 						</template>
 					</tr>
@@ -655,13 +655,13 @@
 			}
 			return classList.join(' ');
 		},
-		readContent: function(row, column) {            
+		readContent: function(row, column) {
 			var datum = row[column.name];
-            if (column.renderer !== null && column.renderer !== undefined
-                    && typeof column.renderer === 'string' && column.renderer.trim().length > 0) {
-                datum = this._render(column.renderer, datum, row, column);
-            }
-            if (datum === null || datum === undefined
+			if (column.renderer !== null && column.renderer !== undefined
+				&& typeof column.renderer === 'string' && column.renderer.trim().length > 0) {
+					datum = this._render(column.renderer, datum, row, column);
+			}
+			if (datum === null || datum === undefined
 				|| typeof datum === 'string' && datum.trim().length === 0) {
 					var options = column.options;
 					var blank = column.placeholder;
@@ -1108,35 +1108,35 @@
 			e.target.classList.toggle('nosearch');
 			this.$$('#filter').classList.toggle('hide');
 		},
-        _render: function(name, datum, row, col) {
-            var args = [ datum, row, col, this ];
-            var displayValue = this._invokeRenderer(datum, name, args);
-            if (displayValue !== null) {                
-                return displayValue;                
-            }
-            displayValue = this._invokeRenderer(row, name, args);
-            if (displayValue !== null) {                
-                return displayValue;                
-            }
-            
-            displayValue = this._invokeRenderer(this, name, args);
-            if (displayValue !== null) {                
-                return displayValue;                
-            }
-            
-            displayValue = this._invokeRenderer(this.domHost, name, args);
-            if (displayValue === null || displayValue === undefined) {
-                displayValue = datum;
-            }
-            return displayValue;
-        },
-        _invokeRenderer: function (b, name, args) {
-            var fn = b[name];
-            if (fn) {                
-                return fn.apply(this, args || Polymer.nar);
-            }
-            return null;
-        }
+		_render: function(name, datum, row, col) {
+			var args = [ datum, row, col, this ];
+			var displayValue = this._invokeRenderer(datum, name, args);
+			if (displayValue !== null) {
+				return displayValue;
+			}
+			displayValue = this._invokeRenderer(row, name, args);
+			if (displayValue !== null) {
+				return displayValue;
+			}
+
+			displayValue = this._invokeRenderer(this, name, args);
+			if (displayValue !== null) {
+				return displayValue;
+			}
+
+			displayValue = this._invokeRenderer(this.domHost, name, args);
+			if (displayValue === null || displayValue === undefined) {
+				displayValue = datum;
+			}
+			return displayValue;
+		},
+		_invokeRenderer: function (b, name, args) {
+		var fn = b[name];
+		if (fn) {
+			return fn.apply(this, args || Polymer.nar);
+		}
+		return null;
+		}
 
 	});
 </script>
@@ -1223,10 +1223,10 @@
 				type: String,
 				value: ""
 			},
-            //renderer - function called to display value
-            renderer: {
-                type: String
-            }            
+			//renderer - function called to display value
+			renderer: {
+				type: String
+			}
 		}
 	});
 </script>
@@ -1254,18 +1254,18 @@
  */
 -->
 <script>
-    Polymer({
-        is: "aha-html-echo",
-        properties: {
-            //column name
-            html: {
-                type: String,
-                value: "",
-                observer: "onHtmlChanged"
-            }
-        },
-        onHtmlChanged: function() {
-            this.innerHTML = this.html;
-        }
-    });
+	Polymer({
+		is: "aha-html-echo",
+		properties: {
+			//column name
+			html: {
+				type: String,
+				value: "",
+				observer: "onHtmlChanged"
+			}
+		},
+		onHtmlChanged: function() {
+		    this.innerHTML = this.html;
+		}
+	});
 </script>
