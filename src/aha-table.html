@@ -901,6 +901,7 @@
 		pagesizeChanged: function(newValue, oldValue){
 			this.pagesize = parseInt(this.pagesize);
 			this.refreshPagination();
+			this.currentpageChanged();
 		},
 		// call this when total count is no changed.
 		filterPage: function() {
